@@ -2,10 +2,39 @@
 
 ## Executive Summary
 
-This document provides a numbered, phased implementation plan for the AV Commons system in Drupal, based on:
+This document provides a numbered, phased implementation plan for the AV Commons system built on **Open Social**, based on:
 - **Specifications**: `avc specs.docx` (10 Epics)
 - **Prototype**: `avc.gs` (Google Apps Script) and `AV Commons App.xlsx`
 - **Existing Drupal Module**: `workflow_assignment` at `~/nwp/avc/html/modules/custom/workflow_assignment`
+- **Platform**: Open Social (Drupal distribution)
+
+---
+
+## Open Social Platform Overview
+
+Open Social provides these features **out-of-the-box**:
+
+| Feature | Open Social Component | Spec Coverage |
+|---------|----------------------|---------------|
+| User Profiles | `social_user`, `social_profile` | Epic 1: Members |
+| Groups | `social_group` (based on Group module) | Epic 2: Groups |
+| Group Membership | `social_group` with roles | Epic 2: Groups |
+| Activity Stream | `social_activity` | Dashboards |
+| Notifications | `social_notifications` (basic) | Epic 4: Notifications |
+| Topics/Discussions | `social_topic` | Epic 2: Forums |
+| Private Messaging | `social_private_message` | Communication |
+| Events | `social_event` | Future use |
+| Books | `social_book` | Documentation |
+| Search | `social_search` | Discovery |
+
+### What We Need to Build Custom:
+- **Workflow system** (existing module extends this)
+- **Asset management** (Projects/Documents/Resources)
+- **Advanced notifications** (digest system, per-group preferences)
+- **Member/Group dashboards** (workflow-specific views)
+- **Guild system** (junior/endorsed/mentor roles)
+- **Suggestions system**
+- **Courses integration**
 
 ---
 
@@ -52,20 +81,20 @@ Based on specs vs. current implementation:
 
 ## Phased Implementation Plan
 
-### PHASE 1: Core Member System
-**Goal**: Implement member registration, profiles, and dashboards
-**Estimated Effort**: Foundation layer - build first
+### PHASE 1: Core Member System (Open Social Extension)
+**Goal**: Extend Open Social profiles and create member dashboards
+**Platform**: Leverages `social_user`, `social_profile`
 
-#### 1.1 Member Registration Enhancement
+#### 1.1 Extend Open Social Profile
 ```
-1.1.1 Create custom registration form with fields:
-      - Full name (first/last)
-      - Email (username)
-      - Phone (optional)
-      - AV Level (Disciple/Aspirant/Sojourner/None)
-      - Skills multi-select (from taxonomy)
-      - Credentials text area
-      - Public domain acknowledgment checkbox
+1.1.1 Add custom fields to existing Open Social profile:
+      - AV Level (list: Disciple/Aspirant/Sojourner/None)
+      - Skills (entity reference to taxonomy, multi-value)
+      - Credentials (text_long)
+      - Public domain acknowledgment (boolean)
+      - Leadership scores (People/Task/Vision - 3 integer fields 1-10)
+      - Notification default (list: n/d/w/x)
+      - Notification last run (timestamp)
 
 1.1.2 Create Skills taxonomy vocabulary:
       - Computer skills
@@ -80,36 +109,37 @@ Based on specs vs. current implementation:
       - Theology
       - Creatives
 
-1.1.3 Create Member Profile content type or extend User entity:
-      - Profile fields from registration
-      - Background/credentials field
-      - Notification preferences (default setting)
-      - Leadership style scores (People/Task/Vision 1-10)
+1.1.3 Extend registration form (alter social_user_register):
+      - Add AV-specific fields to Open Social registration
+      - Include skills selection
+      - Public domain acknowledgment required
 ```
 
-#### 1.2 Member Dashboard
+#### 1.2 Member Dashboard (Custom Page)
 ```
-1.2.1 Create Member Dashboard view/page:
+1.2.1 Create Member Dashboard route/page:
+      - Integrate with Open Social user profile page
+      - OR create separate /user/{uid}/dashboard route
       - Personal editable section (text field)
-      - Notification settings display with edit capability
-      - Last notification run timestamp
+      - Notification settings with edit form
 
-1.2.2 Group membership display:
-      - List all groups (available and joined)
-      - Indicate membership status per group
-      - "Join" / "Leave" action links
-      - Per-group notification override setting
+1.2.2 Group membership display (from Open Social):
+      - Use social_group API to list user's groups
+      - Add per-group notification override setting
+      - Show membership status per group
+      - Link to group pages
 
-1.2.3 Personal asset worklist:
-      - Assets where member is in workflow
-      - Status indicator (waiting on me / future / completed)
-      - Color-coded current stage highlighting
+1.2.3 Personal asset worklist (workflow integration):
+      - Query workflow_assignment entities for user
+      - Show assets where user is in workflow
+      - Status: waiting on me (green) / future / completed
+      - Color-coded current stage
       - Link to each asset
 
 1.2.4 Group worklists aggregation:
-      - For each group member belongs to
-      - Assets assigned to that group
-      - "Take on" action for group tasks
+      - For each group user belongs to
+      - Query assets with group in workflow
+      - "Take on" action for unclaimed group tasks
 ```
 
 #### 1.3 Files to Create/Modify
@@ -124,64 +154,76 @@ modules/custom/avc_member/
 │   ├── Controller/
 │   │   └── MemberDashboardController.php
 │   ├── Form/
-│   │   ├── MemberRegistrationForm.php
-│   │   ├── MemberProfileForm.php
 │   │   └── NotificationPreferencesForm.php
 │   ├── Plugin/
 │   │   └── Block/
-│   │       └── MemberDashboardBlock.php
+│   │       ├── MemberWorklistBlock.php
+│   │       └── GroupWorklistsBlock.php
 │   └── Service/
-│       └── MemberService.php
+│       └── MemberWorklistService.php
 ├── templates/
 │   ├── member-dashboard.html.twig
 │   └── member-worklist.html.twig
 └── config/install/
     ├── taxonomy.vocabulary.member_skills.yml
-    └── field.storage.user.field_*.yml
+    ├── field.storage.profile.field_av_level.yml
+    ├── field.storage.profile.field_skills.yml
+    ├── field.storage.profile.field_credentials.yml
+    ├── field.storage.profile.field_notification_default.yml
+    └── field.field.profile.profile.field_*.yml
+
+Dependencies:
+  - social_user
+  - social_profile
+  - workflow_assignment
 ```
 
 ---
 
-### PHASE 2: Group System
-**Goal**: Implement group spaces, membership, and dashboards
+### PHASE 2: Group System (Open Social Extension)
+**Goal**: Extend Open Social groups with workflow dashboards
+**Platform**: Leverages `social_group` (built on Group module)
 **Dependency**: Phase 1 (Members)
 
-#### 2.1 Group Entity/Content Type
+#### 2.1 Extend Open Social Groups
 ```
-2.1.1 Create Group content type (or use Group module):
-      - Group name
-      - Description (editable section)
-      - Public/Private flag
-      - AV Website Group link (optional)
-      - Group dashboard document link
+2.1.1 Add custom fields to Open Social group types:
+      - AV Website Group link (link field, optional)
+      - Group notification default (list: p/n/d/w/x)
+      - Public/Private visibility (already exists in Open Social)
 
-2.1.2 Group membership system:
-      - Member-Group relationship entity
-      - Role field (Admin/Member)
-      - Notification preference override
-      - Join date
+2.1.2 Extend group membership (group_content):
+      - Add notification preference override field
+      - Guild level field (Junior/Endorsed/Mentor) - for Phase 5
+
+2.1.3 Open Social group types to use:
+      - Flexible group (default, configurable visibility)
+      - OR create custom "AVC Group" type
 ```
 
-#### 2.2 Group Dashboard
+#### 2.2 Group Dashboard (Workflow Tab/Block)
 ```
-2.2.1 Create Group Dashboard page:
-      - Editable description section
+2.2.1 Add Workflow Dashboard to group pages:
+      - Option A: Add as tab on group page
+      - Option B: Add as block on group page
+      - Editable description section (group description)
       - Last updated timestamp
 
-2.2.2 Member listing table:
-      - Member number
-      - Member name (linked to profile)
-      - Role indicator
+2.2.2 Member listing (from Open Social):
+      - Use social_group API for member list
+      - Add guild level indicator column
+      - Link to member profiles
 
 2.2.3 Group asset worklist:
-      - All assets with group in workflow
+      - Query assets where group is in workflow
       - Columns: ID, Name (linked), Type, Relevant Stage, Current Stage, Assigned To
       - Color highlighting for current stage matches
-      - "Take on" action button
+      - "Take on" action (assigns to current user)
+      - Filter: Pending / Completed / All
 
-2.2.4 Bulk update functions:
-      - Update all member dashboards
-      - Update group dashboard content
+2.2.4 Activity integration:
+      - Post to Open Social activity stream on workflow events
+      - "Asset X advanced to stage Y"
 ```
 
 #### 2.3 Files to Create/Modify
@@ -192,19 +234,28 @@ modules/custom/avc_group/
 ├── avc_group.install
 ├── avc_group.routing.yml
 ├── src/
-│   ├── Entity/
-│   │   └── GroupMembership.php
 │   ├── Controller/
-│   │   └── GroupDashboardController.php
-│   ├── Form/
-│   │   ├── GroupForm.php
-│   │   ├── JoinGroupForm.php
-│   │   └── GroupSettingsForm.php
+│   │   └── GroupWorkflowController.php
+│   ├── Plugin/
+│   │   └── Block/
+│   │       ├── GroupWorklistBlock.php
+│   │       └── GroupMemberListBlock.php
+│   ├── EventSubscriber/
+│   │   └── WorkflowActivitySubscriber.php
 │   └── Service/
-│       └── GroupService.php
-└── templates/
-    ├── group-dashboard.html.twig
-    └── group-member-list.html.twig
+│       └── GroupWorklistService.php
+├── templates/
+│   ├── group-worklist.html.twig
+│   └── group-workflow-tab.html.twig
+└── config/install/
+    ├── field.storage.group.field_av_website_link.yml
+    ├── field.storage.group_content.field_notification_override.yml
+    └── field.storage.group_content.field_guild_level.yml
+
+Dependencies:
+  - social_group
+  - workflow_assignment
+  - avc_member
 ```
 
 ---
@@ -478,32 +529,44 @@ modules/custom/avc_guild/
 
 ---
 
-### PHASE 6: Group Forums
-**Goal**: Implement discussion forums within groups
+### PHASE 6: Group Forums (Open Social Topics)
+**Goal**: Leverage Open Social Topics for group discussions
+**Platform**: Uses `social_topic` (already built-in)
 **Dependency**: Phase 2
 
-#### 6.1 Forum Implementation
+#### 6.1 Open Social Topics (Already Available)
 ```
-6.1.1 Options evaluation:
-      - Use Drupal Forum module
-      - Use Advanced Forum module
-      - Custom implementation with Comment module
+6.1.1 Open Social provides:
+      - Topics content type with discussions
+      - Topics can be posted in groups
+      - Threaded comments/replies
+      - Activity stream integration
+      - Basic notifications
 
-6.1.2 Forum features:
-      - Threaded discussions per group
-      - Email notifications to group members
-      - Reply-by-email functionality (optional)
+6.1.2 Minimal customization needed:
+      - Ensure Topics enabled for AVC groups
+      - Configure notification settings
+      - Style to match AVC design
 ```
 
-#### 6.2 Email Integration
+#### 6.2 Email Integration Enhancement
 ```
-6.2.1 Outgoing:
-      - New post notification to group
+6.2.1 Outgoing (extend social_notifications):
+      - New topic notification to group
       - Reply notification
+      - Integrate with AVC notification preferences (Phase 4)
 
-6.2.2 Incoming (advanced):
-      - Inbound email parsing
+6.2.2 Incoming (optional future enhancement):
+      - Inbound email parsing with Mailhandler module
       - Auto-post from email replies
+```
+
+#### 6.3 Files to Create/Modify
+```
+Minimal - mostly configuration:
+- Enable social_topic for group types
+- Configure views for topic display
+- Add notification hooks in avc_notification module
 ```
 
 ---
@@ -651,27 +714,60 @@ modules/custom/avc_guild/
 
 ---
 
-## Integration with Existing workflow_assignment Module
+## Integration with Existing Modules
+
+### workflow_assignment Module Integration
 
 The existing `workflow_assignment` module provides a solid foundation. Integration points:
 
-### Reuse
+#### Reuse
 - WorkflowList entity → Extend for asset workflow steps
 - WorkflowAssignment entity → Use for step instances
 - Notification service → Extend for advanced notification preferences
 - History logging → Extend for all asset changes
 - UI components → Reuse color-coding, drag-drop, inline editing
 
-### Extend
+#### Extend
 - Add member/group dashboard views consuming workflow data
 - Add notification preference fields to users
 - Add processing logic for workflow advancement
 - Add validation logic for workflow completeness
 
-### Modify
+#### Modify
 - Update workflow tab to show member dashboard link
 - Add "Check" and "Process" actions to workflow tab
 - Integrate group-based assignment taking
+
+### Open Social Integration Points
+
+| Open Social Module | AVC Integration |
+|-------------------|-----------------|
+| `social_user` | Extend user registration, add AV-specific fields |
+| `social_profile` | Add skills, credentials, notification preferences |
+| `social_group` | Add workflow dashboard, extend membership with guild levels |
+| `social_topic` | Use for group forums (minimal customization) |
+| `social_activity` | Post workflow events to activity stream |
+| `social_notifications` | Extend with digest preferences (n/d/w/x) |
+| `social_search` | Index assets for search |
+
+### Open Social Hooks to Implement
+
+```php
+// In avc_member.module
+function avc_member_form_social_user_register_form_alter(&$form, FormStateInterface $form_state) {
+  // Add AV-specific registration fields
+}
+
+// In avc_group.module
+function avc_group_social_group_view_alter(&$build, GroupInterface $group) {
+  // Add workflow dashboard tab/block to group pages
+}
+
+// In avc_notification.module
+function avc_notification_social_notifications_alter(&$notifications, AccountInterface $account) {
+  // Filter/aggregate based on user preferences
+}
+```
 
 ---
 
@@ -693,18 +789,38 @@ If migrating existing data from the Google Sheets prototype:
 ## Module Dependency Tree
 
 ```
-avc_core (shared services, base fields)
-├── avc_member (Phase 1)
-│   └── avc_notification (Phase 4)
-├── avc_group (Phase 2)
-│   ├── avc_guild (Phase 5)
-│   └── avc_forum (Phase 6)
-├── avc_asset (Phase 3)
-│   ├── avc_versioning (Phase 7)
-│   ├── avc_flagging (Phase 8)
-│   └── avc_suggestion (Phase 10)
-├── avc_course (Phase 9)
-└── workflow_assignment (existing - integrate)
+Open Social Distribution (base platform)
+├── social_user ─────────────┐
+├── social_profile ──────────┼── avc_member (Phase 1)
+├── social_group ────────────┼── avc_group (Phase 2)
+├── social_topic ────────────┼── (Phase 6 - minimal config)
+├── social_activity ─────────┤
+├── social_notifications ────┴── avc_notification (Phase 4)
+│
+└── Custom AVC Modules:
+    │
+    ├── avc_core (shared services, base fields)
+    │   └── depends on: workflow_assignment
+    │
+    ├── avc_member (Phase 1)
+    │   ├── depends on: social_user, social_profile, workflow_assignment
+    │   └── avc_notification (Phase 4)
+    │       └── depends on: social_notifications
+    │
+    ├── avc_group (Phase 2)
+    │   ├── depends on: social_group, workflow_assignment, avc_member
+    │   └── avc_guild (Phase 5)
+    │
+    ├── avc_asset (Phase 3)
+    │   ├── depends on: workflow_assignment, avc_member, avc_group
+    │   ├── avc_versioning (Phase 7)
+    │   ├── avc_flagging (Phase 8)
+    │   └── avc_suggestion (Phase 10)
+    │
+    ├── avc_course (Phase 9)
+    │   └── depends on: avc_guild, (H5P or Moodle integration)
+    │
+    └── workflow_assignment (existing - core dependency)
 ```
 
 ---
@@ -713,11 +829,28 @@ avc_core (shared services, base fields)
 
 1. **Review this plan** with stakeholders
 2. **Prioritize** based on immediate needs
-3. **Set up development environment** with Open Social/Drupal 10+
-4. **Begin Phase 1** implementation
+3. **Set up development environment**:
+   - Open Social distribution (latest stable)
+   - Ensure workflow_assignment module is compatible
+   - Install development tools (ddev, lando, or similar)
+4. **Begin Phase 1** implementation:
+   - Extend Open Social profile with AV-specific fields
+   - Create member dashboard with worklist
 5. **Iterate** through phases with testing at each stage
 
 ---
 
+## Open Social Version Requirements
+
+| Component | Minimum Version | Notes |
+|-----------|----------------|-------|
+| Open Social | 12.x or later | Drupal 10 compatible |
+| Drupal Core | 10.2+ | Required by Open Social 12.x |
+| PHP | 8.1+ | Required by Drupal 10 |
+| Group module | 3.x | Included with Open Social |
+
+---
+
 *Document generated: 2026-01-02*
+*Platform: Open Social Distribution*
 *Based on: avc specs.docx, avc.gs prototype, workflow_assignment module analysis*
