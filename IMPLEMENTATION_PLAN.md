@@ -12,29 +12,49 @@ This document provides a numbered, phased implementation plan for the AV Commons
 
 ## Open Social Platform Overview
 
-Open Social provides these features **out-of-the-box**:
+### Hybrid Approach: Open Social + Custom Extensions
 
-| Feature | Open Social Component | Spec Coverage |
-|---------|----------------------|---------------|
-| User Profiles | `social_user`, `social_profile` | Epic 1: Members |
-| Groups | `social_group` (based on Group module) | Epic 2: Groups |
-| Group Membership | `social_group` with roles | Epic 2: Groups |
-| Activity Stream | `social_activity` | Dashboards |
-| Notifications | `social_notifications` (basic) | Epic 4: Notifications |
-| Topics/Discussions | `social_topic` | Epic 2: Forums |
-| Private Messaging | `social_private_message` | Communication |
-| Events | `social_event` | Future use |
-| Books | `social_book` | Documentation |
-| Search | `social_search` | Discovery |
+This implementation uses Open Social as the base platform, extending it with:
+- Custom **Guild** group type (for skill-based groups with mentorship)
+- Custom **Asset** content types (Projects/Documents/Resources)
+- Custom **Workflow** integration (leveraging existing workflow_assignment module)
 
-### What We Need to Build Custom:
-- **Workflow system** (existing module extends this)
-- **Asset management** (Projects/Documents/Resources)
-- **Advanced notifications** (digest system, per-group preferences)
-- **Member/Group dashboards** (workflow-specific views)
-- **Guild system** (junior/endorsed/mentor roles)
-- **Suggestions system**
-- **Courses integration**
+### Open Social Out-of-the-Box Features
+
+| Feature | Open Social Component | Spec Coverage | Use As-Is? |
+|---------|----------------------|---------------|------------|
+| User Profiles | `social_user`, `social_profile` | Epic 1: Members | Extend |
+| Groups | `social_group` (Group module) | Epic 2: Groups | Extend |
+| Group Membership | `social_group` with roles | Epic 2: Groups | Extend |
+| Activity Stream | `social_activity` | Dashboards | Yes |
+| Notifications | `social_notifications` | Epic 4: Notifications | Extend |
+| Topics/Discussions | `social_topic` | Epic 2: Forums | Yes |
+| Private Messaging | `social_private_message` | Communication | Yes |
+| Events | `social_event` | Future use | Yes |
+| Books | `social_book` | Documentation | Yes |
+| Search | `social_search` | Discovery | Yes |
+
+### Group Type Strategy
+
+| Group Type | Source | Purpose | Roles |
+|------------|--------|---------|-------|
+| **Flexible Group** | Open Social | Standard teams (Theology, Tech, etc.) | Admin, Member |
+| **Guild** | Custom | Skill-based groups with mentorship | Admin, Mentor, Endorsed, Junior |
+
+### What We Build Custom
+
+| Component | Purpose | Complexity |
+|-----------|---------|------------|
+| **Guild group type** | Skill-based groups with scoring/mentorship | Medium |
+| **Asset content types** | Projects/Documents/Resources | Medium |
+| **Workflow integration** | Check/Process/Advance logic | Medium (exists) |
+| **Worklist dashboards** | Member & group task views | Medium |
+| **Notification digests** | n/d/w/x preference system | Medium |
+| **Scoring system** | Guild member scoring | Low-Medium |
+| **Endorsement system** | Skill endorsements | Low |
+| **Ratification workflow** | Junior work approval | Low-Medium |
+| **Suggestions system** | Community suggestions | Low |
+| **Courses integration** | H5P/Moodle | Low (future) |
 
 ---
 
@@ -459,72 +479,168 @@ modules/custom/avc_notification/
 
 ---
 
-### PHASE 5: Guild System (Skills & Ratings)
-**Goal**: Implement junior/endorsed/mentor roles with skill tracking
+### PHASE 5: Guild System (Custom Group Type in Open Social)
+**Goal**: Create Guild group type with mentorship, scoring, and skill tracking
+**Platform**: Custom group type extending Open Social's Group module
 **Dependency**: Phase 2
 
-#### 5.1 Guild Roles
+#### 5.1 Create Guild Group Type
 ```
-5.1.1 Member level per group:
-      - Junior: can take tasks, work needs ratification
-      - Endorsed: can complete work independently
-      - Mentor: can check/ratify junior work
+5.1.1 Define Guild group type in Open Social:
+      /admin/group/types/add
+      - Machine name: guild
+      - Label: Guild
+      - Description: Skill-based group with mentorship and scoring
 
-5.1.2 Role assignment:
-      - Admin can promote/demote
-      - Automatic promotion based on score threshold
-```
+5.1.2 Guild-specific fields:
+      - field_guild_skills (taxonomy reference, multi-value)
+      - field_scoring_enabled (boolean)
+      - field_promotion_threshold (integer)
+      - field_ratification_required (boolean)
 
-#### 5.2 Skills & Scoring
-```
-5.2.1 Skills taxonomy per guild:
-      - Guild-specific skill terms
-      - E.g., Theology: Christology, Morality, Liturgy, Scripture
-      - E.g., Coding: Python, Drupal, Flask
+5.1.3 Create custom group roles:
+      - guild-admin: Full administration
+      - guild-mentor: Can ratify work, train juniors
+      - guild-endorsed: Independent work capability
+      - guild-junior: Needs ratification (default for new members)
 
-5.2.2 Scoring system:
-      - Points per completed action
-      - Points per ratified action (weighted higher)
-      - Skill-based scoring
-      - Cumulative score display
-
-5.2.3 Endorsement system:
-      - Members can endorse others' skills
-      - Threshold for promotion
-      - Levels within skills (optional)
+5.1.4 Configure guild permissions:
+      - Junior: create content, take tasks
+      - Endorsed: create content, take tasks, no ratification needed
+      - Mentor: all above + ratify junior work + promote members
+      - Admin: all above + manage guild settings
 ```
 
-#### 5.3 Ratification Workflow
+#### 5.2 Skills & Scoring System
 ```
-5.3.1 Junior task completion:
-      - Mark task as "pending ratification"
-      - Notify available mentors
-      - Assign mentor to review
+5.2.1 Skills taxonomy (per guild):
+      - Create child vocabularies per guild OR
+      - Use taxonomy with guild reference field
+      - Examples:
+        - Theology Guild: Christology, Morality, Liturgy, Scripture
+        - Coding Guild: Python, Drupal, Flask, JavaScript
+        - Writing Guild: Editing, Proofreading, Spiritual Writing
 
-5.3.2 Mentor review:
-      - Approve: task completed, junior gets points
-      - Request changes: back to junior
-      - Mentor name recorded in log
+5.2.2 Scoring entity (avc_guild_score):
+      - User reference
+      - Guild reference
+      - Skill reference (optional, for skill-specific scores)
+      - Points (integer)
+      - Action type (task_completed, ratification_given, endorsement_received)
+      - Timestamp
+
+5.2.3 Score calculation service:
+      - Points per completed action: +10
+      - Points per ratified action: +15 (bonus)
+      - Points for giving ratification: +5
+      - Points for endorsement received: +20
+      - Display cumulative score on guild member profile
+
+5.2.4 Automatic promotion:
+      - Check score against guild's promotion_threshold
+      - Queue promotion for admin approval OR
+      - Auto-promote if enabled
 ```
 
-#### 5.4 Files to Create/Modify
+#### 5.3 Endorsement System
+```
+5.3.1 Endorsement entity (avc_skill_endorsement):
+      - Endorser (user reference)
+      - Endorsed user (user reference)
+      - Skill (taxonomy reference)
+      - Guild (group reference)
+      - Comment (text)
+      - Timestamp
+
+5.3.2 Endorsement rules:
+      - Only Endorsed/Mentor can endorse others
+      - Cannot endorse yourself
+      - One endorsement per skill per endorser
+      - Display endorsement count on skills
+```
+
+#### 5.4 Ratification Workflow
+```
+5.4.1 Junior task completion:
+      - Junior completes workflow step
+      - Status set to "pending_ratification"
+      - Notification sent to guild mentors
+      - Task appears in mentor's ratification queue
+
+5.4.2 Ratification entity (avc_ratification):
+      - Task/Asset reference
+      - Junior user reference
+      - Mentor user reference (assigned or claimed)
+      - Status (pending, approved, changes_requested)
+      - Feedback (text)
+      - Timestamp
+
+5.4.3 Mentor review actions:
+      - Approve:
+        - Task marked complete
+        - Junior receives points
+        - Mentor receives points
+        - Activity posted to guild stream
+      - Request changes:
+        - Task returned to junior
+        - Feedback provided
+        - No points awarded yet
+```
+
+#### 5.5 Files to Create/Modify
 ```
 modules/custom/avc_guild/
 ├── avc_guild.info.yml
 ├── avc_guild.module
+├── avc_guild.install
+├── avc_guild.routing.yml
+├── avc_guild.permissions.yml
 ├── src/
 │   ├── Entity/
-│   │   ├── GuildMembership.php
-│   │   └── SkillEndorsement.php
+│   │   ├── GuildScore.php
+│   │   ├── SkillEndorsement.php
+│   │   └── Ratification.php
+│   ├── Plugin/
+│   │   └── Group/
+│   │       └── GroupType/
+│   │           └── Guild.php
 │   ├── Service/
 │   │   ├── GuildService.php
 │   │   ├── ScoringService.php
+│   │   ├── EndorsementService.php
 │   │   └── RatificationService.php
-│   └── Form/
-│       ├── RatificationForm.php
-│       └── EndorseSkillForm.php
-└── templates/
-    └── guild-member-profile.html.twig
+│   ├── Form/
+│   │   ├── RatificationForm.php
+│   │   ├── EndorseSkillForm.php
+│   │   └── GuildSettingsForm.php
+│   ├── Controller/
+│   │   ├── GuildDashboardController.php
+│   │   └── RatificationQueueController.php
+│   └── Plugin/
+│       └── Block/
+│           ├── GuildLeaderboardBlock.php
+│           ├── RatificationQueueBlock.php
+│           └── MemberSkillsBlock.php
+├── templates/
+│   ├── guild-dashboard.html.twig
+│   ├── guild-member-profile.html.twig
+│   ├── ratification-queue.html.twig
+│   └── skill-endorsements.html.twig
+└── config/install/
+    ├── group.type.guild.yml
+    ├── group.role.guild-junior.yml
+    ├── group.role.guild-endorsed.yml
+    ├── group.role.guild-mentor.yml
+    ├── group.role.guild-admin.yml
+    ├── field.storage.group.field_guild_skills.yml
+    ├── field.storage.group.field_scoring_enabled.yml
+    └── field.storage.group.field_promotion_threshold.yml
+
+Dependencies:
+  - social_group
+  - workflow_assignment
+  - avc_member
+  - avc_group
 ```
 
 ---
@@ -699,18 +815,34 @@ Minimal - mostly configuration:
 
 ## Implementation Priority Matrix
 
-| Phase | Priority | Complexity | Dependencies | Recommended Order |
-|-------|----------|------------|--------------|-------------------|
-| 1: Members | High | Medium | None | 1st |
-| 2: Groups | High | Medium | Phase 1 | 2nd |
-| 3: Assets | High | High | Phase 1, 2 | 3rd |
-| 4: Notifications | High | High | Phase 1, 2, 3 | 4th |
-| 5: Guilds | Medium | Medium | Phase 2 | 5th |
-| 6: Forums | Medium | Low | Phase 2 | 6th |
-| 7: Versioning | Medium | Low | Phase 3 | 7th |
-| 8: Flagging | Low | Low | Phase 3 | 8th |
-| 9: Courses | Low | High | Phase 5 | 9th |
-| 10: Suggestions | Low | Medium | Phase 3 | 10th |
+| Phase | Priority | Complexity | Open Social Leverage | Recommended Order |
+|-------|----------|------------|---------------------|-------------------|
+| 1: Members | High | Medium | Extend social_profile | 1st |
+| 2: Groups | High | Medium | Extend social_group | 2nd |
+| 3: Assets | High | High | Custom (workflow focus) | 3rd |
+| 4: Notifications | High | Medium | Extend social_notifications | 4th |
+| 5: Guilds | High | Medium | Custom group type | 5th |
+| 6: Forums | Low | Minimal | Use social_topic as-is | 6th |
+| 7: Versioning | Medium | Low | Drupal revisions | 7th |
+| 8: Flagging | Low | Low | Custom | 8th |
+| 9: Courses | Low | High | H5P/Moodle integration | 9th |
+| 10: Suggestions | Low | Medium | Custom | 10th |
+
+### Open Social Feature Utilization
+
+| Open Social Feature | AVC Usage | Customization Level |
+|--------------------|-----------|---------------------|
+| User registration | Use | Extend with AV fields |
+| Profiles | Use | Extend with skills, credentials |
+| Flexible Groups | Use | Add workflow dashboard |
+| **Guild (custom)** | Create | New group type |
+| Topics/Forums | Use | As-is (minimal config) |
+| Activity Stream | Use | Add workflow events |
+| Notifications | Use | Extend with digest system |
+| Private Messages | Use | As-is |
+| Events | Use | As-is (future) |
+| Books | Use | As-is (documentation) |
+| Search | Use | Index assets |
 
 ---
 
