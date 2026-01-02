@@ -1,0 +1,25 @@
+administer avc assets:
+  title: 'Administer AVC Assets'
+  description: 'Full administrative access to all AVC assets.'
+  restrict access: true
+
+create avc assets:
+  title: 'Create AVC Assets'
+  description: 'Create new projects, documents, and resources.'
+
+edit own avc assets:
+  title: 'Edit own AVC Assets'
+  description: 'Edit assets created by the user.'
+
+edit any avc assets:
+  title: 'Edit any AVC Assets'
+  description: 'Edit any asset regardless of author.'
+
+delete own avc assets:
+  title: 'Delete own AVC Assets'
+  description: 'Delete assets created by the user.'
+
+delete any avc assets:
+  title: 'Delete any AVC Assets'
+  description: 'Delete any asset regardless of author.'
+  restrict access: true

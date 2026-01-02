@@ -1,0 +1,19 @@
+services:
+  avc_asset.manager:
+    class: Drupal\avc_asset\Service\AssetManager
+    arguments:
+      - '@entity_type.manager'
+      - '@current_user'
+      - '@avc_asset.workflow_processor'
+
+  avc_asset.workflow_processor:
+    class: Drupal\avc_asset\Service\WorkflowProcessor
+    arguments:
+      - '@entity_type.manager'
+      - '@event_dispatcher'
+      - '@logger.factory'
+
+  avc_asset.workflow_checker:
+    class: Drupal\avc_asset\Service\WorkflowChecker
+    arguments:
+      - '@entity_type.manager'

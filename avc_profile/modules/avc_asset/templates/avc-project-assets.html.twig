@@ -1,0 +1,64 @@
+{#
+/**
+ * @file
+ * Template for project contained assets table.
+ *
+ * Variables:
+ * - project: The project node entity.
+ * - assets: Array of contained asset nodes.
+ */
+#}
+<div class="avc-project-assets">
+  <h4>{{ 'Project Assets'|t }}</h4>
+
+  {% if assets %}
+    <table class="avc-worklist-table project-assets-table">
+      <thead>
+        <tr>
+          <th>{{ 'ID'|t }}</th>
+          <th>{{ 'Title'|t }}</th>
+          <th>{{ 'Type'|t }}</th>
+          <th>{{ 'Status'|t }}</th>
+          <th>{{ 'Actions'|t }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for asset in assets %}
+          <tr class="asset-item">
+            <td class="item-id">
+              {% if asset.field_asset_number.value %}
+                {{ asset.field_asset_number.value }}
+              {% else %}
+                {{ asset.id }}
+              {% endif %}
+            </td>
+            <td class="item-title">
+              <a href="{{ path('entity.node.canonical', {node: asset.id}) }}">
+                {{ asset.label }}
+              </a>
+            </td>
+            <td class="item-type">
+              {{ asset.bundle|replace({'avc_': ''})|capitalize }}
+            </td>
+            <td class="item-status">
+              {% set status = asset.field_process_status.value ?? 'draft' %}
+              <span class="status-badge status-{{ status }}">
+                {{ status|capitalize }}
+              </span>
+            </td>
+            <td class="item-actions">
+              <a href="{{ path('entity.node.canonical', {node: asset.id}) }}">{{ 'View'|t }}</a>
+              | <a href="{{ path('entity.node.edit_form', {node: asset.id}) }}">{{ 'Edit'|t }}</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <p class="assets-count">
+      {{ 'Total: @count assets'|t({'@count': assets|length}) }}
+    </p>
+  {% else %}
+    <p class="empty-message">{{ 'No assets in this project yet.'|t }}</p>
+  {% endif %}
+</div>

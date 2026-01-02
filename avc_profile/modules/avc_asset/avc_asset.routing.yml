@@ -1,0 +1,61 @@
+# Routes for AVC Asset module.
+
+avc_asset.admin:
+  path: '/admin/content/assets'
+  defaults:
+    _controller: '\Drupal\avc_asset\Controller\AssetController::adminList'
+    _title: 'Asset Management'
+  requirements:
+    _permission: 'administer avc assets'
+
+avc_asset.check:
+  path: '/node/{node}/workflow/check'
+  defaults:
+    _controller: '\Drupal\avc_asset\Controller\AssetController::checkAsset'
+    _title: 'Check Workflow'
+  requirements:
+    _permission: 'view workflow list assignments'
+    node: \d+
+  options:
+    parameters:
+      node:
+        type: entity:node
+
+avc_asset.process:
+  path: '/node/{node}/workflow/process'
+  defaults:
+    _controller: '\Drupal\avc_asset\Controller\AssetController::processAsset'
+    _title: 'Process Workflow'
+  requirements:
+    _permission: 'assign workflow lists to content'
+    node: \d+
+  options:
+    parameters:
+      node:
+        type: entity:node
+
+avc_asset.advance:
+  path: '/node/{node}/workflow/advance'
+  defaults:
+    _controller: '\Drupal\avc_asset\Controller\AssetController::advanceWorkflow'
+    _title: 'Advance Workflow'
+  requirements:
+    _permission: 'assign workflow lists to content'
+    node: \d+
+  options:
+    parameters:
+      node:
+        type: entity:node
+
+avc_asset.resend:
+  path: '/node/{node}/workflow/resend'
+  defaults:
+    _controller: '\Drupal\avc_asset\Controller\AssetController::resendNotification'
+    _title: 'Resend Notification'
+  requirements:
+    _permission: 'assign workflow lists to content'
+    node: \d+
+  options:
+    parameters:
+      node:
+        type: entity:node
