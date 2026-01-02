@@ -1,0 +1,9 @@
+name: 'AVC Guild'
+type: module
+description: 'Guild group type with mentorship, scoring, and endorsements for AV Commons'
+package: 'AV Commons'
+core_version_requirement: ^10
+dependencies:
+  - avc_core:avc_core
+  - avc_group:avc_group
+  - social_group:social_group

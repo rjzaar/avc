@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the AV Commons profile.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function avc_profile_install() {
+  // Set default theme.
+  \Drupal::configFactory()
+    ->getEditable('system.theme')
+    ->set('default', 'socialbase')
+    ->save();
+
+  // Set front page.
+  \Drupal::configFactory()
+    ->getEditable('system.site')
+    ->set('page.front', '/stream')
+    ->set('name', 'AV Commons')
+    ->save();
+}

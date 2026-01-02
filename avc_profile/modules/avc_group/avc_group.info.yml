@@ -1,0 +1,10 @@
+name: 'AVC Group'
+type: module
+description: 'Group workflow dashboards for AV Commons'
+package: 'AV Commons'
+core_version_requirement: ^10
+dependencies:
+  - avc_core:avc_core
+  - avc_member:avc_member
+  - social_group:social_group
+  - workflow_assignment:workflow_assignment

@@ -1,0 +1,17 @@
+{
+    "name": "rjzaar/avc_profile",
+    "type": "drupal-profile",
+    "description": "AV Commons - Collaborative workflow platform built on Open Social",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "goalgorilla/open_social": "^12.4",
+        "rjzaar/workflow_assignment": "^1.0 || dev-main"
+    },
+    "extra": {
+        "drupal-scaffold": {
+            "locations": {
+                "web-root": "html/"
+            }
+        }
+    }
+}

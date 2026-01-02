@@ -1,0 +1,9 @@
+name: 'AVC Core'
+type: module
+description: 'Core functionality and shared services for AV Commons'
+package: 'AV Commons'
+core_version_requirement: ^10
+dependencies:
+  - drupal:user
+  - drupal:node
+  - workflow_assignment:workflow_assignment

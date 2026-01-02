@@ -1,0 +1,29 @@
+avc_member.dashboard:
+  path: '/user/{user}/dashboard'
+  defaults:
+    _controller: '\Drupal\avc_member\Controller\MemberDashboardController::dashboard'
+    _title: 'My Dashboard'
+  requirements:
+    _permission: 'access content'
+    user: \d+
+  options:
+    parameters:
+      user:
+        type: entity:user
+
+avc_member.settings:
+  path: '/admin/config/avc/member'
+  defaults:
+    _form: '\Drupal\avc_member\Form\MemberSettingsForm'
+    _title: 'AVC Member Settings'
+  requirements:
+    _permission: 'administer site configuration'
+
+avc_member.notification_preferences:
+  path: '/user/{user}/notification-preferences'
+  defaults:
+    _form: '\Drupal\avc_member\Form\NotificationPreferencesForm'
+    _title: 'Notification Preferences'
+  requirements:
+    _permission: 'access content'
+    user: \d+
