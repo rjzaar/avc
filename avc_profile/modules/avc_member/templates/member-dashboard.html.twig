@@ -27,7 +27,7 @@
       {% else %}
         {{ 'None'|t }}
       {% endif %}
-      <a href="{{ path('avc_member.notification_preferences', {'user': user.id}) }}" class="edit-link">{{ 'Edit'|t }}</a>
+      <a href="{{ path('avc_member.notification_preferences', {'user': user.id()}) }}" class="edit-link">{{ 'Edit'|t }}</a>
     </p>
   </div>
 
@@ -38,17 +38,16 @@
       <table class="avc-worklist-table">
         <thead>
           <tr>
-            <th>{{ 'Asset'|t }}</th>
+            <th>{{ 'Task'|t }}</th>
             <th>{{ 'Description'|t }}</th>
             <th>{{ 'Status'|t }}</th>
-            <th>{{ 'Actions'|t }}</th>
           </tr>
         </thead>
         <tbody>
           {% for item in worklist %}
             <tr class="worklist-item status-{{ item.status }}">
-              <td>{{ item.assignment.label }}</td>
-              <td>{{ item.assignment.description.value|striptags|slice(0, 100) }}...</td>
+              <td>{{ item.label }}</td>
+              <td>{{ item.description|default('-') }}</td>
               <td>
                 <span class="status-badge status-{{ item.status }}">
                   {% if item.status == 'current' %}
@@ -59,9 +58,6 @@
                     {{ 'Completed'|t }}
                   {% endif %}
                 </span>
-              </td>
-              <td>
-                <a href="{{ path('entity.workflow_assignment.canonical', {'workflow_assignment': item.assignment.id}) }}">{{ 'View'|t }}</a>
               </td>
             </tr>
           {% endfor %}
@@ -78,27 +74,23 @@
       <h3>{{ 'Group Tasks'|t }}</h3>
       {% for group_id, group_data in group_worklists %}
         <div class="group-worklist">
-          <h4>{{ group_data.group.label }}</h4>
+          <h4>{{ group_data.group_label }}</h4>
           {% if group_data.items %}
             <table class="avc-worklist-table">
               <thead>
                 <tr>
-                  <th>{{ 'Asset'|t }}</th>
+                  <th>{{ 'Task'|t }}</th>
                   <th>{{ 'Status'|t }}</th>
-                  <th>{{ 'Actions'|t }}</th>
                 </tr>
               </thead>
               <tbody>
                 {% for item in group_data.items %}
                   <tr class="worklist-item status-{{ item.status }}">
-                    <td>{{ item.assignment.label }}</td>
+                    <td>{{ item.label }}</td>
                     <td>
                       <span class="status-badge status-{{ item.status }}">
                         {{ item.status|capitalize }}
                       </span>
-                    </td>
-                    <td>
-                      <a href="{{ path('entity.workflow_assignment.canonical', {'workflow_assignment': item.assignment.id}) }}">{{ 'View'|t }}</a>
                     </td>
                   </tr>
                 {% endfor %}

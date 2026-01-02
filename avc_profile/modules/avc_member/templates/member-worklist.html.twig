@@ -13,7 +13,7 @@
     <ul class="worklist-items">
       {% for item in items %}
         <li class="worklist-item status-{{ item.status }}">
-          <span class="item-title">{{ item.assignment.label }}</span>
+          <span class="item-title">{{ item.label }}</span>
           <span class="status-badge status-{{ item.status }}">
             {% if item.status == 'current' %}
               {{ 'Action needed'|t }}

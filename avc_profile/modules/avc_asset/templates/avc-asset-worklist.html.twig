@@ -30,20 +30,16 @@
         {% for item in assets %}
           <tr class="worklist-item status-{{ item.status }}">
             <td class="item-id">
-              {% if item.node.field_asset_number.value %}
-                {{ item.node.field_asset_number.value }}
-              {% else %}
-                {{ item.node.id }}
-              {% endif %}
+              {{ item.asset_number|default(item.node_id) }}
             </td>
             <td class="item-title">
-              <a href="{{ path('entity.node.canonical', {node: item.node.id}) }}">
-                {{ item.node.label }}
+              <a href="{{ path('entity.node.canonical', {node: item.node_id}) }}">
+                {{ item.title }}
               </a>
             </td>
             {% if show_type %}
               <td class="item-type">
-                {{ item.node.bundle|replace({'avc_': ''})|capitalize }}
+                {{ item.type|default('-') }}
               </td>
             {% endif %}
             {% if show_status %}
@@ -58,15 +54,11 @@
               </td>
             {% endif %}
             <td class="item-stage">
-              {% if item.assignment %}
-                {{ item.assignment.label }}
-              {% else %}
-                -
-              {% endif %}
+              {{ item.stage|default('-') }}
             </td>
             <td class="item-actions">
-              <a href="{{ path('entity.node.canonical', {node: item.node.id}) }}">{{ 'View'|t }}</a>
-              | <a href="{{ path('avc_asset.check', {node: item.node.id}) }}">{{ 'Workflow'|t }}</a>
+              <a href="{{ path('entity.node.canonical', {node: item.node_id}) }}">{{ 'View'|t }}</a>
+              | <a href="{{ path('avc_asset.check', {node: item.node_id}) }}">{{ 'Workflow'|t }}</a>
             </td>
           </tr>
         {% endfor %}

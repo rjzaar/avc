@@ -56,7 +56,9 @@ class MemberWorklistService {
         $assignments = $storage->loadMultiple($ids);
         foreach ($assignments as $assignment) {
           $worklist[] = [
-            'assignment' => $assignment,
+            'id' => $assignment->id(),
+            'label' => $assignment->label(),
+            'description' => $assignment->hasField('description') ? strip_tags($assignment->get('description')->value ?? '') : '',
             'status' => $this->determineWorklistStatus($assignment, $user),
           ];
         }
@@ -90,7 +92,8 @@ class MemberWorklistService {
 
         foreach ($groups as $group) {
           $group_worklists[$group->id()] = [
-            'group' => $group,
+            'group_id' => $group->id(),
+            'group_label' => $group->label(),
             'items' => $this->getGroupWorklist($group),
           ];
         }
@@ -126,9 +129,11 @@ class MemberWorklistService {
       if (!empty($ids)) {
         $assignments = $storage->loadMultiple($ids);
         foreach ($assignments as $assignment) {
+          $completion = $assignment->get('completion')->value ?? 'proposed';
           $worklist[] = [
-            'assignment' => $assignment,
-            'status' => $assignment->get('completion')->value ?? 'proposed',
+            'id' => $assignment->id(),
+            'label' => $assignment->label(),
+            'status' => $completion === 'accepted' ? 'current' : ($completion === 'completed' ? 'completed' : 'upcoming'),
           ];
         }
       }
