@@ -41,6 +41,12 @@ class WorkflowTaskForm extends ContentEntityForm {
    */
   public function save(array $form, FormStateInterface $form_state) {
     $entity = $this->entity;
+
+    // Set the owner to current user if not set (new entities).
+    if ($entity->isNew() && !$entity->getOwnerId()) {
+      $entity->setOwnerId(\Drupal::currentUser()->id());
+    }
+
     $status = parent::save($form, $form_state);
 
     switch ($status) {
