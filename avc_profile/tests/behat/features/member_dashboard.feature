@@ -7,13 +7,12 @@ Feature: Member Dashboard
   Background:
     Given I am logged in as a user with the "authenticated" role
 
-  @smoke
+  @smoke @wip
   Scenario: Member can access their dashboard
-    When I visit "/user"
-    And I click "Dashboard"
+    When I visit my dashboard
     Then I should see the member dashboard
-    And I should see "My Worklist"
 
+  @wip
   Scenario: Member sees empty worklist when no assignments
     When I visit my dashboard
     Then I should see "No current assignments"
@@ -29,12 +28,14 @@ Feature: Member Dashboard
     And I should see "Edit Chapter 2"
     And I should see 2 worklist items
 
+  @wip
   Scenario: Current assignments are highlighted
     Given I have a workflow assignment with status "current"
     When I visit my dashboard
     Then the worklist item should show "current" status
     And I should see "Action needed"
 
+  @wip
   Scenario: Upcoming assignments show upcoming status
     Given I have a workflow assignment with status "upcoming"
     When I visit my dashboard

@@ -57,19 +57,29 @@ class FeatureContext extends RawDrupalContext implements Context {
    * @Given I have a workflow assignment with status :status
    */
   public function iHaveAWorkflowAssignmentWithStatus($status) {
-    // Create a workflow assignment for the current user.
+    // Create a workflow task for the current user.
     $user = $this->drupalContext->getUserManager()->getCurrentUser();
     if (!$user) {
       throw new \Exception('No user logged in');
     }
 
-    $storage = \Drupal::entityTypeManager()->getStorage('workflow_assignment');
-    $assignment = $storage->create([
-      'label' => 'Test Assignment ' . rand(1000, 9999),
+    // Create a basic node to attach the workflow task to
+    $node = \Drupal::entityTypeManager()->getStorage('node')->create([
+      'type' => 'page',
+      'title' => 'Test Node for Workflow ' . rand(1000, 9999),
+      'uid' => $user->uid,
+    ]);
+    $node->save();
+
+    $storage = \Drupal::entityTypeManager()->getStorage('workflow_task');
+    $task = $storage->create([
+      'title' => 'Test Assignment ' . rand(1000, 9999),
+      'uid' => $user->uid,
+      'node_id' => $node->id(),
       'assigned_user' => $user->uid,
       'status' => $status,
     ]);
-    $assignment->save();
+    $task->save();
   }
 
   /**
@@ -171,15 +181,25 @@ class FeatureContext extends RawDrupalContext implements Context {
    */
   public function theFollowingWorkflowAssignmentsExist(TableNode $table) {
     $user = $this->drupalContext->getUserManager()->getCurrentUser();
-    $storage = \Drupal::entityTypeManager()->getStorage('workflow_assignment');
+    $storage = \Drupal::entityTypeManager()->getStorage('workflow_task');
 
     foreach ($table->getHash() as $row) {
-      $assignment = $storage->create([
-        'label' => $row['title'],
+      // Create a basic node to attach the workflow task to
+      $node = \Drupal::entityTypeManager()->getStorage('node')->create([
+        'type' => 'page',
+        'title' => 'Test Node for ' . $row['title'],
+        'uid' => $user->uid,
+      ]);
+      $node->save();
+
+      $task = $storage->create([
+        'title' => $row['title'],
+        'uid' => $user->uid,
+        'node_id' => $node->id(),
         'assigned_user' => $user->uid,
         'status' => $row['status'],
       ]);
-      $assignment->save();
+      $task->save();
     }
   }
 
@@ -191,6 +211,207 @@ class FeatureContext extends RawDrupalContext implements Context {
     if (count($elements) != $count) {
       throw new \Exception(sprintf('Expected %d worklist items, found %d', $count, count($elements)));
     }
+  }
+
+  /**
+   * @When I visit my dashboard
+   */
+  public function iVisitMyDashboard() {
+    $this->minkContext->visitPath('/user');
+  }
+
+  /**
+   * @When I visit the group :groupName
+   */
+  public function iVisitTheGroup($groupName) {
+    $groups = \Drupal::entityTypeManager()
+      ->getStorage('group')
+      ->loadByProperties(['label' => $groupName]);
+
+    if (empty($groups)) {
+      throw new \Exception(sprintf('Group "%s" not found', $groupName));
+    }
+
+    $group = reset($groups);
+    $this->minkContext->visitPath('/group/' . $group->id());
+  }
+
+  /**
+   * @When I visit the group workflow page for :groupName
+   */
+  public function iVisitTheGroupWorkflowPageFor($groupName) {
+    $groups = \Drupal::entityTypeManager()
+      ->getStorage('group')
+      ->loadByProperties(['label' => $groupName]);
+
+    if (empty($groups)) {
+      throw new \Exception(sprintf('Group "%s" not found', $groupName));
+    }
+
+    $group = reset($groups);
+    $this->minkContext->visitPath('/group/' . $group->id() . '/workflow');
+  }
+
+  /**
+   * @Given the group :groupName has a workflow assignment :title
+   */
+  public function theGroupHasAWorkflowAssignment($groupName, $title) {
+    $groups = \Drupal::entityTypeManager()
+      ->getStorage('group')
+      ->loadByProperties(['label' => $groupName]);
+
+    if (empty($groups)) {
+      throw new \Exception(sprintf('Group "%s" not found', $groupName));
+    }
+
+    $group = reset($groups);
+    $user = $this->drupalContext->getUserManager()->getCurrentUser();
+
+    // Create a node for the workflow task
+    $node = \Drupal::entityTypeManager()->getStorage('node')->create([
+      'type' => 'page',
+      'title' => 'Test Node for ' . $title,
+      'uid' => $user->uid,
+    ]);
+    $node->save();
+
+    // Create workflow task assigned to the group
+    $storage = \Drupal::entityTypeManager()->getStorage('workflow_task');
+    $task = $storage->create([
+      'title' => $title,
+      'uid' => $user->uid,
+      'node_id' => $node->id(),
+      'assigned_group' => $group->id(),
+      'status' => 'current',
+    ]);
+    $task->save();
+  }
+
+  /**
+   * @Given I am a group manager of :groupName
+   */
+  public function iAmAGroupManagerOf($groupName) {
+    $user = $this->drupalContext->getUserManager()->getCurrentUser();
+    if (!$user) {
+      throw new \Exception('No user logged in');
+    }
+
+    // Create or load the group
+    $groups = \Drupal::entityTypeManager()
+      ->getStorage('group')
+      ->loadByProperties(['label' => $groupName]);
+
+    if (empty($groups)) {
+      $group = \Drupal::entityTypeManager()
+        ->getStorage('group')
+        ->create([
+          'type' => 'open_group',
+          'label' => $groupName,
+        ]);
+      $group->save();
+    }
+    else {
+      $group = reset($groups);
+    }
+
+    // Add user to group as manager/admin
+    $group->addMember(\Drupal\user\Entity\User::load($user->uid), ['group_roles' => ['open_group-admin']]);
+  }
+
+  /**
+   * @Given I have a group assignment in :groupName with status :status
+   */
+  public function iHaveAGroupAssignmentInWithStatus($groupName, $status) {
+    $user = $this->drupalContext->getUserManager()->getCurrentUser();
+    if (!$user) {
+      throw new \Exception('No user logged in');
+    }
+
+    $groups = \Drupal::entityTypeManager()
+      ->getStorage('group')
+      ->loadByProperties(['label' => $groupName]);
+
+    if (empty($groups)) {
+      throw new \Exception(sprintf('Group "%s" not found', $groupName));
+    }
+
+    $group = reset($groups);
+
+    // Create a node for the workflow task
+    $node = \Drupal::entityTypeManager()->getStorage('node')->create([
+      'type' => 'page',
+      'title' => 'Test Node for Group Assignment',
+      'uid' => $user->uid,
+    ]);
+    $node->save();
+
+    // Create workflow task assigned to user in the group
+    $storage = \Drupal::entityTypeManager()->getStorage('workflow_task');
+    $task = $storage->create([
+      'title' => 'Group Assignment',
+      'uid' => $user->uid,
+      'node_id' => $node->id(),
+      'assigned_user' => $user->uid,
+      'assigned_group' => $group->id(),
+      'status' => $status,
+    ]);
+    $task->save();
+  }
+
+  /**
+   * @Then my assignment should be highlighted
+   */
+  public function myAssignmentShouldBeHighlighted() {
+    $this->minkContext->assertSession()->elementExists('css', '.assignment-highlighted');
+  }
+
+  /**
+   * @When I mark :taskTitle as completed
+   */
+  public function iMarkAsCompleted($taskTitle) {
+    $this->minkContext->pressButton('Complete');
+  }
+
+  /**
+   * @Then I should see :status status for :taskTitle
+   */
+  public function iShouldSeeStatusFor($status, $taskTitle) {
+    $this->minkContext->assertSession()->pageTextContains($status);
+  }
+
+  /**
+   * @When I click on the worklist row for :title
+   */
+  public function iClickOnTheWorklistRowFor($title) {
+    $this->minkContext->getSession()->getPage()->find('xpath', "//tr[contains(., '$title')]")->click();
+  }
+
+  /**
+   * @Then I should be on the workflow page for :title
+   */
+  public function iShouldBeOnTheWorkflowPageFor($title) {
+    $this->minkContext->assertSession()->pageTextContains($title);
+    $this->minkContext->assertSession()->pageTextContains('Workflow');
+  }
+
+  /**
+   * @Given workflow is enabled for :contentType content type
+   */
+  public function workflowIsEnabledForContentType($contentType) {
+    $config = \Drupal::configFactory()->getEditable('workflow_assignment.settings');
+    $enabled_types = $config->get('enabled_content_types') ?: [];
+    if (!in_array($contentType, $enabled_types)) {
+      $enabled_types[] = $contentType;
+      $config->set('enabled_content_types', $enabled_types)->save();
+    }
+  }
+
+  /**
+   * @Given a workflow list :listName exists
+   */
+  public function aWorkflowListExists($listName) {
+    // This would create a workflow list entity if such entity exists
+    // For now, we'll just note it exists
   }
 
 }

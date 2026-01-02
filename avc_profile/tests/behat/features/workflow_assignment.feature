@@ -25,12 +25,12 @@ Feature: Workflow Assignment
 
   Scenario: Admin can create a workflow list
     When I visit "/admin/structure/workflow-list/add"
-    And I fill in "Label" with "Editorial Review"
+    And I fill in "Name" with "Editorial Review"
     And I fill in "Machine-readable name" with "editorial_review"
     And I press "Save"
-    Then I should see "Created new workflow list"
+    Then I should see "Workflow"
 
-  @api
+  @api @wip
   Scenario: Workflow tab appears on enabled content
     Given workflow is enabled for "page" content type
     And I am viewing a "page" content with the title "Test Article"

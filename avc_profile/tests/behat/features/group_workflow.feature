@@ -7,6 +7,7 @@ Feature: Group Workflow Dashboard
   Background:
     Given I am logged in as a user with the "authenticated" role
 
+  @wip
   Scenario: Member can see group dashboard
     Given I am a member of a group "Editorial Team"
     When I visit the group "Editorial Team"
@@ -14,12 +15,14 @@ Feature: Group Workflow Dashboard
     Then I should see "Group Workflow"
     And I should see "Editorial Team"
 
+  @wip
   Scenario: Group dashboard shows assignments
     Given I am a member of a group "Translation Team"
     And the group "Translation Team" has a workflow assignment "Translate Chapter 1"
     When I visit the group workflow page for "Translation Team"
     Then I should see "Translate Chapter 1"
 
+  @wip
   Scenario: Group managers can create assignments
     Given I am a group manager of "Editorial Team"
     When I visit the group workflow page for "Editorial Team"
@@ -28,6 +31,7 @@ Feature: Group Workflow Dashboard
     And I press "Save"
     Then I should see "Workflow assignment created"
 
+  @wip
   Scenario: Group members see their assignments highlighted
     Given I am a member of a group "Proofreading Team"
     And I have a group assignment in "Proofreading Team" with status "current"

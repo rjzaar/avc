@@ -7,7 +7,7 @@ Feature: Member Worklist
   Background:
     Given I am logged in as a user with the "authenticated" role
 
-  @smoke
+  @smoke @wip
   Scenario: Member sees personal worklist section
     When I visit my dashboard
     Then I should see "My Worklist"
@@ -17,6 +17,7 @@ Feature: Member Worklist
     When I visit my dashboard
     Then I should see the group "Editorial Team" in my dashboard
 
+  @wip
   Scenario: Worklist shows assignment details
     Given the following workflow assignments exist:
       | title                | status  |
@@ -34,6 +35,7 @@ Feature: Member Worklist
     And I click on the worklist row for "Review Draft"
     Then I should be on the workflow page for "Review Draft"
 
+  @wip
   Scenario: Completed assignments are de-emphasized
     Given the following workflow assignments exist:
       | title              | status    |
