@@ -2,19 +2,19 @@ global:
   version: 1.0
   css:
     theme:
-      css/variables.css: {}
-      css/base.css: {}
-      css/components/header.css: {}
-      css/components/navigation.css: {}
-      css/components/buttons.css: {}
-      css/components/cards.css: {}
-      css/components/forms.css: {}
-      css/components/tables.css: {}
-      css/components/workflow.css: {}
-      css/components/dashboard.css: {}
-      css/components/guild.css: {}
-      css/pages/help.css: {}
+      css/variables.css: { weight: 100 }
+      css/avc-overrides.css: { weight: 101 }
+      css/components/workflow.css: { weight: 102 }
+      css/components/dashboard.css: { weight: 102 }
+      css/components/guild.css: { weight: 102 }
+      css/pages/help.css: { weight: 102 }
   js:
     js/avc-theme.js: {}
   dependencies:
     - core/drupal
+
+brand-override:
+  version: 1.0
+  css:
+    theme:
+      css/brand.css: { weight: 50 }

@@ -1,0 +1,55 @@
+/**
+ * @file
+ * AV Commons Brand Colors - Override socialblue brand colors
+ * Based on Apostoli Viae color palette
+ */
+
+:root {
+  /* Primary brand color - Apostoli Viae Navy */
+  --brand-primary: #1E3A5F;
+  --brand-primary-rgb: 30, 58, 95;
+  --brand-secondary: #2C5282;
+
+  /* Accent - Apostoli Viae Gold */
+  --brand-accent: #C9A227;
+  --brand-accent-rgb: 201, 162, 39;
+
+  /* Additional colors */
+  --brand-bg-light: #F5F1E8;
+  --brand-burgundy: #722F37;
+}
+
+/* Override Open Social brand colors */
+.brand-primary,
+.btn-primary,
+.navbar-default {
+  background-color: var(--brand-primary) !important;
+}
+
+.btn-primary {
+  border-color: var(--brand-primary) !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--brand-secondary) !important;
+  border-color: var(--brand-secondary) !important;
+}
+
+/* Accent colors for highlights */
+.btn-accent,
+a.btn-accent {
+  background-color: var(--brand-accent);
+  border-color: var(--brand-accent);
+  color: var(--brand-primary);
+}
+
+/* Links */
+a {
+  color: var(--brand-primary);
+}
+
+a:hover,
+a:focus {
+  color: var(--brand-secondary);
+}
