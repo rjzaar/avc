@@ -10,6 +10,22 @@ This document provides a numbered, phased implementation plan for the AV Commons
 
 ---
 
+## Implementation Status Summary
+
+| Phase | Component | Status | Notes |
+|-------|-----------|--------|-------|
+| 1 | Member System | ✅ COMPLETE | Core member dashboard, worklist, notifications |
+| 2 | Group System | ✅ COMPLETE | Group workflow dashboard, member lists, assignment forms |
+| 3 | Asset System | ✅ COMPLETE | Asset management, workflow processor, checker |
+| 4 | Notifications | 🔲 PLACEHOLDER | Module structure exists, awaiting implementation |
+| 5 | Guild System | 🔲 PLACEHOLDER | Module structure exists, awaiting implementation |
+| 6 | Forums | 🔲 NOT STARTED | Leverage Open Social Topics |
+| 7-10 | Future Phases | 🔲 NOT STARTED | Versioning, Flagging, Courses, Suggestions |
+
+**Key Achievement**: Added `WorkflowTask` content entity to `workflow_assignment` module for per-asset workflow step tracking with revision support.
+
+---
+
 ## Open Social Platform Overview
 
 ### Hybrid Approach: Open Social + Custom Extensions
@@ -60,39 +76,67 @@ This implementation uses Open Social as the base platform, extending it with:
 
 ## Current State Analysis
 
-### Existing Drupal Implementation (workflow_assignment module)
+### Current Module Structure
 
-The following features are **already implemented**:
+The AVC implementation is organized as a Drupal installation profile at `avc_profile/`:
+
+```
+avc_profile/
+├── avc_profile.info.yml          # Main profile
+├── modules/
+│   ├── avc_core/                 # Shared services, base fields
+│   ├── avc_member/               # ✅ Phase 1: Member dashboards
+│   ├── avc_group/                # ✅ Phase 2: Group workflow
+│   ├── avc_asset/                # ✅ Phase 3: Asset management
+│   ├── avc_notification/         # 🔲 Phase 4: Notification system
+│   ├── avc_guild/                # 🔲 Phase 5: Guild system
+│   ├── avc_devel/                # Development & test content
+│   └── workflow_assignment/      # Core workflow engine
+└── tests/behat/                  # Behat test configuration
+```
+
+### Development Module (avc_devel)
+
+Added for testing and development:
+- `TestContentGenerator.php` - Generates test users, groups, assets
+- `GenerateContentForm.php` - Admin UI for test content generation
+- `CleanupContentForm.php` - Admin UI for removing test content
+- `AvcDevelCommands.php` - Drush commands for test operations
+
+### workflow_assignment Module (Enhanced)
+
+The following features are **implemented**:
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Workflow List (Config Entity) | Complete | Supports user, group, destination assignments |
-| Workflow Assignment (Content Entity) | Complete | Full revision tracking |
-| Workflow Templates | Complete | Reusable workflow configurations |
-| Color-coded assignments | Complete | User=green, Group=blue, Destination=orange |
-| Email notifications | Complete | On assignment/unassignment |
-| Audit trail/history | Complete | Full change logging |
-| Node workflow tab | Complete | Secondary tab on content pages |
-| Drag-and-drop reordering | Complete | AJAX-based |
-| Inline editing | Complete | Description/comments |
-| Permission system | Complete | 3-tier permissions |
-| Destination taxonomy | Complete | `destination_locations` vocabulary |
+| Workflow List (Config Entity) | ✅ Complete | Supports user, group, destination assignments |
+| Workflow Assignment (Content Entity) | ✅ Complete | Full revision tracking |
+| Workflow Templates | ✅ Complete | Reusable workflow configurations |
+| **WorkflowTask (Content Entity)** | ✅ NEW | Per-asset workflow steps with node reference |
+| Color-coded assignments | ✅ Complete | User=green, Group=blue, Destination=orange |
+| Email notifications | ✅ Complete | On assignment/unassignment |
+| Audit trail/history | ✅ Complete | Full change logging |
+| Node workflow tab | ✅ Complete | Secondary tab on content pages |
+| Drag-and-drop reordering | ✅ Complete | AJAX-based |
+| Inline editing | ✅ Complete | Description/comments |
+| Permission system | ✅ Complete | 3-tier permissions |
+| Destination taxonomy | ✅ Complete | `destination_locations` vocabulary |
 
-### Gap Analysis (What Needs Building)
+### Gap Analysis (What Still Needs Building)
 
 Based on specs vs. current implementation:
 
 | Epic | Spec Feature | Current State | Priority |
 |------|--------------|---------------|----------|
-| 1 | Member registration/profiles | Not started | High |
-| 1 | Member dashboards | Not started | High |
-| 2 | Group spaces/dashboards | Not started | High |
+| 1 | Member registration/profiles | ✅ Complete | - |
+| 1 | Member dashboards | ✅ Complete | - |
+| 2 | Group spaces/dashboards | ✅ Complete | - |
 | 2 | Group forums | Not started | Medium |
-| 2 | Guild system (junior/endorsed/mentor) | Not started | Medium |
-| 3 | Asset types (Project/Doc/Resource) | Partial (workflow exists) | High |
+| 2 | Guild system (junior/endorsed/mentor) | 🔲 Placeholder | Medium |
+| 3 | Asset types (Project/Doc/Resource) | ✅ Complete | - |
 | 3 | Version control/diff | Not started | Medium |
 | 3 | Issue flagging | Not started | Low |
-| 4 | Advanced notification system | Basic exists | High |
+| 4 | Advanced notification system | 🔲 Placeholder | High |
 | 5 | Courses/LMS integration | Not started | Low |
 | 6 | Suggestions system | Not started | Low |
 | 7-10 | Multilingual/App/Desktop/Offline | Not started | Future |
@@ -101,9 +145,18 @@ Based on specs vs. current implementation:
 
 ## Phased Implementation Plan
 
-### PHASE 1: Core Member System (Open Social Extension)
+### PHASE 1: Core Member System (Open Social Extension) ✅ COMPLETE
 **Goal**: Extend Open Social profiles and create member dashboards
 **Platform**: Leverages `social_user`, `social_profile`
+**Status**: Implemented in `avc_profile/modules/avc_member/`
+
+#### Implemented Components
+- `MemberDashboardController.php` - User dashboard with worklist
+- `MemberWorklistService.php` - Service for querying member workflow tasks
+- `NotificationPreferencesForm.php` - User notification settings
+- `MemberWorklistBlock.php` - Block plugin for worklist display
+- Templates: `member-dashboard.html.twig`, `member-worklist.html.twig`
+- Tests: Unit, Kernel, and Functional test coverage
 
 #### 1.1 Extend Open Social Profile
 ```
@@ -200,10 +253,20 @@ Dependencies:
 
 ---
 
-### PHASE 2: Group System (Open Social Extension)
+### PHASE 2: Group System (Open Social Extension) ✅ COMPLETE
 **Goal**: Extend Open Social groups with workflow dashboards
 **Platform**: Leverages `social_group` (built on Group module)
 **Dependency**: Phase 1 (Members)
+**Status**: Implemented in `avc_profile/modules/avc_group/`
+
+#### Implemented Components
+- `GroupWorkflowController.php` - Group workflow dashboard controller
+- `GroupWorkflowService.php` - Service for group workflow operations
+- `GroupNotificationService.php` - Group-specific notification handling
+- `GroupAssignmentForm.php` - Form for assigning tasks to groups
+- `GroupWorkflowSettingsForm.php` - Group workflow settings
+- Templates: `group-worklist.html.twig`, `group-workflow-tab.html.twig`
+- Tests: Unit and Functional test coverage
 
 #### 2.1 Extend Open Social Groups
 ```
@@ -280,9 +343,25 @@ Dependencies:
 
 ---
 
-### PHASE 3: Enhanced Asset System
+### PHASE 3: Enhanced Asset System ✅ COMPLETE
 **Goal**: Implement Projects, Documents, Resources with workflow tables
 **Dependency**: Phase 1 & 2
+**Status**: Implemented in `avc_profile/modules/avc_asset/`
+
+#### Implemented Components
+- `AssetController.php` - Asset management controller
+- `AssetManager.php` - Service for asset CRUD operations
+- `WorkflowProcessor.php` - Service for processing workflow advancement
+- `WorkflowChecker.php` - Service for validating workflow configurations
+- Templates: `asset-workflow-table.html.twig`, `asset-detail.html.twig`
+
+#### WorkflowTask Content Entity (NEW)
+Added `WorkflowTask` content entity to `workflow_assignment` module:
+- Per-asset workflow step tracking with node reference
+- Assignment types: user, group, or destination
+- Status tracking: pending, in_progress, completed, skipped
+- Full revision support for audit trail
+- Due date support for task scheduling
 
 #### 3.1 Asset Content Types
 ```
@@ -379,9 +458,10 @@ modules/custom/avc_asset/
 
 ---
 
-### PHASE 4: Advanced Notification System
+### PHASE 4: Advanced Notification System 🔲 PLACEHOLDER
 **Goal**: Implement flexible notification preferences and batching
 **Dependency**: Phase 1, 2, 3
+**Status**: Module structure exists at `avc_profile/modules/avc_notification/`, awaiting implementation
 
 #### 4.1 Notification Preferences
 ```
@@ -479,10 +559,11 @@ modules/custom/avc_notification/
 
 ---
 
-### PHASE 5: Guild System (Custom Group Type in Open Social)
+### PHASE 5: Guild System (Custom Group Type in Open Social) 🔲 PLACEHOLDER
 **Goal**: Create Guild group type with mentorship, scoring, and skill tracking
 **Platform**: Custom group type extending Open Social's Group module
 **Dependency**: Phase 2
+**Status**: Module structure exists at `avc_profile/modules/avc_guild/`, awaiting implementation
 
 #### 5.1 Create Guild Group Type
 ```
@@ -815,18 +896,18 @@ Minimal - mostly configuration:
 
 ## Implementation Priority Matrix
 
-| Phase | Priority | Complexity | Open Social Leverage | Recommended Order |
-|-------|----------|------------|---------------------|-------------------|
-| 1: Members | High | Medium | Extend social_profile | 1st |
-| 2: Groups | High | Medium | Extend social_group | 2nd |
-| 3: Assets | High | High | Custom (workflow focus) | 3rd |
-| 4: Notifications | High | Medium | Extend social_notifications | 4th |
-| 5: Guilds | High | Medium | Custom group type | 5th |
-| 6: Forums | Low | Minimal | Use social_topic as-is | 6th |
-| 7: Versioning | Medium | Low | Drupal revisions | 7th |
-| 8: Flagging | Low | Low | Custom | 8th |
-| 9: Courses | Low | High | H5P/Moodle integration | 9th |
-| 10: Suggestions | Low | Medium | Custom | 10th |
+| Phase | Priority | Complexity | Open Social Leverage | Status |
+|-------|----------|------------|---------------------|--------|
+| 1: Members | High | Medium | Extend social_profile | ✅ COMPLETE |
+| 2: Groups | High | Medium | Extend social_group | ✅ COMPLETE |
+| 3: Assets | High | High | Custom (workflow focus) | ✅ COMPLETE |
+| 4: Notifications | High | Medium | Extend social_notifications | 🔲 Next |
+| 5: Guilds | High | Medium | Custom group type | 🔲 Pending |
+| 6: Forums | Low | Minimal | Use social_topic as-is | 🔲 Pending |
+| 7: Versioning | Medium | Low | Drupal revisions | 🔲 Pending |
+| 8: Flagging | Low | Low | Custom | 🔲 Pending |
+| 9: Courses | Low | High | H5P/Moodle integration | 🔲 Pending |
+| 10: Suggestions | Low | Medium | Custom | 🔲 Pending |
 
 ### Open Social Feature Utilization
 
@@ -959,16 +1040,27 @@ Open Social Distribution (base platform)
 
 ## Next Steps
 
-1. **Review this plan** with stakeholders
-2. **Prioritize** based on immediate needs
-3. **Set up development environment**:
-   - Open Social distribution (latest stable)
-   - Ensure workflow_assignment module is compatible
-   - Install development tools (ddev, lando, or similar)
-4. **Begin Phase 1** implementation:
-   - Extend Open Social profile with AV-specific fields
-   - Create member dashboard with worklist
-5. **Iterate** through phases with testing at each stage
+### Completed ✅
+1. ~~**Review this plan** with stakeholders~~
+2. ~~**Set up development environment**~~
+3. ~~**Phase 1: Member System** - Dashboard, worklist, notification preferences~~
+4. ~~**Phase 2: Group System** - Group workflow dashboard, assignment forms~~
+5. ~~**Phase 3: Asset System** - Asset management, WorkflowTask entity~~
+
+### In Progress / Next
+6. **Phase 4: Notification System** (HIGH PRIORITY)
+   - Implement notification queue entity
+   - Add n/d/w/x preference processing
+   - Create email templates and digest system
+   - Set up cron-based notification processing
+
+7. **Phase 5: Guild System**
+   - Create Guild group type with custom roles
+   - Implement scoring and endorsement systems
+   - Add ratification workflow for juniors
+
+### Future
+8. Continue with remaining phases (Forums, Versioning, etc.)
 
 ---
 
@@ -983,6 +1075,8 @@ Open Social Distribution (base platform)
 
 ---
 
-*Document generated: 2026-01-02*
+*Document created: 2026-01-02*
+*Last updated: 2026-01-02*
 *Platform: Open Social Distribution*
 *Based on: avc specs.docx, avc.gs prototype, workflow_assignment module analysis*
+*Implementation: Phases 1-3 complete, Phases 4-5 in placeholder state*
