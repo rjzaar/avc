@@ -1,0 +1,152 @@
+/**
+ * @file
+ * Styles for AVC Member Dashboard.
+ */
+
+.avc-member-dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.avc-member-dashboard h2 {
+  color: #333;
+  border-bottom: 2px solid #0074bd;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.dashboard-section {
+  margin-bottom: 30px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.dashboard-section h3 {
+  color: #0074bd;
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.2em;
+}
+
+.dashboard-section h4 {
+  color: #555;
+  margin-bottom: 10px;
+}
+
+/* Worklist Table */
+.avc-worklist-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.avc-worklist-table th,
+.avc-worklist-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.avc-worklist-table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  color: #333;
+}
+
+.avc-worklist-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 0.85em;
+  font-weight: 500;
+}
+
+.status-badge.status-current {
+  background-color: #4caf50;
+  color: white;
+}
+
+.status-badge.status-upcoming {
+  background-color: #2196f3;
+  color: white;
+}
+
+.status-badge.status-completed {
+  background-color: #9e9e9e;
+  color: white;
+}
+
+.status-badge.status-proposed {
+  background-color: #ff9800;
+  color: white;
+}
+
+.status-badge.status-accepted {
+  background-color: #4caf50;
+  color: white;
+}
+
+/* Row highlighting by status */
+.worklist-item.status-current {
+  background-color: #e8f5e9;
+}
+
+.worklist-item.status-upcoming {
+  background-color: #e3f2fd;
+}
+
+.worklist-item.status-completed {
+  opacity: 0.7;
+}
+
+/* Empty message */
+.empty-message {
+  color: #757575;
+  font-style: italic;
+  padding: 20px;
+  text-align: center;
+  background-color: #fafafa;
+  border-radius: 4px;
+}
+
+/* Edit link */
+.edit-link {
+  margin-left: 10px;
+  font-size: 0.9em;
+}
+
+/* Notification settings */
+.notification-settings p {
+  margin: 0;
+}
+
+/* Group worklist */
+.group-worklist {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.group-worklist:last-child {
+  border-bottom: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .avc-worklist-table th,
+  .avc-worklist-table td {
+    padding: 8px;
+    font-size: 0.9em;
+  }
+
+  .dashboard-section {
+    padding: 15px;
+  }
+}
