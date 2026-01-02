@@ -63,7 +63,13 @@ class MemberDashboardController extends ControllerBase {
   public function access(UserInterface $user) {
     $current_user = $this->currentUser;
 
+    // Anonymous users cannot access.
+    if ($current_user->isAnonymous()) {
+      return AccessResult::forbidden()->cachePerUser();
+    }
+
     // Allow users to view their own dashboard.
+    // Note: Use == for comparison to handle both integer and string UIDs.
     if ($current_user->id() == $user->id()) {
       return AccessResult::allowed()->cachePerUser();
     }

@@ -154,7 +154,7 @@ class NotificationPreferences {
     $membership = $group->getMember($user);
 
     if ($membership) {
-      $group_content = $membership->getGroupRelationship();
+      $group_content = $membership->getGroupContent();
       if ($group_content->hasField('field_notification_override')) {
         $value = $group_content->get('field_notification_override')->value;
         if ($value) {
@@ -180,7 +180,7 @@ class NotificationPreferences {
     $membership = $group->getMember($user);
 
     if ($membership) {
-      $group_content = $membership->getGroupRelationship();
+      $group_content = $membership->getGroupContent();
       if ($group_content->hasField('field_notification_override')) {
         $group_content->set('field_notification_override', $preference);
         $group_content->save();

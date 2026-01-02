@@ -218,7 +218,7 @@ class GuildService {
     }
 
     // Get the group content entity.
-    $group_content = $membership->getGroupRelationship();
+    $group_content = $membership->getGroupContent();
 
     // Remove old role, add new role.
     $old_role_id = 'guild-' . $current_role;
