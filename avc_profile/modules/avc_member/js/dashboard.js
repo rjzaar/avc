@@ -16,16 +16,21 @@
         $(this).addClass('highlighted');
       });
 
-      // Add click handler for row expansion (future enhancement).
-      $('.avc-worklist-table tbody tr', context).once('avc-row-click').on('click', function (e) {
+      // Add click handler for worklist rows.
+      $('.avc-worklist-table tbody tr.worklist-item', context).once('avc-row-click').on('click', function (e) {
         // Don't trigger if clicking a link.
         if ($(e.target).is('a')) {
           return;
         }
-        // Find the view link and navigate.
-        var link = $(this).find('a[href*="workflow"]').first();
-        if (link.length) {
-          window.location.href = link.attr('href');
+
+        // Navigate to workflow task page if task ID is available.
+        var taskId = $(this).data('task-id');
+        var nodeId = $(this).data('node-id');
+
+        if (taskId) {
+          window.location.href = '/workflow-task/' + taskId;
+        } else if (nodeId) {
+          window.location.href = '/node/' + nodeId;
         }
       });
     }

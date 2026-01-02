@@ -7,7 +7,7 @@ Feature: Workflow Assignment
   Background:
     Given I am logged in as a user with the "administrator" role
 
-  @smoke @wip
+  @smoke
   Scenario: Admin can access workflow settings
     When I visit "/admin/config/workflow/workflow-assignment"
     Then the response status code should be 200
@@ -19,12 +19,10 @@ Feature: Workflow Assignment
     And I press "Save configuration"
     Then I should see "The configuration options have been saved"
 
-  @wip
   Scenario: Admin can view workflow list
     When I visit "/admin/structure/workflow-list"
     Then the response status code should be 200
 
-  @wip
   Scenario: Admin can create a workflow list
     When I visit "/admin/structure/workflow-list/add"
     And I fill in "Name" with "Editorial Review"
@@ -32,18 +30,16 @@ Feature: Workflow Assignment
     And I press "Save"
     Then I should see "Workflow"
 
-  @api @wip
+  @api
   Scenario: Workflow tab appears on enabled content
     Given workflow is enabled for "page" content type
     And I am viewing a "page" content with the title "Test Article"
     Then I should see "Test Article"
 
-  @wip
   Scenario: Admin can view workflow history
     When I visit "/admin/structure/workflow-list/history"
     Then the response status code should be 200
 
-  @wip
   Scenario: Admin can manage workflow templates
     When I visit "/admin/structure/workflow-template"
     Then the response status code should be 200

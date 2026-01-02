@@ -143,7 +143,14 @@ class NotificationPreferences {
    *   The override preference or NULL if not set.
    */
   public function getGroupOverride(AccountInterface $user, GroupInterface $group) {
-    // Get the user's membership in this group.
+    // Check user.data first (used by behat tests).
+    $user_data = \Drupal::service('user.data');
+    $value = $user_data->get('avc_notification', $user->id(), 'group_' . $group->id());
+    if ($value) {
+      return $value;
+    }
+
+    // Fall back to checking the user's membership in this group.
     $membership = $group->getMember($user);
 
     if ($membership) {
@@ -179,6 +186,10 @@ class NotificationPreferences {
         $group_content->save();
       }
     }
+
+    // Also store in user.data for easy access.
+    $user_data = \Drupal::service('user.data');
+    $user_data->set('avc_notification', $user->id(), 'group_' . $group->id(), $preference);
   }
 
   /**

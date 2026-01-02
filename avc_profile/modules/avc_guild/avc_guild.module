@@ -174,3 +174,89 @@ function avc_guild_needs_ratification(GroupInterface $guild, $user) {
   $role = avc_guild_get_member_role($guild, $user);
   return $role === 'junior';
 }
+
+/**
+ * Implements hook_ENTITY_TYPE_insert() for skill_endorsement.
+ */
+function avc_guild_skill_endorsement_insert($entity) {
+  // Queue notification for the endorsed user.
+  if (\Drupal::moduleHandler()->moduleExists('avc_notification')) {
+    $notification_service = \Drupal::service('avc_notification.service');
+
+    $endorsed_user = $entity->getEndorsedUser();
+    $endorser = $entity->getEndorser();
+    $skill = $entity->getSkill();
+    $guild = $entity->getGuild();
+
+    if ($endorsed_user && $endorser && $skill && $guild) {
+      $notification_service->queueEndorsement(
+        $endorsed_user,
+        $endorser,
+        $skill->label(),
+        $guild
+      );
+    }
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update() for ratification.
+ */
+function avc_guild_ratification_update($entity) {
+  // Queue notification when ratification is completed.
+  if ($entity->original && $entity->getStatus() != $entity->original->getStatus()) {
+    if (in_array($entity->getStatus(), ['approved', 'rejected'])) {
+      if (\Drupal::moduleHandler()->moduleExists('avc_notification')) {
+        $notification_service = \Drupal::service('avc_notification.service');
+
+        $junior = $entity->getJunior();
+        $mentor = $entity->getMentor();
+        $asset = $entity->getAsset();
+        $guild = $entity->getGuild();
+
+        if ($junior && $mentor && $asset && $guild) {
+          $notification_service->queueRatificationComplete(
+            $junior,
+            $mentor,
+            $asset,
+            $entity->getStatus() === 'approved',
+            $entity->getFeedback() ?? '',
+            $guild
+          );
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_group_content_insert().
+ */
+function avc_guild_group_content_insert($group_content) {
+  // Queue notification when a user's guild role changes to indicate promotion.
+  $group = $group_content->getGroup();
+  if (!avc_guild_is_guild($group)) {
+    return;
+  }
+
+  // Check if this is a role change that represents a promotion.
+  // This is simplified - in a real system you'd track the previous role.
+  $entity = $group_content->getEntity();
+  if ($entity && $entity->getEntityTypeId() === 'user') {
+    $roles = $group_content->get('group_roles')->getValue();
+    foreach ($roles as $role_item) {
+      $role_id = $role_item['target_id'];
+      if (in_array($role_id, ['guild-endorsed', 'guild-mentor', 'guild-admin'])) {
+        if (\Drupal::moduleHandler()->moduleExists('avc_notification')) {
+          $notification_service = \Drupal::service('avc_notification.service');
+          $role_name = str_replace('guild-', '', $role_id);
+          $notification_service->queueGuildPromotion(
+            $entity,
+            $role_name,
+            $group
+          );
+        }
+      }
+    }
+  }
+}

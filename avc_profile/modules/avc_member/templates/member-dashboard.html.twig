@@ -45,7 +45,7 @@
         </thead>
         <tbody>
           {% for item in worklist %}
-            <tr class="worklist-item status-{{ item.status }}">
+            <tr class="worklist-item status-{{ item.status }}" data-task-id="{{ item.id }}" data-node-id="{{ item.node ? item.node.id : '' }}">
               <td>{{ item.label }}</td>
               <td>{{ item.description|default('-') }}</td>
               <td>
@@ -85,11 +85,17 @@
               </thead>
               <tbody>
                 {% for item in group_data.items %}
-                  <tr class="worklist-item status-{{ item.status }}">
+                  <tr class="worklist-item status-{{ item.status }}" data-task-id="{{ item.id }}" data-node-id="{{ item.node ? item.node.id : '' }}">
                     <td>{{ item.label }}</td>
                     <td>
                       <span class="status-badge status-{{ item.status }}">
-                        {{ item.status|capitalize }}
+                        {% if item.status == 'current' %}
+                          {{ 'Action needed'|t }}
+                        {% elseif item.status == 'upcoming' %}
+                          {{ 'Upcoming'|t }}
+                        {% else %}
+                          {{ 'Completed'|t }}
+                        {% endif %}
                       </span>
                     </td>
                   </tr>

@@ -55,8 +55,13 @@
   color: #333;
 }
 
-.avc-worklist-table tr:hover {
-  background-color: #f9f9f9;
+.avc-worklist-table tbody tr.worklist-item {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.avc-worklist-table tbody tr.worklist-item:hover {
+  background-color: #f0f0f0;
 }
 
 /* Status Badges */

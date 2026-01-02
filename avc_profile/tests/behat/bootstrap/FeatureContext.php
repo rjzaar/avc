@@ -77,6 +77,14 @@ class FeatureContext extends RawDrupalContext implements Context {
     ]);
     $node->save();
 
+    // Map test status to actual WorkflowTask status values
+    $status_map = [
+      'current' => 'in_progress',
+      'upcoming' => 'pending',
+      'completed' => 'completed',
+    ];
+    $task_status = $status_map[$status] ?? $status;
+
     $storage = \Drupal::entityTypeManager()->getStorage('workflow_task');
     $task = $storage->create([
       'title' => 'Test Assignment ' . rand(1000, 9999),
@@ -84,7 +92,7 @@ class FeatureContext extends RawDrupalContext implements Context {
       'node_id' => $node->id(),
       'assigned_type' => 'user',
       'assigned_user' => $user->uid,
-      'status' => $status,
+      'status' => $task_status,
     ]);
     $task->save();
   }
@@ -210,13 +218,21 @@ class FeatureContext extends RawDrupalContext implements Context {
       ]);
       $node->save();
 
+      // Map test status to actual WorkflowTask status values
+      $status_map = [
+        'current' => 'in_progress',
+        'upcoming' => 'pending',
+        'completed' => 'completed',
+      ];
+      $task_status = $status_map[$row['status']] ?? $row['status'];
+
       $task = $storage->create([
         'title' => $row['title'],
         'uid' => $user->uid,
         'node_id' => $node->id(),
         'assigned_type' => 'user',
         'assigned_user' => $user->uid,
-        'status' => $row['status'],
+        'status' => $task_status,
       ]);
       $task->save();
     }
@@ -439,6 +455,43 @@ class FeatureContext extends RawDrupalContext implements Context {
     if (!in_array($contentType, $enabled_types)) {
       $enabled_types[] = $contentType;
       $config->set('enabled_content_types', $enabled_types)->save();
+
+      // Also add the workflow field to the content type.
+      $entity_type_manager = \Drupal::entityTypeManager();
+      $field_storage_config = $entity_type_manager->getStorage('field_storage_config');
+      $field_config = $entity_type_manager->getStorage('field_config');
+
+      // Ensure field storage exists.
+      $field_storage = $field_storage_config->load('node.field_workflow_list');
+      if (!$field_storage) {
+        $field_storage = $field_storage_config->create([
+          'field_name' => 'field_workflow_list',
+          'entity_type' => 'node',
+          'type' => 'entity_reference',
+          'cardinality' => -1,
+          'settings' => [
+            'target_type' => 'workflow_list',
+          ],
+        ]);
+        $field_storage->save();
+      }
+
+      // Add field to the content type.
+      $field = $field_config->load("node.{$contentType}.field_workflow_list");
+      if (!$field) {
+        $field = $field_config->create([
+          'field_name' => 'field_workflow_list',
+          'entity_type' => 'node',
+          'bundle' => $contentType,
+          'label' => 'Workflow List',
+          'required' => FALSE,
+          'settings' => [
+            'handler' => 'default:workflow_list',
+            'handler_settings' => [],
+          ],
+        ]);
+        $field->save();
+      }
     }
   }
 
@@ -446,8 +499,23 @@ class FeatureContext extends RawDrupalContext implements Context {
    * @Given a workflow list :listName exists
    */
   public function aWorkflowListExists($listName) {
-    // This would create a workflow list entity if such entity exists
-    // For now, we'll just note it exists
+    $user = $this->drupalContext->getUserManager()->getCurrentUser();
+
+    // Check if the workflow list already exists.
+    $storage = \Drupal::entityTypeManager()->getStorage('workflow_list');
+    $existing = $storage->loadByProperties(['label' => $listName]);
+
+    if (empty($existing)) {
+      // Create a new workflow list.
+      $workflow_list = $storage->create([
+        'id' => strtolower(str_replace(' ', '_', $listName)),
+        'label' => $listName,
+        'description' => 'Test workflow list',
+        'assigned_type' => 'user',
+        'assigned_id' => $user ? $user->uid : 1,
+      ]);
+      $workflow_list->save();
+    }
   }
 
   /**

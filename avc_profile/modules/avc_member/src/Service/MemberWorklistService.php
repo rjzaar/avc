@@ -63,8 +63,10 @@ class MemberWorklistService {
             'id' => $task->id(),
             'label' => $task->label(),
             'description' => $task->getDescription(),
-            'status' => $task->getStatus(),
+            'status' => $this->mapTaskStatusToWorklistStatus($task->getStatus()),
+            'task_status' => $task->getStatus(),
             'node' => $task->getNode(),
+            'task_entity' => $task,
           ];
         }
       }
@@ -154,8 +156,10 @@ class MemberWorklistService {
           $worklist[] = [
             'id' => $task->id(),
             'label' => $task->label(),
-            'status' => $task->getStatus(),
+            'status' => $this->mapTaskStatusToWorklistStatus($task->getStatus()),
+            'task_status' => $task->getStatus(),
             'node' => $task->getNode(),
+            'task_entity' => $task,
           ];
         }
       }
@@ -200,26 +204,24 @@ class MemberWorklistService {
   }
 
   /**
-   * Determines the status of a worklist item for a user.
+   * Maps workflow task status to worklist display status.
    *
-   * @param mixed $assignment
-   *   The workflow assignment entity.
-   * @param \Drupal\user\UserInterface $user
-   *   The user entity.
+   * @param string $task_status
+   *   The workflow task status (pending, in_progress, completed, skipped).
    *
    * @return string
-   *   Status: 'current' (green), 'upcoming', or 'completed'.
+   *   Status for display: 'current', 'upcoming', or 'completed'.
    */
-  protected function determineWorklistStatus($assignment, UserInterface $user) {
-    $completion = $assignment->get('completion')->value ?? 'proposed';
-
-    switch ($completion) {
+  protected function mapTaskStatusToWorklistStatus($task_status) {
+    switch ($task_status) {
       case 'completed':
+      case 'skipped':
         return 'completed';
 
-      case 'accepted':
+      case 'in_progress':
         return 'current';
 
+      case 'pending':
       default:
         return 'upcoming';
     }

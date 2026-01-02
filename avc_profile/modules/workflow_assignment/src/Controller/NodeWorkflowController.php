@@ -88,7 +88,7 @@ class NodeWorkflowController extends ControllerBase {
     // Render using template.
     $build = [
       '#theme' => 'workflow_tab_content',
-      '#tasks' => $tasks,
+      '#workflows' => $tasks,
       '#node' => $node,
       '#can_edit' => $can_edit,
       '#can_administer' => $can_administer,

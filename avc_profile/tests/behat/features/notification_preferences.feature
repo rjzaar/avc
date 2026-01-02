@@ -7,13 +7,11 @@ Feature: Notification Preferences
   Background:
     Given I am logged in as a member with notification preferences
 
-  @wip
   Scenario: Member can view notification settings
     When I visit my dashboard
     Then I should see notification settings
     And I should see "Notification Preferences"
 
-  @wip
   Scenario: Member can set immediate notifications
     When I visit my notification preferences
     And I set my notification preference to "immediate"
@@ -21,21 +19,18 @@ Feature: Notification Preferences
     Then I should see a success message
     And I should see "Notification preferences saved"
 
-  @wip
   Scenario: Member can set daily digest
     When I visit my notification preferences
     And I set my notification preference to "daily"
     And I save my notification preferences
     Then I should see a success message
 
-  @wip
   Scenario: Member can set weekly digest
     When I visit my notification preferences
     And I set my notification preference to "weekly"
     And I save my notification preferences
     Then I should see a success message
 
-  @wip
   Scenario: Member can disable notifications
     When I visit my notification preferences
     And I set my notification preference to "none"

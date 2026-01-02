@@ -61,3 +61,15 @@ avc_notification.force_weekly:
     _title: 'Force Weekly Digest'
   requirements:
     _permission: 'administer notification queue'
+
+avc_notification.user_preferences:
+  path: '/user/{user}/notification-preferences'
+  defaults:
+    _form: '\Drupal\avc_notification\Form\UserNotificationPreferencesForm'
+    _title: 'Notification Preferences'
+  requirements:
+    _custom_access: '\Drupal\avc_notification\Controller\UserNotificationPreferencesController::access'
+  options:
+    parameters:
+      user:
+        type: entity:user

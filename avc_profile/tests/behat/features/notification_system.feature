@@ -15,40 +15,34 @@ Feature: Notification System
     And the notification should have event type "workflow_advance"
     And the notification status should be "pending"
 
-  @wip
   Scenario: User can view notification settings
     When I visit my notification preferences
     Then the response status code should be 200
 
-  @wip
   Scenario: User can set immediate notification preference
     When I visit my notification preferences
     And I set my notification preference to "immediate"
     And I save my notification preferences
     Then my notification preference should be "n"
 
-  @wip
   Scenario: User can set daily digest preference
     When I visit my notification preferences
     And I set my notification preference to "daily"
     And I save my notification preferences
     Then my notification preference should be "d"
 
-  @wip
   Scenario: User can set weekly digest preference
     When I visit my notification preferences
     And I set my notification preference to "weekly"
     And I save my notification preferences
     Then my notification preference should be "w"
 
-  @wip
   Scenario: User can disable notifications
     When I visit my notification preferences
     And I set my notification preference to "none"
     And I save my notification preferences
     Then my notification preference should be "x"
 
-  @wip
   Scenario: User can set group-specific notification override
     Given I am a member of a group "Translation Team"
     When I visit my notification preferences
@@ -56,7 +50,6 @@ Feature: Notification System
     And I save my notification preferences
     And my notification override for "Translation Team" should be "d"
 
-  @wip
   Scenario: Group override takes precedence over default preference
     Given I am a member of a group "Proofreading Team"
     And my default notification preference is "weekly"
@@ -64,14 +57,12 @@ Feature: Notification System
     When a workflow event occurs in "Proofreading Team"
     Then I should receive an immediate notification
 
-  @wip
   Scenario: User with "none" preference receives no notifications
     Given my default notification preference is "none"
     And I am a member of a group "Editorial Team"
     When a workflow event occurs in "Editorial Team"
     Then no notification should be queued for me
 
-  @wip
   Scenario: Multiple notifications are aggregated for daily digest
     Given my default notification preference is "daily"
     And I am a member of a group "Editorial Team"
@@ -85,7 +76,6 @@ Feature: Notification System
     Then I should receive 1 email with 3 events
     And all notifications should be marked as "sent"
 
-  @wip
   Scenario: Notifications are aggregated for weekly digest
     Given my default notification preference is "weekly"
     And I am a member of a group "Editorial Team"
@@ -95,7 +85,6 @@ Feature: Notification System
     Then I should receive 1 email with 5 events
     And all notifications should be marked as "sent"
 
-  @wip
   Scenario: Immediate notifications are sent right away
     Given my default notification preference is "immediate"
     When a workflow event occurs with title "Urgent Review Needed"
@@ -128,13 +117,11 @@ Feature: Notification System
     Then the old notifications should be deleted
     But recent notifications should be retained
 
-  @wip
   Scenario: Admin can view notification queue
     Given I am logged in as a user with the "administrator" role
     When I visit "/admin/config/avc/notifications/queue"
     Then the response status code should be 200
 
-  @wip
   Scenario: Ratification notifications are queued
     Given I am a member of a guild "Translation Guild" with role "junior"
     And I complete a workflow task in "Translation Guild"
@@ -142,14 +129,12 @@ Feature: Notification System
     Then a notification should be queued for mentors
     And the notification event type should be "ratification_needed"
 
-  @wip
   Scenario: Endorsement notifications are sent
     Given I am a member of a guild "Editorial Guild"
     When another member endorses me for skill "Technical Writing/Editing"
     Then a notification should be queued for me
     And the notification event type should be "endorsement"
 
-  @wip
   Scenario: Guild promotion notifications are sent
     Given I am a member of a guild "Technical Guild" with role "junior"
     And I have earned enough points for promotion

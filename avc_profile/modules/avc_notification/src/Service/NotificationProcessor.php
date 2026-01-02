@@ -302,4 +302,18 @@ class NotificationProcessor {
     $this->processWeeklyDigest();
   }
 
+  /**
+   * Process daily digests (alias for testing).
+   */
+  public function processDailyDigests() {
+    $this->processDailyDigest();
+  }
+
+  /**
+   * Process weekly digests (alias for testing).
+   */
+  public function processWeeklyDigests() {
+    $this->processWeeklyDigest();
+  }
+
 }
