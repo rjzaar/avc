@@ -38,7 +38,6 @@
             <th>{{ 'Assigned To'|t }}</th>
             <th>{{ 'Due Date'|t }}</th>
             <th>{{ 'Status'|t }}</th>
-            <th>{{ 'Actions'|t }}</th>
           </tr>
         </thead>
         <tbody>
@@ -62,12 +61,6 @@
               <td class="item-status">
                 <span class="status-badge status-current">{{ 'Active'|t }}</span>
               </td>
-              <td class="item-actions">
-                <a href="{{ path('entity.workflow_assignment.canonical', {workflow_assignment: item.id}) }}">{{ 'View'|t }}</a>
-                {% if is_manager %}
-                  | <a href="{{ path('entity.workflow_assignment.edit_form', {workflow_assignment: item.id}) }}">{{ 'Edit'|t }}</a>
-                {% endif %}
-              </td>
             </tr>
           {% endfor %}
         </tbody>
@@ -88,7 +81,6 @@
             <th>{{ 'Assigned To'|t }}</th>
             <th>{{ 'Due Date'|t }}</th>
             <th>{{ 'Status'|t }}</th>
-            <th>{{ 'Actions'|t }}</th>
           </tr>
         </thead>
         <tbody>
@@ -110,13 +102,7 @@
                 {% endif %}
               </td>
               <td class="item-status">
-                <span class="status-badge status-upcoming">{{ 'Upcoming'|t }}</span>
-              </td>
-              <td class="item-actions">
-                <a href="{{ path('entity.workflow_assignment.canonical', {workflow_assignment: item.id}) }}">{{ 'View'|t }}</a>
-                {% if is_manager %}
-                  | <a href="{{ path('entity.workflow_assignment.edit_form', {workflow_assignment: item.id}) }}">{{ 'Edit'|t }}</a>
-                {% endif %}
+                <span class="status-badge status-upcoming">{{ 'Proposed'|t }}</span>
               </td>
             </tr>
           {% endfor %}
@@ -137,7 +123,6 @@
             <th>{{ 'Title'|t }}</th>
             <th>{{ 'Completed By'|t }}</th>
             <th>{{ 'Completed Date'|t }}</th>
-            <th>{{ 'Actions'|t }}</th>
           </tr>
         </thead>
         <tbody>
@@ -157,9 +142,6 @@
                 {% else %}
                   -
                 {% endif %}
-              </td>
-              <td class="item-actions">
-                <a href="{{ path('entity.workflow_assignment.canonical', {workflow_assignment: item.id}) }}">{{ 'View'|t }}</a>
               </td>
             </tr>
           {% endfor %}
