@@ -17,12 +17,16 @@ This document provides a numbered, phased implementation plan for the AV Commons
 | 1 | Member System | ✅ COMPLETE | Core member dashboard, worklist, notifications |
 | 2 | Group System | ✅ COMPLETE | Group workflow dashboard, member lists, assignment forms |
 | 3 | Asset System | ✅ COMPLETE | Asset management, workflow processor, checker |
-| 4 | Notifications | 🔲 PLACEHOLDER | Module structure exists, awaiting implementation |
-| 5 | Guild System | 🔲 PLACEHOLDER | Module structure exists, awaiting implementation |
+| 4 | Notifications | ✅ COMPLETE | Queue entity, digest preferences, email templates |
+| 5 | Guild System | ✅ COMPLETE | Scoring, endorsements, ratification workflow |
 | 6 | Forums | 🔲 NOT STARTED | Leverage Open Social Topics |
 | 7-10 | Future Phases | 🔲 NOT STARTED | Versioning, Flagging, Courses, Suggestions |
 
-**Key Achievement**: Added `WorkflowTask` content entity to `workflow_assignment` module for per-asset workflow step tracking with revision support.
+**Key Achievements**:
+- Added `WorkflowTask` content entity for per-asset workflow step tracking
+- Implemented notification queue with n/d/w/x digest preferences
+- Created Guild group type with junior/endorsed/mentor/admin roles
+- Built scoring, endorsement, and ratification systems
 
 ---
 
@@ -458,10 +462,20 @@ modules/custom/avc_asset/
 
 ---
 
-### PHASE 4: Advanced Notification System 🔲 PLACEHOLDER
+### PHASE 4: Advanced Notification System ✅ COMPLETE
 **Goal**: Implement flexible notification preferences and batching
 **Dependency**: Phase 1, 2, 3
-**Status**: Module structure exists at `avc_profile/modules/avc_notification/`, awaiting implementation
+**Status**: Implemented in `avc_profile/modules/avc_notification/`
+
+#### Implemented Components
+- `NotificationQueue` entity for storing pending notifications
+- `NotificationService` for creating notifications
+- `NotificationPreferences` for n/d/w/x preference management
+- `NotificationAggregator` for digest compilation
+- `NotificationSender` for email delivery
+- `NotificationProcessor` for cron-based queue processing
+- `NotificationSettingsForm` for admin configuration
+- Email templates: workflow-advance, daily-digest, weekly-digest
 
 #### 4.1 Notification Preferences
 ```
@@ -559,11 +573,25 @@ modules/custom/avc_notification/
 
 ---
 
-### PHASE 5: Guild System (Custom Group Type in Open Social) 🔲 PLACEHOLDER
+### PHASE 5: Guild System (Custom Group Type in Open Social) ✅ COMPLETE
 **Goal**: Create Guild group type with mentorship, scoring, and skill tracking
 **Platform**: Custom group type extending Open Social's Group module
 **Dependency**: Phase 2
-**Status**: Module structure exists at `avc_profile/modules/avc_guild/`, awaiting implementation
+**Status**: Implemented in `avc_profile/modules/avc_guild/`
+
+#### Implemented Components
+- `GuildScore` entity for tracking member points
+- `SkillEndorsement` entity for skill endorsements
+- `Ratification` entity for junior work approval
+- `ScoringService` with point awards and leaderboards
+- `EndorsementService` for skill endorsement workflow
+- `RatificationService` for mentor ratification workflow
+- `GuildService` as main guild operations facade
+- `GuildDashboardController` for guild pages
+- `RatificationQueueController` for mentor queue
+- Forms: RatificationForm, EndorseSkillForm, GuildSettingsForm
+- Guild roles: junior, endorsed, mentor, admin
+- Templates: dashboard, member profile, leaderboard, ratification queue
 
 #### 5.1 Create Guild Group Type
 ```
@@ -901,8 +929,8 @@ Minimal - mostly configuration:
 | 1: Members | High | Medium | Extend social_profile | ✅ COMPLETE |
 | 2: Groups | High | Medium | Extend social_group | ✅ COMPLETE |
 | 3: Assets | High | High | Custom (workflow focus) | ✅ COMPLETE |
-| 4: Notifications | High | Medium | Extend social_notifications | 🔲 Next |
-| 5: Guilds | High | Medium | Custom group type | 🔲 Pending |
+| 4: Notifications | High | Medium | Extend social_notifications | ✅ COMPLETE |
+| 5: Guilds | High | Medium | Custom group type | ✅ COMPLETE |
 | 6: Forums | Low | Minimal | Use social_topic as-is | 🔲 Pending |
 | 7: Versioning | Medium | Low | Drupal revisions | 🔲 Pending |
 | 8: Flagging | Low | Low | Custom | 🔲 Pending |
