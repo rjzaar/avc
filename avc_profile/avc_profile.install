@@ -9,16 +9,48 @@
  * Implements hook_install().
  */
 function avc_profile_install() {
-  // Set default theme.
+  // Set default theme to AVC Theme.
   \Drupal::configFactory()
     ->getEditable('system.theme')
-    ->set('default', 'socialbase')
+    ->set('default', 'avc_theme')
     ->save();
 
-  // Set front page.
+  // Set front page and site name.
   \Drupal::configFactory()
     ->getEditable('system.site')
     ->set('page.front', '/stream')
     ->set('name', 'AV Commons')
+    ->set('slogan', 'Collaborative Platform for Apostoli Viae')
     ->save();
+}
+
+/**
+ * Update to use AVC Theme as default theme.
+ */
+function avc_profile_update_9001() {
+  // Install the AVC theme if not already installed.
+  $theme_handler = \Drupal::service('theme_handler');
+  if (!$theme_handler->themeExists('avc_theme')) {
+    \Drupal::service('theme_installer')->install(['avc_theme']);
+  }
+
+  // Set AVC Theme as default.
+  \Drupal::configFactory()
+    ->getEditable('system.theme')
+    ->set('default', 'avc_theme')
+    ->save();
+
+  return t('Updated default theme to AVC Theme.');
+}
+
+/**
+ * Install AVC Content module.
+ */
+function avc_profile_update_9002() {
+  $module_installer = \Drupal::service('module_installer');
+  if (!\Drupal::moduleHandler()->moduleExists('avc_content')) {
+    $module_installer->install(['avc_content']);
+  }
+
+  return t('Installed AVC Content module.');
 }

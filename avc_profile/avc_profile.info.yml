@@ -9,11 +9,13 @@ install:
   - avc_core
   - avc_member
   - avc_group
+  - avc_asset
+  - avc_notification
+  - avc_guild
+  - avc_content
 
-# These modules are installed after initial setup
-# - avc_guild (Phase 5)
-# - avc_asset (Phase 3)
-# - avc_notification (Phase 4)
+themes:
+  - avc_theme
 
 dependencies:
   - social_user:social_user

@@ -1,0 +1,20 @@
+global:
+  version: 1.0
+  css:
+    theme:
+      css/variables.css: {}
+      css/base.css: {}
+      css/components/header.css: {}
+      css/components/navigation.css: {}
+      css/components/buttons.css: {}
+      css/components/cards.css: {}
+      css/components/forms.css: {}
+      css/components/tables.css: {}
+      css/components/workflow.css: {}
+      css/components/dashboard.css: {}
+      css/components/guild.css: {}
+      css/pages/help.css: {}
+  js:
+    js/avc-theme.js: {}
+  dependencies:
+    - core/drupal

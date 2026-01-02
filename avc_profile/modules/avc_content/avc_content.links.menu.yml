@@ -1,0 +1,94 @@
+# Main menu links
+avc_content.about:
+  title: 'About'
+  route_name: avc_content.about
+  menu_name: main
+  weight: 90
+
+avc_content.contact:
+  title: 'Contact'
+  route_name: avc_content.contact
+  menu_name: main
+  weight: 95
+
+avc_content.help:
+  title: 'Help'
+  route_name: avc_content.user_guide
+  menu_name: main
+  weight: 100
+
+# Help submenu
+avc_content.getting_started:
+  title: 'Getting Started'
+  route_name: avc_content.getting_started
+  menu_name: main
+  parent: avc_content.help
+  weight: 0
+
+avc_content.user_guide_link:
+  title: 'User Guide'
+  route_name: avc_content.user_guide
+  menu_name: main
+  parent: avc_content.help
+  weight: 5
+
+avc_content.dashboard_help:
+  title: 'Dashboard'
+  route_name: avc_content.dashboard_help
+  menu_name: main
+  parent: avc_content.help
+  weight: 10
+
+avc_content.assets_help:
+  title: 'Working with Assets'
+  route_name: avc_content.assets_help
+  menu_name: main
+  parent: avc_content.help
+  weight: 15
+
+avc_content.workflow_help:
+  title: 'Workflow'
+  route_name: avc_content.workflow_help
+  menu_name: main
+  parent: avc_content.help
+  weight: 20
+
+avc_content.guilds_help:
+  title: 'Guilds'
+  route_name: avc_content.guilds_help
+  menu_name: main
+  parent: avc_content.help
+  weight: 25
+
+avc_content.notifications_help:
+  title: 'Notifications'
+  route_name: avc_content.notifications_help
+  menu_name: main
+  parent: avc_content.help
+  weight: 30
+
+avc_content.faq_link:
+  title: 'FAQ'
+  route_name: avc_content.faq
+  menu_name: main
+  parent: avc_content.help
+  weight: 99
+
+# Footer menu
+avc_content.about_footer:
+  title: 'About'
+  route_name: avc_content.about
+  menu_name: footer
+  weight: 0
+
+avc_content.contact_footer:
+  title: 'Contact'
+  route_name: avc_content.contact
+  menu_name: footer
+  weight: 5
+
+avc_content.help_footer:
+  title: 'Help'
+  route_name: avc_content.user_guide
+  menu_name: footer
+  weight: 10

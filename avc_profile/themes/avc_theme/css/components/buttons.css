@@ -1,0 +1,201 @@
+/**
+ * @file
+ * AV Commons Theme - Button styles
+ */
+
+/* Base button styles */
+.button,
+.btn,
+button[type="submit"],
+input[type="submit"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--avc-space-2);
+  padding: var(--avc-space-3) var(--avc-space-6);
+  font-family: var(--avc-font-primary);
+  font-size: var(--avc-font-size-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 2px solid transparent;
+  border-radius: var(--avc-radius-md);
+  cursor: pointer;
+  transition: all var(--avc-transition-fast);
+  text-decoration: none;
+  line-height: 1;
+}
+
+.button:focus,
+.btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(var(--avc-gold-rgb), 0.4);
+}
+
+/* Primary button - Gold */
+.button--primary,
+.btn-primary,
+button[type="submit"].button--primary,
+input[type="submit"] {
+  background: linear-gradient(135deg, var(--avc-gold) 0%, var(--avc-gold-dark) 100%);
+  color: var(--avc-primary-dark);
+  border-color: var(--avc-gold-dark);
+}
+
+.button--primary:hover,
+.btn-primary:hover,
+input[type="submit"]:hover {
+  background: linear-gradient(135deg, var(--avc-gold-light) 0%, var(--avc-gold) 100%);
+  color: var(--avc-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--avc-shadow-md);
+  text-decoration: none;
+}
+
+/* Secondary button - Navy outline */
+.button--secondary,
+.btn-secondary {
+  background-color: transparent;
+  color: var(--avc-primary);
+  border-color: var(--avc-primary);
+}
+
+.button--secondary:hover,
+.btn-secondary:hover {
+  background-color: var(--avc-primary);
+  color: var(--avc-white);
+  text-decoration: none;
+}
+
+/* Tertiary button - Light background */
+.button--tertiary,
+.btn-tertiary {
+  background-color: var(--avc-gray-100);
+  color: var(--avc-gray-700);
+  border-color: var(--avc-gray-300);
+}
+
+.button--tertiary:hover,
+.btn-tertiary:hover {
+  background-color: var(--avc-gray-200);
+  border-color: var(--avc-gray-400);
+  color: var(--avc-gray-800);
+  text-decoration: none;
+}
+
+/* Success button */
+.button--success,
+.btn-success {
+  background-color: var(--avc-success);
+  color: var(--avc-white);
+  border-color: var(--avc-success);
+}
+
+.button--success:hover,
+.btn-success:hover {
+  background-color: var(--avc-success-light);
+  border-color: var(--avc-success-light);
+  text-decoration: none;
+}
+
+/* Danger/Error button */
+.button--danger,
+.btn-danger {
+  background-color: var(--avc-error);
+  color: var(--avc-white);
+  border-color: var(--avc-error);
+}
+
+.button--danger:hover,
+.btn-danger:hover {
+  background-color: var(--avc-error-light);
+  border-color: var(--avc-error-light);
+  text-decoration: none;
+}
+
+/* Small button */
+.button--small,
+.btn-sm {
+  padding: var(--avc-space-2) var(--avc-space-4);
+  font-size: var(--avc-font-size-xs);
+}
+
+/* Large button */
+.button--large,
+.btn-lg {
+  padding: var(--avc-space-4) var(--avc-space-8);
+  font-size: var(--avc-font-size-base);
+}
+
+/* Full width button */
+.button--full,
+.btn-block {
+  width: 100%;
+}
+
+/* Disabled state */
+.button:disabled,
+.btn:disabled,
+button:disabled,
+input[type="submit"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Icon button */
+.button--icon {
+  padding: var(--avc-space-2);
+  min-width: 40px;
+  min-height: 40px;
+}
+
+/* Button group */
+.button-group {
+  display: flex;
+  gap: var(--avc-space-2);
+  flex-wrap: wrap;
+}
+
+.button-group--vertical {
+  flex-direction: column;
+}
+
+/* Action links */
+.action-links {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--avc-space-6) 0;
+  display: flex;
+  gap: var(--avc-space-3);
+}
+
+.action-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--avc-space-2);
+  padding: var(--avc-space-2) var(--avc-space-4);
+  background-color: var(--avc-primary);
+  color: var(--avc-white);
+  border-radius: var(--avc-radius-md);
+  font-size: var(--avc-font-size-sm);
+  font-weight: 500;
+}
+
+.action-links a:hover {
+  background-color: var(--avc-primary-light);
+  text-decoration: none;
+  color: var(--avc-white);
+}
+
+/* Workflow action buttons */
+.workflow-actions {
+  display: flex;
+  gap: var(--avc-space-3);
+  margin-top: var(--avc-space-4);
+  flex-wrap: wrap;
+}
+
+.workflow-actions .button {
+  flex: 0 0 auto;
+}

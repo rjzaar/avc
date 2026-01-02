@@ -1,0 +1,11 @@
+name: 'AVC Content'
+type: module
+description: 'Provides initial site content, pages, and user documentation for AV Commons'
+package: 'AV Commons'
+core_version_requirement: ^10
+dependencies:
+  - drupal:node
+  - drupal:block
+  - drupal:block_content
+  - drupal:menu_link_content
+  - drupal:path
