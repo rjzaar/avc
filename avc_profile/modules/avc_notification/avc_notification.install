@@ -1,0 +1,97 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the AVC Notification module.
+ */
+
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
+
+/**
+ * Implements hook_install().
+ */
+function avc_notification_install() {
+  // Create notification preference field on user entity.
+  _avc_notification_create_user_fields();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function avc_notification_uninstall() {
+  // Clean up configuration.
+  \Drupal::configFactory()->getEditable('avc_notification.settings')->delete();
+
+  // Clean up state.
+  \Drupal::state()->delete('avc_notification.daily_digest_last_run');
+  \Drupal::state()->delete('avc_notification.weekly_digest_last_run');
+}
+
+/**
+ * Create user notification preference fields.
+ */
+function _avc_notification_create_user_fields() {
+  // Create field storage for notification default.
+  if (!FieldStorageConfig::loadByName('user', 'field_notification_default')) {
+    FieldStorageConfig::create([
+      'field_name' => 'field_notification_default',
+      'entity_type' => 'user',
+      'type' => 'list_string',
+      'settings' => [
+        'allowed_values' => [
+          'n' => 'Immediate (as they occur)',
+          'd' => 'Daily digest',
+          'w' => 'Weekly digest',
+          'x' => 'No notifications',
+        ],
+      ],
+      'cardinality' => 1,
+    ])->save();
+  }
+
+  // Create field instance.
+  if (!FieldConfig::loadByName('user', 'user', 'field_notification_default')) {
+    FieldConfig::create([
+      'field_name' => 'field_notification_default',
+      'entity_type' => 'user',
+      'bundle' => 'user',
+      'label' => 'Notification Preference',
+      'description' => 'How often you want to receive notifications.',
+      'required' => FALSE,
+      'default_value' => [['value' => 'n']],
+    ])->save();
+  }
+
+  // Create field storage for last notification run.
+  if (!FieldStorageConfig::loadByName('user', 'field_notification_last_run')) {
+    FieldStorageConfig::create([
+      'field_name' => 'field_notification_last_run',
+      'entity_type' => 'user',
+      'type' => 'timestamp',
+      'cardinality' => 1,
+    ])->save();
+  }
+
+  // Create field instance.
+  if (!FieldConfig::loadByName('user', 'user', 'field_notification_last_run')) {
+    FieldConfig::create([
+      'field_name' => 'field_notification_last_run',
+      'entity_type' => 'user',
+      'bundle' => 'user',
+      'label' => 'Last Notification Run',
+      'description' => 'Timestamp of last notification digest sent.',
+      'required' => FALSE,
+    ])->save();
+  }
+}
+
+/**
+ * Implements hook_schema().
+ */
+function avc_notification_schema() {
+  // The notification_queue entity uses Drupal's entity system,
+  // so we don't need to define the schema here.
+  return [];
+}

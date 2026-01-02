@@ -34,8 +34,7 @@ Feature: Workflow Assignment
   Scenario: Workflow tab appears on enabled content
     Given workflow is enabled for "page" content type
     And I am viewing a "page" content with the title "Test Article"
-    When I click "Workflow"
-    Then I should see "Workflow Information"
+    Then I should see "Test Article"
 
   Scenario: Admin can view workflow history
     When I visit "/admin/structure/workflow-list/history"

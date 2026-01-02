@@ -11,13 +11,13 @@
  */
 #}
 <div class="avc-member-dashboard">
-  <h2>{{ 'My Dashboard'|t }}</h2>
+  <h2>{{ 'Dashboard'|t }}</h2>
 
   {# Notification Settings Summary #}
   <div class="dashboard-section notification-settings">
-    <h3>{{ 'Notification Settings'|t }}</h3>
+    <h3>{{ 'Notification Preferences'|t }}</h3>
     <p>
-      {{ 'Default:'|t }}
+      {{ 'Default notification:'|t }}
       {% if notification_settings.default == 'n' %}
         {{ 'Immediate'|t }}
       {% elseif notification_settings.default == 'd' %}
@@ -33,7 +33,7 @@
 
   {# Personal Worklist #}
   <div class="dashboard-section personal-worklist">
-    <h3>{{ 'My Tasks'|t }}</h3>
+    <h3>{{ 'My Worklist'|t }}</h3>
     {% if worklist %}
       <table class="avc-worklist-table">
         <thead>
@@ -64,7 +64,7 @@
         </tbody>
       </table>
     {% else %}
-      <p class="empty-message">{{ 'No tasks assigned to you.'|t }}</p>
+      <p class="empty-message">{{ 'No current assignments'|t }}</p>
     {% endif %}
   </div>
 

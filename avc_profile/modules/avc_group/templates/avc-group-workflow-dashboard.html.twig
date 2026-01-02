@@ -14,11 +14,12 @@
 #}
 <div class="avc-group-workflow-dashboard">
   <div class="dashboard-header">
-    <h2>{{ 'Workflow Dashboard'|t }}: {{ group.label() }}</h2>
+    <h2>{{ 'Group Workflow'|t }}</h2>
+    <h3>{{ group.label() }}</h3>
     {% if is_manager %}
       <div class="dashboard-actions">
         <a href="{{ path('avc_group.workflow.add', {group: group.id()}) }}" class="button button--primary">
-          {{ 'Add Assignment'|t }}
+          {{ 'Add assignment'|t }}
         </a>
         <a href="{{ path('avc_group.workflow.settings', {group: group.id()}) }}" class="button">
           {{ 'Settings'|t }}
@@ -42,7 +43,8 @@
         </thead>
         <tbody>
           {% for item in current_assignments %}
-            <tr class="worklist-item status-current">
+            {% set is_mine = item.is_assigned_to_current_user|default(false) %}
+            <tr class="worklist-item status-current {{ is_mine ? 'assignment-highlighted' : '' }}">
               <td class="item-title">{{ item.label }}</td>
               <td class="item-assignee">
                 {% if item.assigned_user %}

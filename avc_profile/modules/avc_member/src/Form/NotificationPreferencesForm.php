@@ -59,7 +59,7 @@ class NotificationPreferencesForm extends FormBase {
 
     $form['default_notification'] = [
       '#type' => 'radios',
-      '#title' => $this->t('Default Notification Setting'),
+      '#title' => $this->t('Default notification preference'),
       '#description' => $this->t('This applies to all groups unless overridden.'),
       '#options' => [
         'n' => $this->t('Immediate - Receive alerts as soon as resources become relevant'),
@@ -73,7 +73,7 @@ class NotificationPreferencesForm extends FormBase {
     // Group-specific overrides.
     $form['group_overrides'] = [
       '#type' => 'fieldset',
-      '#title' => $this->t('Group-specific Settings'),
+      '#title' => $this->t('Group notification overrides'),
       '#description' => $this->t('Override the default for specific groups.'),
     ];
 
@@ -133,7 +133,7 @@ class NotificationPreferencesForm extends FormBase {
     // This would save to group_content entities or a custom storage.
     // Implementation depends on how group membership stores extra data.
 
-    $this->messenger()->addStatus($this->t('Your notification preferences have been saved.'));
+    $this->messenger()->addStatus($this->t('Notification preferences saved'));
   }
 
   /**

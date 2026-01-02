@@ -1,0 +1,79 @@
+{#
+/**
+ * @file
+ * Weekly digest email template.
+ *
+ * Available variables:
+ * - recipient_name: The name of the recipient.
+ * - items: Array of notification items.
+ * - dashboard_link: URL to the user's dashboard.
+ * - week_start: Start date of the week.
+ * - week_end: End date of the week.
+ */
+#}
+<p>Dear {{ recipient_name }},</p>
+
+<p>
+  Here is your weekly summary of AV Commons activity for
+  <strong>{{ week_start }} - {{ week_end }}</strong>.
+</p>
+
+{% if items %}
+<h3 style="color: #333; border-bottom: 1px solid #ddd; padding-bottom: 5px;">
+  Activity This Week ({{ items|length }} items)
+</h3>
+
+<table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+  <thead>
+    <tr style="background-color: #f5f5f5;">
+      <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Activity</th>
+      <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Asset</th>
+      <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Group</th>
+      <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in items %}
+    <tr>
+      <td style="padding: 10px; border-bottom: 1px solid #eee;">
+        {{ item.message }}
+      </td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee;">
+        {% if item.asset_link %}
+        <a href="{{ item.asset_link }}">{{ item.asset_title }}</a>
+        {% else %}
+        -
+        {% endif %}
+      </td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee;">
+        {{ item.group_name ?? '-' }}
+      </td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee;">
+        {{ item.created }}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>
+  <em>No activity this week.</em>
+</p>
+{% endif %}
+
+<p>
+  <a href="{{ dashboard_link }}" style="display: inline-block; padding: 10px 20px; background-color: #0073e6; color: white; text-decoration: none; border-radius: 4px;">
+    Go to Dashboard
+  </a>
+</p>
+
+<hr style="margin: 30px 0; border: none; border-top: 1px solid #ddd;">
+
+<p style="font-size: 12px; color: #666;">
+  You are receiving this email because you have set your notification preference to "Weekly Digest".
+  You can change this setting in your <a href="{{ dashboard_link }}">profile settings</a>.
+</p>
+
+<p>
+  <em>The AV Commons Team</em>
+</p>

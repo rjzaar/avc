@@ -61,9 +61,8 @@ class GroupWorkflowService {
 
       $storage = $this->entityTypeManager->getStorage('workflow_task');
 
-      // Query tasks for this group.
+      // Query tasks for this group - both group-assigned and user-assigned tasks in this group.
       $query = $storage->getQuery()
-        ->condition('assigned_type', 'group')
         ->condition('assigned_group', $group->id())
         ->accessCheck(TRUE)
         ->sort('created', 'DESC');
@@ -74,12 +73,16 @@ class GroupWorkflowService {
         $entities = $storage->loadMultiple($ids);
 
         foreach ($entities as $task) {
+          $assigned_user = $this->getAssignedUser($task);
+          $is_mine = $assigned_user && $assigned_user->id() == $this->currentUser->id();
+
           $assignments[] = [
             'task' => $task,
             'id' => $task->id(),
             'label' => $task->label(),
             'status' => $task->getStatus(),
-            'assigned_user' => $this->getAssignedUser($task),
+            'assigned_user' => $assigned_user,
+            'is_assigned_to_current_user' => $is_mine,
             'due_date' => $task->get('due_date')->value ?? NULL,
             'changed_date' => $task->get('changed')->value ?? NULL,
             'node' => $task->getNode(),

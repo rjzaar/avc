@@ -1,0 +1,63 @@
+avc_notification.settings:
+  path: '/admin/config/avc/notifications'
+  defaults:
+    _form: '\Drupal\avc_notification\Form\NotificationSettingsForm'
+    _title: 'Notification Settings'
+  requirements:
+    _permission: 'administer notification settings'
+
+avc_notification.queue:
+  path: '/admin/config/avc/notifications/queue'
+  defaults:
+    _entity_list: 'notification_queue'
+    _title: 'Notification Queue'
+  requirements:
+    _permission: 'administer notification queue'
+
+entity.notification_queue.canonical:
+  path: '/admin/config/avc/notifications/queue/{notification_queue}'
+  defaults:
+    _entity_view: 'notification_queue'
+    _title: 'Notification'
+  requirements:
+    _permission: 'administer notification queue'
+  options:
+    parameters:
+      notification_queue:
+        type: entity:notification_queue
+
+entity.notification_queue.delete_form:
+  path: '/admin/config/avc/notifications/queue/{notification_queue}/delete'
+  defaults:
+    _entity_form: 'notification_queue.delete'
+    _title: 'Delete Notification'
+  requirements:
+    _permission: 'administer notification queue'
+  options:
+    parameters:
+      notification_queue:
+        type: entity:notification_queue
+
+avc_notification.process:
+  path: '/admin/config/avc/notifications/process'
+  defaults:
+    _controller: '\Drupal\avc_notification\Controller\NotificationAdminController::process'
+    _title: 'Process Notifications'
+  requirements:
+    _permission: 'administer notification queue'
+
+avc_notification.force_daily:
+  path: '/admin/config/avc/notifications/force-daily'
+  defaults:
+    _controller: '\Drupal\avc_notification\Controller\NotificationAdminController::forceDailyDigest'
+    _title: 'Force Daily Digest'
+  requirements:
+    _permission: 'administer notification queue'
+
+avc_notification.force_weekly:
+  path: '/admin/config/avc/notifications/force-weekly'
+  defaults:
+    _controller: '\Drupal\avc_notification\Controller\NotificationAdminController::forceWeeklyDigest'
+    _title: 'Force Weekly Digest'
+  requirements:
+    _permission: 'administer notification queue'

@@ -1,0 +1,13 @@
+administer notification settings:
+  title: 'Administer notification settings'
+  description: 'Configure notification system settings like digest schedules.'
+  restrict access: true
+
+administer notification queue:
+  title: 'Administer notification queue'
+  description: 'View and manage the notification queue.'
+  restrict access: true
+
+view own notifications:
+  title: 'View own notifications'
+  description: 'View notifications sent to yourself.'

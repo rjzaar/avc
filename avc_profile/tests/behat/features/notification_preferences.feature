@@ -15,7 +15,7 @@ Feature: Notification Preferences
 
   @wip
   Scenario: Member can set immediate notifications
-    When I visit "/user/notification-preferences"
+    When I visit my notification preferences
     And I set my notification preference to "immediate"
     And I save my notification preferences
     Then I should see a success message
@@ -23,21 +23,21 @@ Feature: Notification Preferences
 
   @wip
   Scenario: Member can set daily digest
-    When I visit "/user/notification-preferences"
+    When I visit my notification preferences
     And I set my notification preference to "daily"
     And I save my notification preferences
     Then I should see a success message
 
   @wip
   Scenario: Member can set weekly digest
-    When I visit "/user/notification-preferences"
+    When I visit my notification preferences
     And I set my notification preference to "weekly"
     And I save my notification preferences
     Then I should see a success message
 
   @wip
   Scenario: Member can disable notifications
-    When I visit "/user/notification-preferences"
+    When I visit my notification preferences
     And I set my notification preference to "none"
     And I save my notification preferences
     Then I should see a success message
@@ -45,6 +45,6 @@ Feature: Notification Preferences
   @javascript
   Scenario: Member can set per-group notification overrides
     Given I am a member of a group "Translation Team"
-    When I visit "/user/notification-preferences"
+    When I visit my notification preferences
     Then I should see "Translation Team"
     And I should see "Group notification overrides"
