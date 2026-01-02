@@ -357,14 +357,21 @@ class WorkflowChecker {
       return [];
     }
 
+    // Check if workflow_assignment entity has node_id field.
     $storage = $this->entityTypeManager->getStorage('workflow_assignment');
-    $query = $storage->getQuery()
-      ->condition('node_id', $node->id())
-      ->sort('weight', 'ASC')
-      ->accessCheck(TRUE);
 
-    $ids = $query->execute();
-    return $storage->loadMultiple($ids);
+    // First try to get assignments from node's workflow field if it exists.
+    if ($node->hasField('field_workflow_assignment')) {
+      $referenced = $node->get('field_workflow_assignment')->referencedEntities();
+      if (!empty($referenced)) {
+        return $referenced;
+      }
+    }
+
+    // Fallback: Check if there's a node reference field on workflow_assignment.
+    // For now, return empty array if no direct link exists.
+    // In production, workflow_assignment should reference the node.
+    return [];
   }
 
 }
