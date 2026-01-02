@@ -42,26 +42,26 @@ class GroupWorkflowService {
   }
 
   /**
-   * Gets all workflow assignments for a group.
+   * Gets all workflow tasks for a group.
    *
    * @param \Drupal\group\Entity\GroupInterface $group
    *   The group entity.
    *
    * @return array
-   *   Array of workflow assignments with status.
+   *   Array of workflow tasks with status.
    */
   public function getGroupAssignments(GroupInterface $group) {
     $assignments = [];
 
     try {
-      // Check if workflow_assignment module is enabled and entity exists.
-      if (!$this->entityTypeManager->hasDefinition('workflow_assignment')) {
+      // Check if workflow_task entity exists.
+      if (!$this->entityTypeManager->hasDefinition('workflow_task')) {
         return $assignments;
       }
 
-      $storage = $this->entityTypeManager->getStorage('workflow_assignment');
+      $storage = $this->entityTypeManager->getStorage('workflow_task');
 
-      // Query assignments for this group.
+      // Query tasks for this group.
       $query = $storage->getQuery()
         ->condition('assigned_type', 'group')
         ->condition('assigned_group', $group->id())
@@ -73,25 +73,23 @@ class GroupWorkflowService {
       if (!empty($ids)) {
         $entities = $storage->loadMultiple($ids);
 
-        foreach ($entities as $assignment) {
-          $status = $this->determineAssignmentStatus($assignment);
-
+        foreach ($entities as $task) {
           $assignments[] = [
-            'assignment' => $assignment,
-            'id' => $assignment->id(),
-            'label' => $assignment->label(),
-            'status' => $status,
-            'assigned_user' => $this->getAssignedUser($assignment),
-            'due_date' => $assignment->hasField('due_date') ? $assignment->get('due_date')->value : NULL,
-            'changed_date' => $assignment->hasField('changed') ? $assignment->get('changed')->value : NULL,
-            'node' => $this->getAssociatedNode($assignment),
+            'task' => $task,
+            'id' => $task->id(),
+            'label' => $task->label(),
+            'status' => $task->getStatus(),
+            'assigned_user' => $this->getAssignedUser($task),
+            'due_date' => $task->get('due_date')->value ?? NULL,
+            'changed_date' => $task->get('changed')->value ?? NULL,
+            'node' => $task->getNode(),
           ];
         }
       }
     }
     catch (\Exception $e) {
       \Drupal::logger('avc_group')->error(
-        'Error loading group assignments: @message',
+        'Error loading group tasks: @message',
         ['@message' => $e->getMessage()]
       );
     }
@@ -171,35 +169,35 @@ class GroupWorkflowService {
   }
 
   /**
-   * Creates a workflow assignment for a group.
+   * Creates a workflow task for a group.
    *
    * @param \Drupal\group\Entity\GroupInterface $group
    *   The group entity.
    * @param array $values
-   *   The assignment values.
+   *   The task values.
    *
    * @return \Drupal\Core\Entity\EntityInterface|null
-   *   The created assignment or NULL on failure.
+   *   The created task or NULL on failure.
    */
   public function createGroupAssignment(GroupInterface $group, array $values) {
     try {
-      if (!$this->entityTypeManager->hasDefinition('workflow_assignment')) {
+      if (!$this->entityTypeManager->hasDefinition('workflow_task')) {
         return NULL;
       }
 
-      $storage = $this->entityTypeManager->getStorage('workflow_assignment');
+      $storage = $this->entityTypeManager->getStorage('workflow_task');
 
       $values['assigned_type'] = 'group';
       $values['assigned_group'] = $group->id();
 
-      $assignment = $storage->create($values);
-      $assignment->save();
+      $task = $storage->create($values);
+      $task->save();
 
-      return $assignment;
+      return $task;
     }
     catch (\Exception $e) {
       \Drupal::logger('avc_group')->error(
-        'Error creating group assignment: @message',
+        'Error creating group task: @message',
         ['@message' => $e->getMessage()]
       );
       return NULL;
@@ -207,7 +205,7 @@ class GroupWorkflowService {
   }
 
   /**
-   * Gets assignments for a specific user within a group.
+   * Gets tasks for a specific user within a group.
    *
    * @param \Drupal\group\Entity\GroupInterface $group
    *   The group entity.
@@ -215,19 +213,19 @@ class GroupWorkflowService {
    *   The user account.
    *
    * @return array
-   *   Array of assignments for the user in this group.
+   *   Array of tasks for the user in this group.
    */
   public function getUserGroupAssignments(GroupInterface $group, AccountInterface $account) {
     $assignments = [];
 
     try {
-      if (!$this->entityTypeManager->hasDefinition('workflow_assignment')) {
+      if (!$this->entityTypeManager->hasDefinition('workflow_task')) {
         return $assignments;
       }
 
-      $storage = $this->entityTypeManager->getStorage('workflow_assignment');
+      $storage = $this->entityTypeManager->getStorage('workflow_task');
 
-      // Query assignments where user is assigned within this group's content.
+      // Query tasks where user is assigned within this group's content.
       $query = $storage->getQuery()
         ->condition('assigned_type', 'user')
         ->condition('assigned_user', $account->id())
@@ -238,15 +236,15 @@ class GroupWorkflowService {
       if (!empty($ids)) {
         $entities = $storage->loadMultiple($ids);
 
-        foreach ($entities as $assignment) {
-          // Check if this assignment's content belongs to the group.
-          $node = $this->getAssociatedNode($assignment);
+        foreach ($entities as $task) {
+          // Check if this task's content belongs to the group.
+          $node = $task->getNode();
           if ($node && $this->nodeInGroup($node, $group)) {
             $assignments[] = [
-              'assignment' => $assignment,
-              'id' => $assignment->id(),
-              'label' => $assignment->label(),
-              'status' => $this->determineAssignmentStatus($assignment),
+              'task' => $task,
+              'id' => $task->id(),
+              'label' => $task->label(),
+              'status' => $task->getStatus(),
             ];
           }
         }
@@ -254,7 +252,7 @@ class GroupWorkflowService {
     }
     catch (\Exception $e) {
       \Drupal::logger('avc_group')->error(
-        'Error loading user group assignments: @message',
+        'Error loading user group tasks: @message',
         ['@message' => $e->getMessage()]
       );
     }
@@ -263,68 +261,19 @@ class GroupWorkflowService {
   }
 
   /**
-   * Determines the status of an assignment.
+   * Gets the user assigned to a workflow task.
    *
-   * @param mixed $assignment
-   *   The workflow assignment entity.
-   *
-   * @return string
-   *   The status: 'current', 'upcoming', or 'completed'.
-   */
-  protected function determineAssignmentStatus($assignment) {
-    $completion = $assignment->get('completion')->value ?? 'proposed';
-
-    switch ($completion) {
-      case 'completed':
-        return 'completed';
-
-      case 'accepted':
-        return 'current';
-
-      default:
-        return 'upcoming';
-    }
-  }
-
-  /**
-   * Gets the user assigned to a workflow assignment.
-   *
-   * @param mixed $assignment
-   *   The workflow assignment entity.
+   * @param mixed $task
+   *   The workflow task entity.
    *
    * @return \Drupal\user\UserInterface|null
    *   The assigned user or NULL.
    */
-  protected function getAssignedUser($assignment) {
+  protected function getAssignedUser($task) {
     try {
-      $user_id = $assignment->get('assigned_user')->target_id ?? NULL;
+      $user_id = $task->get('assigned_user')->target_id ?? NULL;
       if ($user_id) {
         return $this->entityTypeManager->getStorage('user')->load($user_id);
-      }
-    }
-    catch (\Exception $e) {
-      // Ignore.
-    }
-    return NULL;
-  }
-
-  /**
-   * Gets the node associated with a workflow assignment.
-   *
-   * @param mixed $assignment
-   *   The workflow assignment entity.
-   *
-   * @return \Drupal\node\NodeInterface|null
-   *   The associated node or NULL.
-   */
-  protected function getAssociatedNode($assignment) {
-    try {
-      // Check if assignment is attached to a node.
-      if ($assignment->hasField('node_id')) {
-        $node_id = $assignment->get('node_id')->target_id ?? NULL;
-        if ($node_id) {
-          return $this->entityTypeManager->getStorage('node')->load($node_id);
-        }
       }
     }
     catch (\Exception $e) {

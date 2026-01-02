@@ -159,3 +159,69 @@ workflow_assignment.apply_template:
     parameters:
       node:
         type: entity:node
+
+# Workflow Task routes
+entity.workflow_task.collection:
+  path: '/admin/structure/workflow-task'
+  defaults:
+    _entity_list: 'workflow_task'
+    _title: 'Workflow Tasks'
+  requirements:
+    _permission: 'administer workflow tasks'
+
+entity.workflow_task.add_form:
+  path: '/workflow-task/add'
+  defaults:
+    _entity_form: 'workflow_task.add'
+    _title: 'Add Workflow Task'
+  requirements:
+    _permission: 'create workflow tasks'
+
+entity.workflow_task.add_for_node:
+  path: '/node/{node}/workflow/add-task'
+  defaults:
+    _controller: '\Drupal\workflow_assignment\Controller\NodeWorkflowController::addTask'
+    _title: 'Add Workflow Task'
+  requirements:
+    _permission: 'create workflow tasks'
+    node: \d+
+  options:
+    parameters:
+      node:
+        type: entity:node
+
+entity.workflow_task.canonical:
+  path: '/workflow-task/{workflow_task}'
+  defaults:
+    _entity_view: 'workflow_task.full'
+    _title_callback: '\Drupal\Core\Entity\Controller\EntityController::title'
+  requirements:
+    _entity_access: 'workflow_task.view'
+  options:
+    parameters:
+      workflow_task:
+        type: entity:workflow_task
+
+entity.workflow_task.edit_form:
+  path: '/workflow-task/{workflow_task}/edit'
+  defaults:
+    _entity_form: 'workflow_task.edit'
+    _title: 'Edit Workflow Task'
+  requirements:
+    _entity_access: 'workflow_task.update'
+  options:
+    parameters:
+      workflow_task:
+        type: entity:workflow_task
+
+entity.workflow_task.delete_form:
+  path: '/workflow-task/{workflow_task}/delete'
+  defaults:
+    _entity_form: 'workflow_task.delete'
+    _title: 'Delete Workflow Task'
+  requirements:
+    _entity_access: 'workflow_task.delete'
+  options:
+    parameters:
+      workflow_task:
+        type: entity:workflow_task

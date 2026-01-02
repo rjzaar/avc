@@ -144,30 +144,27 @@ class AssetManager {
     $assets = [];
 
     try {
-      if (!$this->entityTypeManager->hasDefinition('workflow_assignment')) {
+      if (!$this->entityTypeManager->hasDefinition('workflow_task')) {
         return $assets;
       }
 
-      $storage = $this->entityTypeManager->getStorage('workflow_assignment');
+      $storage = $this->entityTypeManager->getStorage('workflow_task');
       $query = $storage->getQuery()
         ->condition('assigned_type', 'user')
         ->condition('assigned_user', $user->id())
         ->accessCheck(TRUE);
 
       $ids = $query->execute();
-      $assignments = $storage->loadMultiple($ids);
+      $tasks = $storage->loadMultiple($ids);
 
-      foreach ($assignments as $assignment) {
-        $node_id = $assignment->get('node_id')->target_id ?? NULL;
-        if ($node_id) {
-          $node = $this->entityTypeManager->getStorage('node')->load($node_id);
-          if ($node) {
-            $assets[] = [
-              'node' => $node,
-              'assignment' => $assignment,
-              'status' => $this->getAssetStatus($node, $assignment),
-            ];
-          }
+      foreach ($tasks as $task) {
+        $node = $task->getNode();
+        if ($node) {
+          $assets[] = [
+            'node' => $node,
+            'task' => $task,
+            'status' => $this->getAssetStatus($node, $task),
+          ];
         }
       }
     }
@@ -195,30 +192,27 @@ class AssetManager {
     $assets = [];
 
     try {
-      if (!$this->entityTypeManager->hasDefinition('workflow_assignment')) {
+      if (!$this->entityTypeManager->hasDefinition('workflow_task')) {
         return $assets;
       }
 
-      $storage = $this->entityTypeManager->getStorage('workflow_assignment');
+      $storage = $this->entityTypeManager->getStorage('workflow_task');
       $query = $storage->getQuery()
         ->condition('assigned_type', 'group')
         ->condition('assigned_group', $group_id)
         ->accessCheck(TRUE);
 
       $ids = $query->execute();
-      $assignments = $storage->loadMultiple($ids);
+      $tasks = $storage->loadMultiple($ids);
 
-      foreach ($assignments as $assignment) {
-        $node_id = $assignment->get('node_id')->target_id ?? NULL;
-        if ($node_id) {
-          $node = $this->entityTypeManager->getStorage('node')->load($node_id);
-          if ($node) {
-            $assets[] = [
-              'node' => $node,
-              'assignment' => $assignment,
-              'status' => $this->getAssetStatus($node, $assignment),
-            ];
-          }
+      foreach ($tasks as $task) {
+        $node = $task->getNode();
+        if ($node) {
+          $assets[] = [
+            'node' => $node,
+            'task' => $task,
+            'status' => $this->getAssetStatus($node, $task),
+          ];
         }
       }
     }
@@ -358,23 +352,23 @@ class AssetManager {
   }
 
   /**
-   * Gets the status of an asset based on workflow.
+   * Gets the status of an asset based on workflow task.
    *
    * @param \Drupal\node\NodeInterface $node
    *   The asset node.
-   * @param mixed $assignment
-   *   The workflow assignment (optional).
+   * @param mixed $task
+   *   The workflow task (optional).
    *
    * @return string
    *   The status: 'current', 'upcoming', 'completed'.
    */
-  protected function getAssetStatus(NodeInterface $node, $assignment = NULL) {
-    if ($assignment) {
-      $completion = $assignment->get('completion')->value ?? 'proposed';
-      switch ($completion) {
+  protected function getAssetStatus(NodeInterface $node, $task = NULL) {
+    if ($task) {
+      $status = $task->getStatus();
+      switch ($status) {
         case 'completed':
           return 'completed';
-        case 'accepted':
+        case 'in_progress':
           return 'current';
         default:
           return 'upcoming';

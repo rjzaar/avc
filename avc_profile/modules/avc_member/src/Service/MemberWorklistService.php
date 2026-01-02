@@ -43,9 +43,13 @@ class MemberWorklistService {
   public function getUserWorklist(UserInterface $user) {
     $worklist = [];
 
-    // Query workflow_assignment entities where user is assigned.
+    // Query workflow_task entities where user is assigned.
     try {
-      $storage = $this->entityTypeManager->getStorage('workflow_assignment');
+      if (!$this->entityTypeManager->hasDefinition('workflow_task')) {
+        return $worklist;
+      }
+
+      $storage = $this->entityTypeManager->getStorage('workflow_task');
       $query = $storage->getQuery()
         ->condition('assigned_type', 'user')
         ->condition('assigned_user', $user->id())
@@ -53,13 +57,14 @@ class MemberWorklistService {
       $ids = $query->execute();
 
       if (!empty($ids)) {
-        $assignments = $storage->loadMultiple($ids);
-        foreach ($assignments as $assignment) {
+        $tasks = $storage->loadMultiple($ids);
+        foreach ($tasks as $task) {
           $worklist[] = [
-            'id' => $assignment->id(),
-            'label' => $assignment->label(),
-            'description' => $assignment->hasField('description') ? strip_tags($assignment->get('description')->value ?? '') : '',
-            'status' => $this->determineWorklistStatus($assignment, $user),
+            'id' => $task->id(),
+            'label' => $task->label(),
+            'description' => $task->getDescription(),
+            'status' => $task->getStatus(),
+            'node' => $task->getNode(),
           ];
         }
       }
@@ -132,7 +137,11 @@ class MemberWorklistService {
     $worklist = [];
 
     try {
-      $storage = $this->entityTypeManager->getStorage('workflow_assignment');
+      if (!$this->entityTypeManager->hasDefinition('workflow_task')) {
+        return $worklist;
+      }
+
+      $storage = $this->entityTypeManager->getStorage('workflow_task');
       $query = $storage->getQuery()
         ->condition('assigned_type', 'group')
         ->condition('assigned_group', $group->id())
@@ -140,13 +149,13 @@ class MemberWorklistService {
       $ids = $query->execute();
 
       if (!empty($ids)) {
-        $assignments = $storage->loadMultiple($ids);
-        foreach ($assignments as $assignment) {
-          $completion = $assignment->get('completion')->value ?? 'proposed';
+        $tasks = $storage->loadMultiple($ids);
+        foreach ($tasks as $task) {
           $worklist[] = [
-            'id' => $assignment->id(),
-            'label' => $assignment->label(),
-            'status' => $completion === 'accepted' ? 'current' : ($completion === 'completed' ? 'completed' : 'upcoming'),
+            'id' => $task->id(),
+            'label' => $task->label(),
+            'status' => $task->getStatus(),
+            'node' => $task->getNode(),
           ];
         }
       }

@@ -320,3 +320,28 @@ function workflow_assignment_update_9006() {
 
   return t('Workflow history table already exists.');
 }
+
+/**
+ * Install the workflow_task content entity type.
+ */
+function workflow_assignment_update_9007() {
+  $entity_definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+  $entity_type_manager = \Drupal::entityTypeManager();
+
+  // Check if workflow_task entity type is already installed.
+  $entity_type = $entity_definition_update_manager->getEntityType('workflow_task');
+  if ($entity_type) {
+    return t('Workflow task entity type already installed.');
+  }
+
+  // Get the new entity type definition.
+  $entity_type = $entity_type_manager->getDefinition('workflow_task');
+  if (!$entity_type) {
+    return t('Workflow task entity type not found. Please clear caches first.');
+  }
+
+  // Install the entity type.
+  $entity_definition_update_manager->installEntityType($entity_type);
+
+  return t('Installed workflow_task entity type with database tables.');
+}

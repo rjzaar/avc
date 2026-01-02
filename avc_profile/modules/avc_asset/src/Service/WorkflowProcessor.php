@@ -262,20 +262,20 @@ class WorkflowProcessor {
   }
 
   /**
-   * Gets workflow assignments for a node.
+   * Gets workflow tasks for a node.
    *
    * @param \Drupal\node\NodeInterface $node
    *   The node entity.
    *
    * @return array
-   *   Array of workflow assignment entities, ordered by weight.
+   *   Array of workflow task entities, ordered by weight.
    */
   protected function getNodeWorkflowAssignments(NodeInterface $node) {
-    if (!$this->entityTypeManager->hasDefinition('workflow_assignment')) {
+    if (!$this->entityTypeManager->hasDefinition('workflow_task')) {
       return [];
     }
 
-    $storage = $this->entityTypeManager->getStorage('workflow_assignment');
+    $storage = $this->entityTypeManager->getStorage('workflow_task');
     $query = $storage->getQuery()
       ->condition('node_id', $node->id())
       ->sort('weight', 'ASC')
@@ -288,17 +288,17 @@ class WorkflowProcessor {
   /**
    * Gets the current active stage.
    *
-   * @param array $assignments
-   *   Array of workflow assignments.
+   * @param array $tasks
+   *   Array of workflow tasks.
    *
    * @return mixed|null
-   *   The current assignment or NULL.
+   *   The current task or NULL.
    */
-  protected function getCurrentStage(array $assignments) {
-    foreach ($assignments as $assignment) {
-      $completion = $assignment->get('completion')->value ?? 'proposed';
-      if ($completion !== 'completed') {
-        return $assignment;
+  protected function getCurrentStage(array $tasks) {
+    foreach ($tasks as $task) {
+      $status = $task->getStatus();
+      if ($status !== 'completed') {
+        return $task;
       }
     }
     return NULL;

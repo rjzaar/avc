@@ -111,26 +111,27 @@ class WorkflowChecker {
   }
 
   /**
-   * Checks a single workflow entry.
+   * Checks a single workflow task.
    *
-   * @param mixed $assignment
-   *   The workflow assignment entity.
+   * @param mixed $task
+   *   The workflow task entity (content entity).
    * @param int $index
    *   The position in the workflow.
    *
    * @return array
    *   Entry validation result.
    */
-  protected function checkEntry($assignment, $index) {
+  protected function checkEntry($task, $index) {
     $result = [
       'index' => $index,
-      'label' => $assignment->label(),
+      'label' => $task->label(),
       'status' => self::STATUS_VALID,
       'messages' => [],
       'fix_available' => NULL,
     ];
 
-    $assigned_type = $assignment->get('assigned_type')->value ?? '';
+    // workflow_task is a content entity, use field access.
+    $assigned_type = $task->get('assigned_type')->value ?? '';
 
     // Check assignment type is set.
     if (empty($assigned_type)) {
@@ -139,11 +140,11 @@ class WorkflowChecker {
       return $result;
     }
 
-    // Validate assignee exists.
+    // Validate assignee exists based on type.
     switch ($assigned_type) {
       case 'user':
-        $user_id = $assignment->get('assigned_user')->target_id ?? NULL;
-        if (!$user_id) {
+        $user_id = $task->get('assigned_user')->target_id ?? NULL;
+        if (empty($user_id)) {
           $result['status'] = self::STATUS_ERROR;
           $result['messages'][] = 'No user assigned.';
         }
@@ -161,12 +162,12 @@ class WorkflowChecker {
         break;
 
       case 'group':
-        $group_id = $assignment->get('assigned_group')->target_id ?? NULL;
-        if (!$group_id) {
+        $group_id = $task->get('assigned_group')->target_id ?? NULL;
+        if (empty($group_id)) {
           $result['status'] = self::STATUS_ERROR;
           $result['messages'][] = 'No group assigned.';
         }
-        else {
+        elseif ($this->entityTypeManager->hasDefinition('group')) {
           $group = $this->entityTypeManager->getStorage('group')->load($group_id);
           if (!$group) {
             $result['status'] = self::STATUS_ERROR;
@@ -184,8 +185,8 @@ class WorkflowChecker {
         break;
 
       case 'destination':
-        $dest_id = $assignment->get('destination')->target_id ?? NULL;
-        if (!$dest_id) {
+        $dest_id = $task->get('assigned_destination')->target_id ?? NULL;
+        if (empty($dest_id)) {
           $result['status'] = self::STATUS_ERROR;
           $result['messages'][] = 'No destination assigned.';
         }
@@ -203,28 +204,25 @@ class WorkflowChecker {
         $result['messages'][] = 'Invalid assignment type: ' . $assigned_type;
     }
 
-    // Check for duplicate assignments (same step twice).
-    // This would require checking against all entries.
-
     return $result;
   }
 
   /**
    * Checks the overall workflow structure.
    *
-   * @param array $assignments
-   *   Array of workflow assignments.
+   * @param array $workflows
+   *   Array of workflow list entities.
    *
    * @return array
    *   Structure validation result.
    */
-  protected function checkStructure(array $assignments) {
+  protected function checkStructure(array $workflows) {
     $result = [
       'status' => self::STATUS_VALID,
       'messages' => [],
     ];
 
-    if (count($assignments) < 2) {
+    if (count($workflows) < 2) {
       $result['status'] = self::STATUS_WARNING;
       $result['messages'][] = [
         'type' => 'warning',
@@ -233,9 +231,10 @@ class WorkflowChecker {
     }
 
     // Check if destination is last.
-    $last = end($assignments);
+    $last = end($workflows);
     if ($last) {
-      $last_type = $last->get('assigned_type')->value ?? '';
+      // workflow_list is a config entity, use getter methods.
+      $last_type = $last->getAssignedType() ?? '';
       if ($last_type !== 'destination') {
         $result['messages'][] = [
           'type' => 'info',
@@ -244,24 +243,9 @@ class WorkflowChecker {
       }
     }
 
-    // Check for gaps in completion status.
-    $found_incomplete = FALSE;
-    foreach ($assignments as $assignment) {
-      $completion = $assignment->get('completion')->value ?? 'proposed';
-      if ($completion === 'completed') {
-        if ($found_incomplete) {
-          $result['status'] = self::STATUS_ERROR;
-          $result['messages'][] = [
-            'type' => 'error',
-            'text' => 'Workflow has completed stages after incomplete stages. This indicates a processing error.',
-          ];
-          break;
-        }
-      }
-      else {
-        $found_incomplete = TRUE;
-      }
-    }
+    // Note: workflow_list config entities don't have completion status.
+    // That would be tracked on workflow_assignment content entities
+    // when individual asset progress tracking is implemented.
 
     return $result;
   }
@@ -344,34 +328,27 @@ class WorkflowChecker {
   }
 
   /**
-   * Gets workflow assignments for a node.
+   * Gets workflow tasks for a node.
    *
    * @param \Drupal\node\NodeInterface $node
    *   The node entity.
    *
    * @return array
-   *   Array of workflow assignment entities.
+   *   Array of workflow task entities.
    */
   protected function getNodeWorkflowAssignments(NodeInterface $node) {
-    if (!$this->entityTypeManager->hasDefinition('workflow_assignment')) {
+    if (!$this->entityTypeManager->hasDefinition('workflow_task')) {
       return [];
     }
 
-    // Check if workflow_assignment entity has node_id field.
-    $storage = $this->entityTypeManager->getStorage('workflow_assignment');
+    $storage = $this->entityTypeManager->getStorage('workflow_task');
+    $query = $storage->getQuery()
+      ->condition('node_id', $node->id())
+      ->sort('weight', 'ASC')
+      ->accessCheck(TRUE);
 
-    // First try to get assignments from node's workflow field if it exists.
-    if ($node->hasField('field_workflow_assignment')) {
-      $referenced = $node->get('field_workflow_assignment')->referencedEntities();
-      if (!empty($referenced)) {
-        return $referenced;
-      }
-    }
-
-    // Fallback: Check if there's a node reference field on workflow_assignment.
-    // For now, return empty array if no direct link exists.
-    // In production, workflow_assignment should reference the node.
-    return [];
+    $ids = $query->execute();
+    return $storage->loadMultiple($ids);
   }
 
 }

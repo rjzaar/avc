@@ -5,6 +5,7 @@ namespace Drupal\avc_devel\Generator;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Password\PasswordGeneratorInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * Service for generating test content for AVC.
@@ -41,7 +42,7 @@ class TestContentGenerator {
     'users' => [],
     'groups' => [],
     'nodes' => [],
-    'workflow_assignments' => [],
+    'workflow_tasks' => [],
     'taxonomy_terms' => [],
   ];
 
@@ -86,13 +87,13 @@ class TestContentGenerator {
     // Generate groups with members.
     $summary['groups'] = $this->generateGroups($options['groups']);
 
-    // Generate assets.
+    // Generate assets first.
     $summary['projects'] = $this->generateProjects($options['projects']);
     $summary['documents'] = $this->generateDocuments($options['documents']);
     $summary['resources'] = $this->generateResources($options['resources']);
 
-    // Generate workflow assignments.
-    $summary['workflow_assignments'] = $this->generateWorkflowAssignments($options['workflow_assignments']);
+    // Generate workflow tasks for the assets.
+    $summary['workflow_tasks'] = $this->generateWorkflowTasks();
 
     // Store generated IDs for cleanup.
     $this->saveGeneratedIds();
@@ -364,81 +365,145 @@ class TestContentGenerator {
   }
 
   /**
-   * Generates workflow assignments.
-   *
-   * @param int $count
-   *   Number to generate.
+   * Generates workflow tasks for test nodes.
    *
    * @return int
-   *   Number created.
+   *   Number of tasks created.
    */
-  public function generateWorkflowAssignments($count = 10) {
+  public function generateWorkflowTasks() {
     $created = 0;
 
-    if (!$this->entityTypeManager->hasDefinition('workflow_assignment')) {
-      $this->logger->warning('Workflow assignment entity type not available.');
+    if (!$this->entityTypeManager->hasDefinition('workflow_task')) {
+      $this->logger->warning('Workflow task entity type not available.');
       return 0;
     }
 
-    $storage = $this->entityTypeManager->getStorage('workflow_assignment');
-    $users = $this->getTestUsers();
+    $storage = $this->entityTypeManager->getStorage('workflow_task');
     $nodes = $this->getTestNodes();
+    $users = $this->getTestUsers();
     $groups = $this->getTestGroups();
 
-    if (empty($users) && empty($groups)) {
-      $this->logger->warning('No users or groups available for assignments.');
+    if (empty($nodes)) {
+      $this->logger->warning('No test nodes available for workflow tasks.');
       return 0;
     }
 
+    // Get destination terms.
+    $dest_terms = $this->entityTypeManager->getStorage('taxonomy_term')
+      ->loadByProperties(['vid' => 'destination_locations']);
+    $dest_ids = array_keys($dest_terms);
+
+    // Define workflow stage templates.
     $stages = [
-      'Initial Review',
-      'Editorial Review',
-      'Theological Review',
-      'Translation',
-      'Proofreading',
-      'Final Approval',
-      'Publication',
+      [
+        'title' => 'Initial Review',
+        'description' => 'First review of the content by the submitter.',
+        'type' => 'user',
+      ],
+      [
+        'title' => 'Editorial Review',
+        'description' => 'Editorial team reviews for style and clarity.',
+        'type' => 'group',
+      ],
+      [
+        'title' => 'Theological Review',
+        'description' => 'Theological accuracy review.',
+        'type' => 'group',
+      ],
+      [
+        'title' => 'Final Approval',
+        'description' => 'Final approval by authorized approver.',
+        'type' => 'user',
+      ],
+      [
+        'title' => 'Publication',
+        'description' => 'Publish to final destination.',
+        'type' => 'destination',
+      ],
     ];
 
-    $statuses = ['proposed', 'accepted', 'completed'];
+    $statuses = ['pending', 'in_progress', 'completed'];
 
-    for ($i = 0; $i < $count; $i++) {
-      $label = '[TEST] ' . $stages[array_rand($stages)] . ' - ' . ($i + 1);
+    // Create workflow tasks for each test node.
+    foreach ($nodes as $node_id) {
+      // Randomly select 3-5 stages for this node.
+      $num_stages = rand(3, min(5, count($stages)));
+      $selected_stages = array_slice($stages, 0, $num_stages);
 
-      // Randomly assign to user or group.
-      $assigned_type = rand(0, 1) ? 'user' : 'group';
-      $owner_uid = !empty($users) ? $users[array_rand($users)] : 1;
-      $values = [
-        'title' => $label,
-        'description' => ['value' => 'Test workflow assignment generated for development.', 'format' => 'basic_html'],
-        'completion' => $statuses[array_rand($statuses)],
-        'uid' => $owner_uid,
-      ];
+      $weight = 0;
+      $all_completed = TRUE;
 
-      if ($assigned_type === 'user' && !empty($users)) {
-        $values['assigned_type'] = 'user';
-        $values['assigned_user'] = $users[array_rand($users)];
+      foreach ($selected_stages as $index => $stage) {
+        // Determine assigned ID based on type.
+        $assigned_user = NULL;
+        $assigned_group = NULL;
+        $assigned_destination = NULL;
+
+        switch ($stage['type']) {
+          case 'user':
+            $assigned_user = !empty($users) ? $users[array_rand($users)] : 1;
+            break;
+
+          case 'group':
+            if (!empty($groups)) {
+              $assigned_group = $groups[array_rand($groups)];
+            }
+            break;
+
+          case 'destination':
+            if (!empty($dest_ids)) {
+              $assigned_destination = $dest_ids[array_rand($dest_ids)];
+            }
+            break;
+        }
+
+        // Determine status - earlier stages more likely to be completed.
+        if ($all_completed && rand(0, 100) > 30 * $index) {
+          $status = 'completed';
+        }
+        else {
+          $all_completed = FALSE;
+          $status = $index === array_key_last($selected_stages) ? 'pending' : $statuses[array_rand($statuses)];
+        }
+
+        $task_values = [
+          'title' => '[TEST] ' . $stage['title'],
+          'description' => [
+            'value' => $stage['description'],
+            'format' => 'basic_html',
+          ],
+          'node_id' => $node_id,
+          'weight' => $weight,
+          'assigned_type' => $stage['type'],
+          'status' => $status,
+          'uid' => 1,
+        ];
+
+        if ($assigned_user) {
+          $task_values['assigned_user'] = $assigned_user;
+        }
+        if ($assigned_group) {
+          $task_values['assigned_group'] = $assigned_group;
+        }
+        if ($assigned_destination) {
+          $task_values['assigned_destination'] = $assigned_destination;
+        }
+
+        // Add a due date for some tasks.
+        if (rand(0, 1)) {
+          $days_ahead = rand(1, 30);
+          $task_values['due_date'] = date('Y-m-d', strtotime("+{$days_ahead} days"));
+        }
+
+        $task = $storage->create($task_values);
+        $task->save();
+        $this->generated['workflow_tasks'][] = $task->id();
+        $created++;
+        $weight++;
       }
-      elseif (!empty($groups)) {
-        $values['assigned_type'] = 'group';
-        $values['assigned_group'] = $groups[array_rand($groups)];
-      }
-      else {
-        continue;
-      }
-
-      // Link to a node if available.
-      if (!empty($nodes)) {
-        $values['node_id'] = $nodes[array_rand($nodes)];
-      }
-
-      $assignment = $storage->create($values);
-      $assignment->save();
-      $this->generated['workflow_assignments'][] = $assignment->id();
-      $created++;
     }
 
-    $this->logger->info('Generated @count test workflow assignments.', ['@count' => $created]);
+    $this->logger->info('Generated @count test workflow tasks.', ['@count' => $created]);
     return $created;
   }
 
@@ -573,7 +638,7 @@ class TestContentGenerator {
     $generated = \Drupal::state()->get('avc_devel.generated', []);
 
     // Delete in reverse order of creation.
-    foreach (['workflow_assignments', 'nodes', 'groups', 'users'] as $type) {
+    foreach (['workflow_tasks', 'nodes', 'groups', 'users'] as $type) {
       $count = 0;
       $ids = $generated[$type] ?? [];
 
@@ -612,7 +677,7 @@ class TestContentGenerator {
       'users' => 'user',
       'groups' => 'group',
       'nodes' => 'node',
-      'workflow_assignments' => 'workflow_assignment',
+      'workflow_tasks' => 'workflow_task',
       'taxonomy_terms' => 'taxonomy_term',
     ];
     return $map[$key] ?? NULL;

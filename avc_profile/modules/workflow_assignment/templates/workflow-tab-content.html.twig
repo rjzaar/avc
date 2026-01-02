@@ -4,81 +4,94 @@
  * Template for displaying workflow information on the workflow tab.
  *
  * Available variables:
- * - workflows: Array of workflow entities.
+ * - tasks: Array of workflow_task entities.
  * - node: The node entity.
- * - can_edit: Boolean indicating if user can assign workflows.
+ * - can_edit: Boolean indicating if user can create/edit workflow tasks.
  * - can_administer: Boolean indicating if user can administer workflows.
  */
 #}
 <div class="workflow-tab-content">
   <div class="workflow-section">
-    <h3>{{ 'Workflow Information'|t }}</h3>
+    <h3>{{ 'Workflow Tasks'|t }}</h3>
 
-    {% if workflows is not empty %}
+    {% if tasks is not empty %}
       <p class="workflow-help-text">
         {% if can_administer %}
-          {{ 'Double-click on description or comments to edit inline. Drag rows to reorder.'|t }}
+          {{ 'Click on a task to edit. Drag rows to reorder.'|t }}
         {% endif %}
       </p>
-      <table class="workflow-assignments-table" id="workflow-assignments-table">
+      <table class="workflow-tasks-table" id="workflow-tasks-table">
         <thead>
           <tr>
-            <th>{{ 'Workflow Name'|t }}</th>
-            <th>{{ 'Description'|t }}</th>
-            <th>{{ 'Assigned'|t }}</th>
-            <th>{{ 'Comments'|t }}</th>
-            <th>{{ 'Actions'|t }}</th>
+            <th>{{ '#'|t }}</th>
+            <th>{{ 'Task'|t }}</th>
+            <th>{{ 'Assigned To'|t }}</th>
+            <th>{{ 'Status'|t }}</th>
+            <th>{{ 'Due Date'|t }}</th>
+            {% if can_administer %}
+              <th>{{ 'Actions'|t }}</th>
+            {% endif %}
           </tr>
         </thead>
         <tbody>
-          {% for workflow in workflows %}
-            <tr data-workflow-id="{{ workflow.id }}">
-              <td><strong>{{ workflow.label }}</strong></td>
-              <td class="description-cell">
-                <div class="expandable-cell" data-full-text="{{ workflow.getDescription|default('-')|e('html_attr') }}">
-                  <span class="cell-content">
-                    {% if workflow.getDescription %}
-                      {{ workflow.getDescription|length > 50 ? workflow.getDescription|slice(0, 50) ~ '...' : workflow.getDescription }}
-                    {% else %}
-                      -
-                    {% endif %}
-                  </span>
-                </div>
+          {% for task in tasks %}
+            {% set status_class = {
+              'pending': 'status-pending',
+              'in_progress': 'status-in-progress',
+              'completed': 'status-completed',
+              'skipped': 'status-skipped'
+            } %}
+            {% set status_labels = {
+              'pending': 'Pending'|t,
+              'in_progress': 'In Progress'|t,
+              'completed': 'Completed'|t,
+              'skipped': 'Skipped'|t
+            } %}
+            <tr data-task-id="{{ task.id() }}" class="task-row {{ status_class[task.getStatus()]|default('') }}">
+              <td class="task-weight">{{ task.getWeight() + 1 }}</td>
+              <td class="task-title">
+                <strong>{{ task.label() }}</strong>
+                {% if task.getDescription() %}
+                  <div class="task-description text-muted">
+                    {{ task.getDescription()|length > 100 ? task.getDescription()|slice(0, 100) ~ '...' : task.getDescription() }}
+                  </div>
+                {% endif %}
               </td>
-              <td class="assigned-cell">
-                {% set assigned_type = workflow.getAssignedType %}
-                {% set assigned_label = workflow.getAssignedLabel %}
+              <td class="task-assigned">
+                {% set assigned_type = task.getAssignedType() %}
+                {% set assigned_label = task.getAssignedLabel() %}
                 {% if assigned_type and assigned_label %}
-                  {% set class_map = {
+                  {% set type_class = {
                     'user': 'assigned-user',
                     'group': 'assigned-group',
                     'destination': 'assigned-destination'
                   } %}
-                  <span class="assigned-entity {{ class_map[assigned_type]|default('') }}">
+                  <span class="assigned-entity {{ type_class[assigned_type]|default('') }}">
                     {{ assigned_label }}
                   </span>
                 {% else %}
-                  -
+                  <span class="text-muted">{{ 'Unassigned'|t }}</span>
                 {% endif %}
               </td>
-              <td class="comments-cell">
-                <div class="expandable-cell" data-full-text="{{ workflow.getComments|default('-')|e('html_attr') }}">
-                  <span class="cell-content">
-                    {% if workflow.getComments %}
-                      {{ workflow.getComments|length > 50 ? workflow.getComments|slice(0, 50) ~ '...' : workflow.getComments }}
-                    {% else %}
-                      -
-                    {% endif %}
-                  </span>
-                </div>
+              <td class="task-status">
+                <span class="status-badge {{ status_class[task.getStatus()]|default('') }}">
+                  {{ status_labels[task.getStatus()]|default(task.getStatus()) }}
+                </span>
               </td>
-              <td class="actions-cell">
-                {% if can_administer %}
-                  <a href="{{ path('workflow_assignment.quick_edit', {'workflow_list': workflow.id}) }}" class="button button--small">
+              <td class="task-due-date">
+                {% if task.due_date.value %}
+                  {{ task.due_date.value|date('M j, Y') }}
+                {% else %}
+                  <span class="text-muted">-</span>
+                {% endif %}
+              </td>
+              {% if can_administer %}
+                <td class="task-actions">
+                  <a href="{{ path('entity.workflow_task.edit_form', {'workflow_task': task.id()}) }}" class="button button--small">
                     {{ 'Edit'|t }}
                   </a>
-                {% endif %}
-              </td>
+                </td>
+              {% endif %}
             </tr>
           {% endfor %}
         </tbody>
@@ -86,28 +99,20 @@
     {% else %}
       <div class="no-workflow-message">
         <div class="empty-state-icon">&#128203;</div>
-        <h4>{{ 'No workflows assigned'|t }}</h4>
-        <p>{{ 'No workflows are currently assigned to this content.'|t }}</p>
+        <h4>{{ 'No workflow tasks'|t }}</h4>
+        <p>{{ 'No workflow tasks have been created for this content yet.'|t }}</p>
         {% if can_edit %}
-          <p>{{ 'Click the button below to assign workflows to this content.'|t }}</p>
-        {% endif %}
-        {% if can_administer %}
-          <p class="empty-state-admin-link">
-            {{ 'Need to create new workflows? '|t }}
-            <a href="{{ path('entity.workflow_list.add_form') }}">{{ 'Create a workflow'|t }}</a>
-            {{ ' or '|t }}
-            <a href="{{ path('entity.workflow_list.collection') }}">{{ 'manage existing workflows'|t }}</a>.
-          </p>
+          <p>{{ 'Click the button below to add workflow tasks.'|t }}</p>
         {% endif %}
       </div>
     {% endif %}
 
     {% if can_edit %}
       <div class="workflow-actions">
-        <a href="{{ path('workflow_assignment.node_assign', {'node': node.id()}) }}" class="button button--primary">
-          {{ workflows is not empty ? 'Manage Workflows'|t : 'Assign Workflows'|t }}
+        <a href="{{ path('entity.workflow_task.add_for_node', {'node': node.id()}) }}" class="button button--primary">
+          {{ 'Add Task'|t }}
         </a>
-        {% if workflows is not empty %}
+        {% if can_administer %}
           <a href="{{ path('workflow_assignment.apply_template', {'node': node.id()}) }}" class="button">
             {{ 'Apply Template'|t }}
           </a>
