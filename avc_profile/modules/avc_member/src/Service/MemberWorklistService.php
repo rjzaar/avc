@@ -84,18 +84,31 @@ class MemberWorklistService {
   public function getUserGroupWorklists(UserInterface $user) {
     $group_worklists = [];
 
-    // Get groups the user belongs to via social_group.
+    // Get groups the user belongs to.
     try {
-      if (\Drupal::moduleHandler()->moduleExists('social_group')) {
-        $group_membership_service = \Drupal::service('social_group.helper_service');
-        $groups = $group_membership_service->getAllGroupsForUser($user->id());
+      if ($this->entityTypeManager->hasDefinition('group')) {
+        $group_storage = $this->entityTypeManager->getStorage('group');
 
-        foreach ($groups as $group) {
-          $group_worklists[$group->id()] = [
-            'group_id' => $group->id(),
-            'group_label' => $group->label(),
-            'items' => $this->getGroupWorklist($group),
-          ];
+        // Query group_content for user memberships.
+        $membership_storage = $this->entityTypeManager->getStorage('group_content');
+        $membership_ids = $membership_storage->getQuery()
+          ->condition('entity_id', $user->id())
+          ->condition('type', '%group_membership', 'LIKE')
+          ->accessCheck(TRUE)
+          ->execute();
+
+        if (!empty($membership_ids)) {
+          $memberships = $membership_storage->loadMultiple($membership_ids);
+          foreach ($memberships as $membership) {
+            $group = $membership->getGroup();
+            if ($group) {
+              $group_worklists[$group->id()] = [
+                'group_id' => $group->id(),
+                'group_label' => $group->label(),
+                'items' => $this->getGroupWorklist($group),
+              ];
+            }
+          }
         }
       }
     }

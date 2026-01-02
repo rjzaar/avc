@@ -4,7 +4,7 @@ avc_member.dashboard:
     _controller: '\Drupal\avc_member\Controller\MemberDashboardController::dashboard'
     _title: 'My Dashboard'
   requirements:
-    _permission: 'access content'
+    _custom_access: '\Drupal\avc_member\Controller\MemberDashboardController::access'
     user: \d+
   options:
     parameters:
@@ -25,5 +25,9 @@ avc_member.notification_preferences:
     _form: '\Drupal\avc_member\Form\NotificationPreferencesForm'
     _title: 'Notification Preferences'
   requirements:
-    _permission: 'access content'
+    _custom_access: '\Drupal\avc_member\Controller\MemberDashboardController::access'
     user: \d+
+  options:
+    parameters:
+      user:
+        type: entity:user

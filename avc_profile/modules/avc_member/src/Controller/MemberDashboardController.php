@@ -2,6 +2,7 @@
 
 namespace Drupal\avc_member\Controller;
 
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\user\UserInterface;
@@ -48,6 +49,31 @@ class MemberDashboardController extends ControllerBase {
       $container->get('avc_member.worklist_service'),
       $container->get('current_user')
     );
+  }
+
+  /**
+   * Access check for the member dashboard.
+   *
+   * @param \Drupal\user\UserInterface $user
+   *   The user whose dashboard is being viewed.
+   *
+   * @return \Drupal\Core\Access\AccessResult
+   *   The access result.
+   */
+  public function access(UserInterface $user) {
+    $current_user = $this->currentUser;
+
+    // Allow users to view their own dashboard.
+    if ($current_user->id() == $user->id()) {
+      return AccessResult::allowed()->cachePerUser();
+    }
+
+    // Allow admins to view any dashboard.
+    if ($current_user->hasPermission('administer users')) {
+      return AccessResult::allowed()->cachePerPermissions();
+    }
+
+    return AccessResult::forbidden()->cachePerUser();
   }
 
   /**

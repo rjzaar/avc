@@ -165,16 +165,28 @@ class NotificationPreferencesForm extends FormBase {
     $groups = [];
 
     try {
-      if (\Drupal::moduleHandler()->moduleExists('social_group')) {
-        $group_helper = \Drupal::service('social_group.helper_service');
-        $user_groups = $group_helper->getAllGroupsForUser($user->id());
-        foreach ($user_groups as $group) {
-          $groups[$group->id()] = $group->label();
+      $entity_type_manager = \Drupal::entityTypeManager();
+      if ($entity_type_manager->hasDefinition('group_content')) {
+        $membership_storage = $entity_type_manager->getStorage('group_content');
+        $membership_ids = $membership_storage->getQuery()
+          ->condition('entity_id', $user->id())
+          ->condition('type', '%group_membership', 'LIKE')
+          ->accessCheck(TRUE)
+          ->execute();
+
+        if (!empty($membership_ids)) {
+          $memberships = $membership_storage->loadMultiple($membership_ids);
+          foreach ($memberships as $membership) {
+            $group = $membership->getGroup();
+            if ($group) {
+              $groups[$group->id()] = $group->label();
+            }
+          }
         }
       }
     }
     catch (\Exception $e) {
-      // Service may not exist.
+      // Group module may not be available.
     }
 
     return $groups;
