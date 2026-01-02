@@ -14,13 +14,13 @@
 #}
 <div class="avc-group-workflow-dashboard">
   <div class="dashboard-header">
-    <h2>{{ 'Workflow Dashboard'|t }}: {{ group.label }}</h2>
+    <h2>{{ 'Workflow Dashboard'|t }}: {{ group.label() }}</h2>
     {% if is_manager %}
       <div class="dashboard-actions">
-        <a href="{{ path('avc_group.workflow.add', {group: group.id}) }}" class="button button--primary">
+        <a href="{{ path('avc_group.workflow.add', {group: group.id()}) }}" class="button button--primary">
           {{ 'Add Assignment'|t }}
         </a>
-        <a href="{{ path('avc_group.workflow.settings', {group: group.id}) }}" class="button">
+        <a href="{{ path('avc_group.workflow.settings', {group: group.id()}) }}" class="button">
           {{ 'Settings'|t }}
         </a>
       </div>
