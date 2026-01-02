@@ -1,6 +1,6 @@
 # AV Commons (AVC)
 
-AV Commons is a collaborative workflow platform for Apostoli Viae, built on Open Social (Drupal).
+AV Commons is a collaborative workflow platform built on Open Social (Drupal).
 
 ## Overview
 

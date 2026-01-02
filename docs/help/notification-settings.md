@@ -4,7 +4,7 @@
 
 ## Overview
 
-AV Commons is a platform enabling Apostoli Viae members to contribute to collaborative projects while prioritizing spiritual growth. The system remains under development, using itself as a prototype.
+AV Commons is a platform enabling members to contribute to collaborative projects while prioritizing spiritual growth. The system remains under development, using itself as a prototype.
 
 ## Notification Settings
 
