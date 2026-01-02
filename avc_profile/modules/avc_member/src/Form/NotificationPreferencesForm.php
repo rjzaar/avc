@@ -62,10 +62,10 @@ class NotificationPreferencesForm extends FormBase {
       '#title' => $this->t('Default notification preference'),
       '#description' => $this->t('This applies to all groups unless overridden.'),
       '#options' => [
-        'n' => $this->t('Immediate - Receive alerts as soon as resources become relevant'),
-        'd' => $this->t('Daily digest - Receive a single daily summary'),
-        'w' => $this->t('Weekly digest - Receive a single weekly summary'),
-        'x' => $this->t('None - No notifications (check dashboard manually)'),
+        'n' => $this->t('Immediate (as they occur)'),
+        'd' => $this->t('Daily digest'),
+        'w' => $this->t('Weekly digest'),
+        'x' => $this->t('No notifications'),
       ],
       '#default_value' => $this->getUserNotificationDefault($user),
     ];
@@ -81,7 +81,8 @@ class NotificationPreferencesForm extends FormBase {
     $groups = $this->getUserGroups($user);
     if (!empty($groups)) {
       foreach ($groups as $group_id => $group_label) {
-        $form['group_overrides']['group_' . $group_id] = [
+        $field_name = 'override_' . $group_label;
+        $form['group_overrides'][$field_name] = [
           '#type' => 'select',
           '#title' => $group_label,
           '#options' => [
@@ -92,6 +93,7 @@ class NotificationPreferencesForm extends FormBase {
             'x' => $this->t('None'),
           ],
           '#default_value' => $this->getGroupNotificationOverride($user, $group_id),
+          '#group_id' => $group_id,
         ];
       }
     }
@@ -130,8 +132,14 @@ class NotificationPreferencesForm extends FormBase {
     }
 
     // Save group overrides.
-    // This would save to group_content entities or a custom storage.
-    // Implementation depends on how group membership stores extra data.
+    // For now, store in user data - in production would be in group_content fields.
+    $user_data = \Drupal::service('user.data');
+    foreach ($form_state->getValues() as $key => $value) {
+      if (strpos($key, 'override_') === 0 && isset($form['group_overrides'][$key]['#group_id'])) {
+        $group_id = $form['group_overrides'][$key]['#group_id'];
+        $user_data->set('avc_notification', $user->id(), 'group_' . $group_id, $value);
+      }
+    }
 
     $this->messenger()->addStatus($this->t('Notification preferences saved'));
   }
@@ -147,9 +155,10 @@ class NotificationPreferencesForm extends FormBase {
    */
   protected function getUserNotificationDefault(UserInterface $user) {
     if ($user->hasField('field_notification_default')) {
-      return $user->get('field_notification_default')->value ?? 'x';
+      $value = $user->get('field_notification_default')->value;
+      return $value ?: 'n';
     }
-    return 'x';
+    return 'n';
   }
 
   /**
@@ -204,8 +213,9 @@ class NotificationPreferencesForm extends FormBase {
    *   The notification setting code.
    */
   protected function getGroupNotificationOverride(UserInterface $user, $group_id) {
-    // TODO: Load from group_content field or custom storage.
-    return 'p'; // Default to "use personal default".
+    $user_data = \Drupal::service('user.data');
+    $value = $user_data->get('avc_notification', $user->id(), 'group_' . $group_id);
+    return $value ?: 'p'; // Default to "use personal default".
   }
 
 }

@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - group.type.guild
+id: guild-admin
+label: Admin
+weight: 30
+internal: false
+audience: member
+group_type: guild
+permissions_ui: true
+permissions:
+  - 'administer group'
+  - 'view group'
+  - 'view group_membership content'
+  - 'endorse guild members'
+  - 'manage guild settings'

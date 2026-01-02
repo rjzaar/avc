@@ -134,6 +134,12 @@ class WorkflowHistoryController extends ControllerBase {
       ];
     }
 
+    // Add page title for Behat tests.
+    $build['title'] = [
+      '#markup' => '<h1>' . $this->t('Workflow History') . '</h1>',
+      '#weight' => -20,
+    ];
+
     $build['table'] = [
       '#type' => 'table',
       '#header' => $header,

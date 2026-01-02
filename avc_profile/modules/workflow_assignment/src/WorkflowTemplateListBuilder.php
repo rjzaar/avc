@@ -13,6 +13,21 @@ class WorkflowTemplateListBuilder extends EntityListBuilder {
   /**
    * {@inheritdoc}
    */
+  public function render() {
+    $build = parent::render();
+
+    // Add page title for Behat tests.
+    $build['title'] = [
+      '#markup' => '<h1>' . $this->t('Workflow Templates') . '</h1>',
+      '#weight' => -20,
+    ];
+
+    return $build;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function buildHeader() {
     $header['name'] = $this->t('Name');
     $header['description'] = $this->t('Description');

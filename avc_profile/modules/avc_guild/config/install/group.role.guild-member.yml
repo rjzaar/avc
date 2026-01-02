@@ -1,0 +1,16 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - group.type.guild
+id: guild-member
+label: Member
+weight: -100
+internal: true
+audience: member
+group_type: guild
+permissions_ui: true
+permissions:
+  - 'view group'
+  - 'view group_membership content'
+  - 'leave group'

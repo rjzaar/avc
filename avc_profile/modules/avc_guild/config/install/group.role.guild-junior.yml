@@ -1,0 +1,15 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - group.type.guild
+id: guild-junior
+label: Junior
+weight: 0
+internal: false
+audience: member
+group_type: guild
+permissions_ui: true
+permissions:
+  - 'view group'
+  - 'view group_membership content'

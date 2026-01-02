@@ -4,7 +4,7 @@ default:
       paths:
         - '%paths.base%/features'
       contexts:
-        - Drupal\DrupalExtension\Context\DrupalContext
+        - CustomDrupalContext
         - Drupal\DrupalExtension\Context\MinkContext
         - Drupal\DrupalExtension\Context\MessageContext
         - Drupal\DrupalExtension\Context\DrushContext
@@ -20,12 +20,9 @@ default:
       files_path: '%paths.base%/files'
 
     Drupal\DrupalExtension:
-      blackbox: ~
       api_driver: 'drupal'
       drupal:
         drupal_root: '/var/www/html/html'
-      drush:
-        alias: 'local'
       region_map:
         header: '.region-header'
         content: '.region-content'
@@ -35,3 +32,7 @@ default:
         message_selector: '.messages'
         error_message_selector: '.messages--error'
         success_message_selector: '.messages--status'
+        logged_in_selector: 'body.user-logged-in'
+      text:
+        log_out: 'Logout'
+        log_in: 'Log in'
