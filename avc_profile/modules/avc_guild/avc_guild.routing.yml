@@ -1,0 +1,119 @@
+avc_guild.settings:
+  path: '/admin/config/avc/guild'
+  defaults:
+    _form: '\Drupal\avc_guild\Form\GuildSettingsForm'
+    _title: 'Guild Settings'
+  requirements:
+    _permission: 'administer guilds'
+
+avc_guild.dashboard:
+  path: '/group/{group}/guild-dashboard'
+  defaults:
+    _controller: '\Drupal\avc_guild\Controller\GuildDashboardController::dashboard'
+    _title_callback: '\Drupal\avc_guild\Controller\GuildDashboardController::dashboardTitle'
+  requirements:
+    _custom_access: '\Drupal\avc_guild\Controller\GuildDashboardController::access'
+  options:
+    parameters:
+      group:
+        type: entity:group
+
+avc_guild.member_profile:
+  path: '/group/{group}/member/{user}'
+  defaults:
+    _controller: '\Drupal\avc_guild\Controller\GuildDashboardController::memberProfile'
+    _title_callback: '\Drupal\avc_guild\Controller\GuildDashboardController::memberProfileTitle'
+  requirements:
+    _custom_access: '\Drupal\avc_guild\Controller\GuildDashboardController::memberAccess'
+  options:
+    parameters:
+      group:
+        type: entity:group
+      user:
+        type: entity:user
+
+avc_guild.leaderboard:
+  path: '/group/{group}/leaderboard'
+  defaults:
+    _controller: '\Drupal\avc_guild\Controller\GuildDashboardController::leaderboard'
+    _title: 'Leaderboard'
+  requirements:
+    _custom_access: '\Drupal\avc_guild\Controller\GuildDashboardController::access'
+  options:
+    parameters:
+      group:
+        type: entity:group
+
+avc_guild.ratification_queue:
+  path: '/group/{group}/ratification-queue'
+  defaults:
+    _controller: '\Drupal\avc_guild\Controller\RatificationQueueController::queue'
+    _title_callback: '\Drupal\avc_guild\Controller\RatificationQueueController::queueTitle'
+  requirements:
+    _custom_access: '\Drupal\avc_guild\Controller\RatificationQueueController::access'
+  options:
+    parameters:
+      group:
+        type: entity:group
+
+avc_guild.ratification_claim:
+  path: '/group/{group}/ratification/{ratification}/claim'
+  defaults:
+    _controller: '\Drupal\avc_guild\Controller\RatificationQueueController::claim'
+    _title: 'Claim Ratification'
+  requirements:
+    _custom_access: '\Drupal\avc_guild\Controller\RatificationQueueController::access'
+  options:
+    parameters:
+      group:
+        type: entity:group
+
+avc_guild.endorse_skill:
+  path: '/group/{group}/member/{user}/endorse'
+  defaults:
+    _form: '\Drupal\avc_guild\Form\EndorseSkillForm'
+    _title: 'Endorse Skill'
+  requirements:
+    _custom_access: '\Drupal\avc_guild\Controller\GuildDashboardController::memberAccess'
+  options:
+    parameters:
+      group:
+        type: entity:group
+      user:
+        type: entity:user
+
+entity.ratification.canonical:
+  path: '/guild/ratification/{ratification}'
+  defaults:
+    _entity_view: 'ratification'
+    _title: 'Ratification'
+  requirements:
+    _entity_access: 'ratification.view'
+  options:
+    parameters:
+      ratification:
+        type: entity:ratification
+
+entity.ratification.edit_form:
+  path: '/guild/ratification/{ratification}/review'
+  defaults:
+    _entity_form: 'ratification.review'
+    _title: 'Review Ratification'
+  requirements:
+    _entity_access: 'ratification.update'
+  options:
+    parameters:
+      ratification:
+        type: entity:ratification
+
+entity.ratification.delete_form:
+  path: '/guild/ratification/{ratification}/delete'
+  defaults:
+    _entity_form: 'ratification.delete'
+    _title: 'Delete Ratification'
+  requirements:
+    _entity_access: 'ratification.delete'
+  options:
+    parameters:
+      ratification:
+        type: entity:ratification

@@ -1,0 +1,57 @@
+{#
+/**
+ * @file
+ * Guild member profile template.
+ *
+ * Available variables:
+ * - user: The user entity.
+ * - guild: The guild entity.
+ * - role: The user's role in the guild.
+ * - score: The user's total score.
+ * - skills: Array of skills with endorsement counts.
+ * - endorsements: Array of endorsements received.
+ */
+#}
+<div class="guild-member-profile">
+  <div class="member-header">
+    <h2>{{ user.displayname }}</h2>
+    <div class="member-role role-{{ role }}">
+      {{ role|capitalize }}
+    </div>
+  </div>
+
+  <div class="member-stats">
+    <div class="stat-item">
+      <span class="stat-value">{{ score }}</span>
+      <span class="stat-label">{{ 'Points'|t }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">{{ endorsements|length }}</span>
+      <span class="stat-label">{{ 'Endorsements'|t }}</span>
+    </div>
+  </div>
+
+  <section class="member-skills">
+    <h3>{{ 'Skills & Endorsements'|t }}</h3>
+    {% if skills %}
+    <ul class="skills-list">
+      {% for skill_data in skills %}
+      <li class="skill-item">
+        <span class="skill-name">{{ skill_data.skill.label }}</span>
+        <span class="skill-endorsements">
+          {{ skill_data.count }} {{ 'endorsement'|t }}{{ skill_data.count != 1 ? 's' : '' }}
+        </span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="empty-message">{{ 'No endorsements yet.'|t }}</p>
+    {% endif %}
+  </section>
+
+  <div class="member-actions">
+    <a href="{{ path('avc_guild.endorse_skill', {'group': guild.id, 'user': user.id}) }}" class="button">
+      {{ 'Endorse Skill'|t }}
+    </a>
+  </div>
+</div>

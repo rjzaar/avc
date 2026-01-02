@@ -1,0 +1,176 @@
+<?php
+
+/**
+ * @file
+ * Guild system for AV Commons.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\group\Entity\GroupInterface;
+
+/**
+ * Implements hook_help().
+ */
+function avc_guild_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.avc_guild':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Provides Guild group type with mentorship, scoring, and endorsements for AV Commons.') . '</p>';
+      $output .= '<h4>' . t('Guild Roles') . '</h4>';
+      $output .= '<ul>';
+      $output .= '<li>' . t('<strong>Junior</strong> - New members who need ratification for their work') . '</li>';
+      $output .= '<li>' . t('<strong>Endorsed</strong> - Members who can work independently') . '</li>';
+      $output .= '<li>' . t('<strong>Mentor</strong> - Can ratify junior work and train members') . '</li>';
+      $output .= '<li>' . t('<strong>Admin</strong> - Full guild administration') . '</li>';
+      $output .= '</ul>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function avc_guild_theme($existing, $type, $theme, $path) {
+  return [
+    'guild_dashboard' => [
+      'variables' => [
+        'guild' => NULL,
+        'members' => [],
+        'leaderboard' => [],
+        'ratification_queue' => [],
+        'recent_activity' => [],
+      ],
+    ],
+    'guild_member_profile' => [
+      'variables' => [
+        'user' => NULL,
+        'guild' => NULL,
+        'role' => NULL,
+        'score' => 0,
+        'skills' => [],
+        'endorsements' => [],
+      ],
+    ],
+    'ratification_queue' => [
+      'variables' => [
+        'items' => [],
+        'empty_message' => NULL,
+      ],
+    ],
+    'skill_endorsements' => [
+      'variables' => [
+        'skill' => NULL,
+        'endorsements' => [],
+        'can_endorse' => FALSE,
+      ],
+    ],
+    'guild_leaderboard' => [
+      'variables' => [
+        'guild' => NULL,
+        'entries' => [],
+        'limit' => 10,
+      ],
+    ],
+  ];
+}
+
+/**
+ * Check if a group is a guild.
+ *
+ * @param \Drupal\group\Entity\GroupInterface $group
+ *   The group to check.
+ *
+ * @return bool
+ *   TRUE if the group is a guild.
+ */
+function avc_guild_is_guild(GroupInterface $group) {
+  return $group->bundle() === 'guild';
+}
+
+/**
+ * Get the guild role for a user in a guild.
+ *
+ * @param \Drupal\group\Entity\GroupInterface $guild
+ *   The guild.
+ * @param \Drupal\Core\Session\AccountInterface $user
+ *   The user.
+ *
+ * @return string|null
+ *   The role ID (junior, endorsed, mentor, admin) or NULL if not a member.
+ */
+function avc_guild_get_member_role(GroupInterface $guild, $user) {
+  if (!avc_guild_is_guild($guild)) {
+    return NULL;
+  }
+
+  $membership = $guild->getMember($user);
+  if (!$membership) {
+    return NULL;
+  }
+
+  // Check roles in order of highest to lowest.
+  $roles = $membership->getRoles();
+  foreach (['guild-admin', 'guild-mentor', 'guild-endorsed', 'guild-junior'] as $role_id) {
+    if (isset($roles[$role_id])) {
+      return str_replace('guild-', '', $role_id);
+    }
+  }
+
+  // Default to junior for members without explicit role.
+  return 'junior';
+}
+
+/**
+ * Check if a user can ratify work in a guild.
+ *
+ * @param \Drupal\group\Entity\GroupInterface $guild
+ *   The guild.
+ * @param \Drupal\Core\Session\AccountInterface $user
+ *   The user.
+ *
+ * @return bool
+ *   TRUE if the user can ratify.
+ */
+function avc_guild_can_ratify(GroupInterface $guild, $user) {
+  $role = avc_guild_get_member_role($guild, $user);
+  return in_array($role, ['mentor', 'admin']);
+}
+
+/**
+ * Check if a user can endorse skills in a guild.
+ *
+ * @param \Drupal\group\Entity\GroupInterface $guild
+ *   The guild.
+ * @param \Drupal\Core\Session\AccountInterface $user
+ *   The user.
+ *
+ * @return bool
+ *   TRUE if the user can endorse.
+ */
+function avc_guild_can_endorse(GroupInterface $guild, $user) {
+  $role = avc_guild_get_member_role($guild, $user);
+  return in_array($role, ['endorsed', 'mentor', 'admin']);
+}
+
+/**
+ * Check if a user needs ratification for their work.
+ *
+ * @param \Drupal\group\Entity\GroupInterface $guild
+ *   The guild.
+ * @param \Drupal\Core\Session\AccountInterface $user
+ *   The user.
+ *
+ * @return bool
+ *   TRUE if the user needs ratification.
+ */
+function avc_guild_needs_ratification(GroupInterface $guild, $user) {
+  // Check if guild requires ratification.
+  if ($guild->hasField('field_ratification_required')) {
+    if (!$guild->get('field_ratification_required')->value) {
+      return FALSE;
+    }
+  }
+
+  $role = avc_guild_get_member_role($guild, $user);
+  return $role === 'junior';
+}

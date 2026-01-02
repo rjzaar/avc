@@ -6,4 +6,8 @@ core_version_requirement: ^10
 dependencies:
   - avc_core:avc_core
   - avc_group:avc_group
-  - social_group:social_group
+  - drupal:user
+  - drupal:node
+  - drupal:taxonomy
+  - workflow_assignment:workflow_assignment
+configure: avc_guild.settings

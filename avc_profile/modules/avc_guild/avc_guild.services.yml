@@ -1,0 +1,23 @@
+services:
+  avc_guild.scoring:
+    class: Drupal\avc_guild\Service\ScoringService
+    arguments: ['@entity_type.manager']
+
+  avc_guild.endorsement:
+    class: Drupal\avc_guild\Service\EndorsementService
+    arguments: ['@entity_type.manager', '@avc_guild.scoring']
+
+  avc_guild.ratification:
+    class: Drupal\avc_guild\Service\RatificationService
+    arguments:
+      - '@entity_type.manager'
+      - '@avc_guild.scoring'
+      - '@?avc_notification.service'
+
+  avc_guild.service:
+    class: Drupal\avc_guild\Service\GuildService
+    arguments:
+      - '@entity_type.manager'
+      - '@avc_guild.scoring'
+      - '@avc_guild.endorsement'
+      - '@avc_guild.ratification'
