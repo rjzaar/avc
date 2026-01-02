@@ -104,11 +104,11 @@
 
     {% if can_edit %}
       <div class="workflow-actions">
-        <a href="{{ path('workflow_assignment.node_assign', {'node': node.id}) }}" class="button button--primary">
+        <a href="{{ path('workflow_assignment.node_assign', {'node': node.id()}) }}" class="button button--primary">
           {{ workflows is not empty ? 'Manage Workflows'|t : 'Assign Workflows'|t }}
         </a>
         {% if workflows is not empty %}
-          <a href="{{ path('workflow_assignment.apply_template', {'node': node.id}) }}" class="button">
+          <a href="{{ path('workflow_assignment.apply_template', {'node': node.id()}) }}" class="button">
             {{ 'Apply Template'|t }}
           </a>
         {% endif %}

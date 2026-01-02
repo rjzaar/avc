@@ -26,24 +26,19 @@
         {% for asset in assets %}
           <tr class="asset-item">
             <td class="item-id">
-              {% if asset.field_asset_number.value %}
-                {{ asset.field_asset_number.value }}
-              {% else %}
-                {{ asset.id }}
-              {% endif %}
+              {{ asset.asset_number|default(asset.id) }}
             </td>
             <td class="item-title">
               <a href="{{ path('entity.node.canonical', {node: asset.id}) }}">
-                {{ asset.label }}
+                {{ asset.title }}
               </a>
             </td>
             <td class="item-type">
-              {{ asset.bundle|replace({'avc_': ''})|capitalize }}
+              {{ asset.type|default('-') }}
             </td>
             <td class="item-status">
-              {% set status = asset.field_process_status.value ?? 'draft' %}
-              <span class="status-badge status-{{ status }}">
-                {{ status|capitalize }}
+              <span class="status-badge status-{{ asset.status|default('draft') }}">
+                {{ asset.status|default('draft')|capitalize }}
               </span>
             </td>
             <td class="item-actions">

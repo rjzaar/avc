@@ -14,7 +14,7 @@
  */
 #}
 <div class="avc-workflow-check-result status-{{ result.status }}">
-  <h3>{{ 'Workflow Check Results'|t }}: {{ node.label }}</h3>
+  <h3>{{ 'Workflow Check Results'|t }}: {{ node.label() }}</h3>
 
   {# Overall status #}
   <div class="check-status">
@@ -94,11 +94,11 @@
 
   {# Actions #}
   <div class="check-actions">
-    <a href="{{ path('entity.node.canonical', {node: node.id}) }}" class="button">
+    <a href="{{ path('entity.node.canonical', {node: node.id()}) }}" class="button">
       {{ 'Back to Asset'|t }}
     </a>
     {% if result.valid %}
-      <a href="{{ path('avc_asset.process', {node: node.id}) }}" class="button button--primary">
+      <a href="{{ path('avc_asset.process', {node: node.id()}) }}" class="button button--primary">
         {{ 'Process Workflow'|t }}
       </a>
     {% endif %}
