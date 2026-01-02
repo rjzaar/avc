@@ -1,0 +1,229 @@
+/**
+ * @file
+ * Styles for AVC Group Workflow Dashboard.
+ */
+
+.avc-group-workflow-dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #0074bd;
+}
+
+.dashboard-header h2 {
+  margin: 0;
+  color: #333;
+}
+
+.dashboard-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.dashboard-actions .button {
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.dashboard-actions .button--primary {
+  background-color: #0074bd;
+  color: white;
+}
+
+.dashboard-actions .button--primary:hover {
+  background-color: #005a94;
+}
+
+/* Dashboard Sections */
+.dashboard-section {
+  margin-bottom: 30px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.dashboard-section h3 {
+  color: #0074bd;
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.2em;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+/* Worklist Table */
+.avc-worklist-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.avc-worklist-table th,
+.avc-worklist-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.avc-worklist-table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  color: #333;
+}
+
+.avc-worklist-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.avc-worklist-table.completed tbody tr {
+  opacity: 0.8;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 3px;
+  font-size: 0.85em;
+  font-weight: 500;
+}
+
+.status-badge.status-current {
+  background-color: #4caf50;
+  color: white;
+}
+
+.status-badge.status-upcoming {
+  background-color: #2196f3;
+  color: white;
+}
+
+.status-badge.status-completed {
+  background-color: #9e9e9e;
+  color: white;
+}
+
+.status-badge.status-overdue {
+  background-color: #f44336;
+  color: white;
+}
+
+/* Row Status Highlighting */
+.worklist-item.status-current {
+  background-color: #e8f5e9;
+}
+
+.worklist-item.status-upcoming {
+  background-color: #e3f2fd;
+}
+
+.worklist-item.status-completed {
+  background-color: #fafafa;
+}
+
+/* Empty Messages */
+.empty-message {
+  color: #757575;
+  font-style: italic;
+  padding: 20px;
+  text-align: center;
+  background-color: #fafafa;
+  border-radius: 4px;
+}
+
+/* Actions Column */
+.item-actions a {
+  color: #0074bd;
+  text-decoration: none;
+}
+
+.item-actions a:hover {
+  text-decoration: underline;
+}
+
+/* Group Members */
+.members-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.member-item {
+  padding: 8px 12px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.member-item.is-manager {
+  background-color: #e3f2fd;
+  border: 1px solid #2196f3;
+}
+
+.member-name {
+  font-weight: 500;
+}
+
+.member-roles {
+  color: #666;
+  font-size: 0.85em;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .avc-worklist-table th,
+  .avc-worklist-table td {
+    padding: 8px;
+    font-size: 0.9em;
+  }
+
+  .dashboard-section {
+    padding: 15px;
+  }
+
+  .item-actions {
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .avc-worklist-table thead {
+    display: none;
+  }
+
+  .avc-worklist-table tbody tr {
+    display: block;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+
+  .avc-worklist-table tbody td {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .avc-worklist-table tbody td:before {
+    content: attr(data-label);
+    font-weight: 600;
+    margin-right: 10px;
+  }
+}

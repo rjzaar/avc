@@ -1,0 +1,35 @@
+default:
+  suites:
+    default:
+      paths:
+        - '%paths.base%/features'
+      contexts:
+        - Drupal\DrupalExtension\Context\DrupalContext
+        - Drupal\DrupalExtension\Context\MinkContext
+        - Drupal\DrupalExtension\Context\MessageContext
+        - Drupal\DrupalExtension\Context\DrushContext
+        - FeatureContext
+
+  extensions:
+    Drupal\MinkExtension:
+      goutte: ~
+      selenium2: ~
+      base_url: 'http://localhost'
+      files_path: '%paths.base%/files'
+
+    Drupal\DrupalExtension:
+      blackbox: ~
+      api_driver: 'drupal'
+      drupal:
+        drupal_root: '/var/www/html'
+      drush:
+        alias: 'local'
+      region_map:
+        header: '.region-header'
+        content: '.region-content'
+        sidebar: '.region-sidebar'
+        footer: '.region-footer'
+      selectors:
+        message_selector: '.messages'
+        error_message_selector: '.messages--error'
+        success_message_selector: '.messages--status'

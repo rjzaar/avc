@@ -8,6 +8,26 @@
         "drupal/dynamic_entity_reference": "^3.0 || ^4.0",
         "drupal/twig_tweak": "^3.0"
     },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0",
+        "drupal/drupal-extension": "^5.0",
+        "behat/behat": "^3.13",
+        "behat/mink": "^1.10",
+        "behat/mink-selenium2-driver": "^1.6",
+        "friends-of-behat/mink-extension": "^2.7"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Drupal\\Tests\\": "tests/src/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test:unit": "phpunit --testsuite unit",
+        "test:kernel": "phpunit --testsuite kernel",
+        "test:functional": "phpunit --testsuite functional",
+        "test:behat": "cd tests/behat && behat"
+    },
     "extra": {
         "drupal-scaffold": {
             "locations": {

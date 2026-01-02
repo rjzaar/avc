@@ -1,0 +1,189 @@
+{#
+/**
+ * @file
+ * Template for group workflow dashboard.
+ *
+ * Variables:
+ * - group: The group entity.
+ * - is_manager: Whether current user is a group manager.
+ * - current_assignments: Array of current (active) assignments.
+ * - upcoming_assignments: Array of upcoming assignments.
+ * - completed_assignments: Array of completed assignments.
+ * - members: Array of group members.
+ */
+#}
+<div class="avc-group-workflow-dashboard">
+  <div class="dashboard-header">
+    <h2>{{ 'Workflow Dashboard'|t }}: {{ group.label }}</h2>
+    {% if is_manager %}
+      <div class="dashboard-actions">
+        <a href="{{ path('avc_group.workflow.add', {group: group.id}) }}" class="button button--primary">
+          {{ 'Add Assignment'|t }}
+        </a>
+        <a href="{{ path('avc_group.workflow.settings', {group: group.id}) }}" class="button">
+          {{ 'Settings'|t }}
+        </a>
+      </div>
+    {% endif %}
+  </div>
+
+  {# Current/Active Assignments #}
+  <div class="dashboard-section current-assignments">
+    <h3>{{ 'Active Assignments'|t }}</h3>
+    {% if current_assignments %}
+      <table class="avc-worklist-table">
+        <thead>
+          <tr>
+            <th>{{ 'Title'|t }}</th>
+            <th>{{ 'Assigned To'|t }}</th>
+            <th>{{ 'Due Date'|t }}</th>
+            <th>{{ 'Status'|t }}</th>
+            <th>{{ 'Actions'|t }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in current_assignments %}
+            <tr class="worklist-item status-current">
+              <td class="item-title">{{ item.label }}</td>
+              <td class="item-assignee">
+                {% if item.assigned_user %}
+                  {{ item.assigned_user.getDisplayName() }}
+                {% else %}
+                  <em>{{ 'Unassigned'|t }}</em>
+                {% endif %}
+              </td>
+              <td class="item-due">
+                {% if item.due_date %}
+                  {{ item.due_date|date('M j, Y') }}
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+              <td class="item-status">
+                <span class="status-badge status-current">{{ 'Active'|t }}</span>
+              </td>
+              <td class="item-actions">
+                <a href="{{ path('entity.workflow_assignment.canonical', {workflow_assignment: item.id}) }}">{{ 'View'|t }}</a>
+                {% if is_manager %}
+                  | <a href="{{ path('entity.workflow_assignment.edit_form', {workflow_assignment: item.id}) }}">{{ 'Edit'|t }}</a>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="empty-message">{{ 'No active assignments.'|t }}</p>
+    {% endif %}
+  </div>
+
+  {# Upcoming Assignments #}
+  <div class="dashboard-section upcoming-assignments">
+    <h3>{{ 'Upcoming Assignments'|t }}</h3>
+    {% if upcoming_assignments %}
+      <table class="avc-worklist-table">
+        <thead>
+          <tr>
+            <th>{{ 'Title'|t }}</th>
+            <th>{{ 'Assigned To'|t }}</th>
+            <th>{{ 'Due Date'|t }}</th>
+            <th>{{ 'Status'|t }}</th>
+            <th>{{ 'Actions'|t }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in upcoming_assignments %}
+            <tr class="worklist-item status-upcoming">
+              <td class="item-title">{{ item.label }}</td>
+              <td class="item-assignee">
+                {% if item.assigned_user %}
+                  {{ item.assigned_user.getDisplayName() }}
+                {% else %}
+                  <em>{{ 'Unassigned'|t }}</em>
+                {% endif %}
+              </td>
+              <td class="item-due">
+                {% if item.due_date %}
+                  {{ item.due_date|date('M j, Y') }}
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+              <td class="item-status">
+                <span class="status-badge status-upcoming">{{ 'Upcoming'|t }}</span>
+              </td>
+              <td class="item-actions">
+                <a href="{{ path('entity.workflow_assignment.canonical', {workflow_assignment: item.id}) }}">{{ 'View'|t }}</a>
+                {% if is_manager %}
+                  | <a href="{{ path('entity.workflow_assignment.edit_form', {workflow_assignment: item.id}) }}">{{ 'Edit'|t }}</a>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="empty-message">{{ 'No upcoming assignments.'|t }}</p>
+    {% endif %}
+  </div>
+
+  {# Completed Assignments #}
+  <div class="dashboard-section completed-assignments">
+    <h3>{{ 'Completed Assignments'|t }}</h3>
+    {% if completed_assignments %}
+      <table class="avc-worklist-table completed">
+        <thead>
+          <tr>
+            <th>{{ 'Title'|t }}</th>
+            <th>{{ 'Completed By'|t }}</th>
+            <th>{{ 'Completed Date'|t }}</th>
+            <th>{{ 'Actions'|t }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in completed_assignments %}
+            <tr class="worklist-item status-completed">
+              <td class="item-title">{{ item.label }}</td>
+              <td class="item-assignee">
+                {% if item.assigned_user %}
+                  {{ item.assigned_user.getDisplayName() }}
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+              <td class="item-date">
+                {% if item.assignment.changed %}
+                  {{ item.assignment.changed.value|date('M j, Y') }}
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+              <td class="item-actions">
+                <a href="{{ path('entity.workflow_assignment.canonical', {workflow_assignment: item.id}) }}">{{ 'View'|t }}</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="empty-message">{{ 'No completed assignments.'|t }}</p>
+    {% endif %}
+  </div>
+
+  {# Group Members Summary #}
+  {% if is_manager %}
+    <div class="dashboard-section group-members">
+      <h3>{{ 'Group Members'|t }}</h3>
+      <div class="members-list">
+        {% for member in members %}
+          <div class="member-item {{ member.is_manager ? 'is-manager' : '' }}">
+            <span class="member-name">{{ member.name }}</span>
+            {% if member.roles %}
+              <span class="member-roles">({{ member.roles|join(', ') }})</span>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</div>

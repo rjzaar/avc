@@ -1,0 +1,202 @@
+<?php
+
+/**
+ * @file
+ * AVC Group module - Group workflow dashboards for AV Commons.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\group\Entity\GroupInterface;
+
+/**
+ * Implements hook_help().
+ */
+function avc_group_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.avc_group':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Provides workflow dashboards for Open Social groups in AV Commons.') . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function avc_group_theme() {
+  return [
+    'avc_group_workflow_dashboard' => [
+      'variables' => [
+        'group' => NULL,
+        'is_manager' => FALSE,
+        'current_assignments' => [],
+        'upcoming_assignments' => [],
+        'completed_assignments' => [],
+        'members' => [],
+      ],
+      'template' => 'avc-group-workflow-dashboard',
+    ],
+  ];
+}
+
+/**
+ * Implements hook_mail().
+ */
+function avc_group_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'workflow_notification':
+      $message['subject'] = avc_group_get_notification_subject($params);
+      $message['body'][] = avc_group_get_notification_body($params);
+      break;
+
+    case 'workflow_digest':
+      $message['subject'] = t('AV Commons Workflow Digest');
+      $message['body'][] = avc_group_get_digest_body($params);
+      break;
+  }
+}
+
+/**
+ * Gets notification email subject.
+ *
+ * @param array $params
+ *   Mail parameters.
+ *
+ * @return string
+ *   The subject line.
+ */
+function avc_group_get_notification_subject(array $params) {
+  $type = $params['type'] ?? 'notification';
+  $group = $params['group'] ?? NULL;
+  $assignment = $params['assignment'] ?? NULL;
+
+  switch ($type) {
+    case 'new':
+      return t('New Assignment: @title in @group', [
+        '@title' => $assignment ? $assignment->label() : 'Unknown',
+        '@group' => $group ? $group->label() : 'Unknown Group',
+      ]);
+
+    case 'status_change':
+      return t('Assignment Updated: @title', [
+        '@title' => $assignment ? $assignment->label() : 'Unknown',
+      ]);
+
+    default:
+      return t('AV Commons Workflow Notification');
+  }
+}
+
+/**
+ * Gets notification email body.
+ *
+ * @param array $params
+ *   Mail parameters.
+ *
+ * @return string
+ *   The email body.
+ */
+function avc_group_get_notification_body(array $params) {
+  $user = $params['user'] ?? NULL;
+  $group = $params['group'] ?? NULL;
+  $assignment = $params['assignment'] ?? NULL;
+  $type = $params['type'] ?? 'notification';
+  $context = $params['context'] ?? [];
+
+  $body = [];
+  $body[] = t('Hello @name,', ['@name' => $user ? $user->getDisplayName() : 'Member']);
+  $body[] = '';
+
+  switch ($type) {
+    case 'new':
+      $body[] = t('A new workflow assignment has been created in @group:', [
+        '@group' => $group ? $group->label() : 'your group',
+      ]);
+      $body[] = '';
+      $body[] = t('Title: @title', ['@title' => $assignment ? $assignment->label() : 'Unknown']);
+      break;
+
+    case 'status_change':
+      $body[] = t('The status of an assignment has changed:');
+      $body[] = '';
+      $body[] = t('Title: @title', ['@title' => $assignment ? $assignment->label() : 'Unknown']);
+      $body[] = t('Previous status: @old', ['@old' => $context['old_status'] ?? 'Unknown']);
+      $body[] = t('New status: @new', ['@new' => $context['new_status'] ?? 'Unknown']);
+      break;
+  }
+
+  $body[] = '';
+  $body[] = t('Best regards,');
+  $body[] = t('AV Commons');
+
+  return implode("\n", $body);
+}
+
+/**
+ * Gets digest email body.
+ *
+ * @param array $params
+ *   Mail parameters.
+ *
+ * @return string
+ *   The email body.
+ */
+function avc_group_get_digest_body(array $params) {
+  $user = $params['user'] ?? NULL;
+  $notifications = $params['notifications'] ?? [];
+
+  $body = [];
+  $body[] = t('Hello @name,', ['@name' => $user ? $user->getDisplayName() : 'Member']);
+  $body[] = '';
+  $body[] = t('Here is your workflow digest:');
+  $body[] = '';
+
+  foreach ($notifications as $notification) {
+    $body[] = '- ' . ($notification->type ?? 'Update');
+  }
+
+  $body[] = '';
+  $body[] = t('Best regards,');
+  $body[] = t('AV Commons');
+
+  return implode("\n", $body);
+}
+
+/**
+ * Implements hook_entity_extra_field_info().
+ */
+function avc_group_entity_extra_field_info() {
+  $extra = [];
+
+  // Add workflow tab as pseudo-field for groups.
+  $group_types = \Drupal::entityTypeManager()
+    ->getStorage('group_type')
+    ->loadMultiple();
+
+  foreach ($group_types as $group_type) {
+    $extra['group'][$group_type->id()]['display']['workflow_dashboard'] = [
+      'label' => t('Workflow Dashboard'),
+      'description' => t('Shows the workflow dashboard for this group.'),
+      'weight' => 100,
+      'visible' => FALSE,
+    ];
+  }
+
+  return $extra;
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_view() for groups.
+ */
+function avc_group_group_view(array &$build, GroupInterface $group, $view_mode) {
+  // Check if workflow dashboard display is enabled.
+  $display = \Drupal::service('entity_display.repository')
+    ->getViewDisplay('group', $group->bundle(), $view_mode);
+
+  $component = $display->getComponent('workflow_dashboard');
+  if ($component) {
+    $controller = \Drupal::classResolver()
+      ->getInstanceFromDefinition('Drupal\avc_group\Controller\GroupWorkflowController');
+    $build['workflow_dashboard'] = $controller->dashboard($group);
+  }
+}

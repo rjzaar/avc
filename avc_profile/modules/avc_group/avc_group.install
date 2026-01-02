@@ -1,0 +1,95 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the AVC Group module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function avc_group_schema() {
+  $schema['avc_notification_queue'] = [
+    'description' => 'Queue for digest notifications.',
+    'fields' => [
+      'id' => [
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Primary key.',
+      ],
+      'uid' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'User ID to notify.',
+      ],
+      'group_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Group ID.',
+      ],
+      'assignment_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Workflow assignment ID.',
+      ],
+      'type' => [
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'description' => 'Notification type.',
+      ],
+      'context' => [
+        'type' => 'text',
+        'size' => 'medium',
+        'description' => 'Serialized context data.',
+      ],
+      'frequency' => [
+        'type' => 'char',
+        'length' => 1,
+        'not null' => TRUE,
+        'default' => 'd',
+        'description' => 'Digest frequency: d=daily, w=weekly.',
+      ],
+      'created' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Timestamp when queued.',
+      ],
+    ],
+    'primary key' => ['id'],
+    'indexes' => [
+      'uid_frequency' => ['uid', 'frequency'],
+      'created' => ['created'],
+    ],
+  ];
+
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function avc_group_install() {
+  // Set default configuration.
+  \Drupal::configFactory()
+    ->getEditable('avc_group.settings')
+    ->set('digest_daily_hour', 8)
+    ->set('digest_weekly_day', 1) // Monday
+    ->set('digest_weekly_hour', 8)
+    ->save();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function avc_group_uninstall() {
+  // Clean up configuration.
+  \Drupal::configFactory()
+    ->getEditable('avc_group.settings')
+    ->delete();
+}

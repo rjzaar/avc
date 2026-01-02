@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.0/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
+         colors="true"
+         beStrictAboutOutputDuringTests="true"
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         displayDetailsOnTestsThatTriggerErrors="true"
+         displayDetailsOnTestsThatTriggerNotices="true"
+         displayDetailsOnTestsThatTriggerWarnings="true">
+
+  <php>
+    <ini name="error_reporting" value="-1"/>
+    <ini name="memory_limit" value="-1"/>
+    <env name="SIMPLETEST_BASE_URL" value="http://localhost"/>
+    <env name="SIMPLETEST_DB" value="sqlite://localhost/sites/default/files/.sqlite"/>
+    <env name="BROWSERTEST_OUTPUT_DIRECTORY" value="/tmp"/>
+  </php>
+
+  <testsuites>
+    <testsuite name="unit">
+      <directory>./modules/*/tests/src/Unit</directory>
+    </testsuite>
+    <testsuite name="kernel">
+      <directory>./modules/*/tests/src/Kernel</directory>
+    </testsuite>
+    <testsuite name="functional">
+      <directory>./modules/*/tests/src/Functional</directory>
+    </testsuite>
+  </testsuites>
+
+  <source>
+    <include>
+      <directory suffix=".php">./modules/*/src</directory>
+    </include>
+    <exclude>
+      <directory>./modules/*/tests</directory>
+    </exclude>
+  </source>
+
+</phpunit>
