@@ -152,8 +152,8 @@
                 {% endif %}
               </td>
               <td class="item-date">
-                {% if item.assignment.changed %}
-                  {{ item.assignment.changed.value|date('M j, Y') }}
+                {% if item.changed_date %}
+                  {{ item.changed_date|date('M j, Y') }}
                 {% else %}
                   -
                 {% endif %}

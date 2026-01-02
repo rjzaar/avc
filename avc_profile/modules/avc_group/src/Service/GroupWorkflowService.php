@@ -82,7 +82,8 @@ class GroupWorkflowService {
             'label' => $assignment->label(),
             'status' => $status,
             'assigned_user' => $this->getAssignedUser($assignment),
-            'due_date' => $assignment->get('due_date')->value ?? NULL,
+            'due_date' => $assignment->hasField('due_date') ? $assignment->get('due_date')->value : NULL,
+            'changed_date' => $assignment->hasField('changed') ? $assignment->get('changed')->value : NULL,
             'node' => $this->getAssociatedNode($assignment),
           ];
         }
