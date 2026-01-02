@@ -48,7 +48,7 @@ function avc_member_form_social_user_register_form_alter(&$form, FormStateInterf
 
   $form['avc_fields']['field_public_domain_accept'] = [
     '#type' => 'checkbox',
-    '#title' => t('I acknowledge that all my contributions to AV Commons can be licensed as public domain or any license the leaders of Apostoli Viae choose without my contribution being acknowledged.'),
+    '#title' => t('I acknowledge that all my contributions to AV Commons can be licensed as public domain or any license the leaders of AV Commons choose without my contribution being acknowledged.'),
     '#required' => TRUE,
   ];
 

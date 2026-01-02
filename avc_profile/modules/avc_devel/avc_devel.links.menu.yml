@@ -1,0 +1,13 @@
+avc_devel.generate:
+  title: 'Generate AVC Test Content'
+  description: 'Generate test users, groups, assets, and workflow assignments.'
+  route_name: avc_devel.generate
+  parent: system.admin_config_development
+  weight: 10
+
+avc_devel.cleanup:
+  title: 'Cleanup AVC Test Content'
+  description: 'Remove generated test content.'
+  route_name: avc_devel.cleanup
+  parent: system.admin_config_development
+  weight: 11
