@@ -5,6 +5,7 @@
  * AVC Group module - Group workflow dashboards for AV Commons.
  */
 
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\group\Entity\GroupInterface;
 
@@ -188,11 +189,8 @@ function avc_group_entity_extra_field_info() {
 /**
  * Implements hook_ENTITY_TYPE_view() for groups.
  */
-function avc_group_group_view(array &$build, GroupInterface $group, $view_mode) {
+function avc_group_group_view(array &$build, GroupInterface $group, EntityViewDisplayInterface $display, $view_mode) {
   // Check if workflow dashboard display is enabled.
-  $display = \Drupal::service('entity_display.repository')
-    ->getViewDisplay('group', $group->bundle(), $view_mode);
-
   $component = $display->getComponent('workflow_dashboard');
   if ($component) {
     $controller = \Drupal::classResolver()
