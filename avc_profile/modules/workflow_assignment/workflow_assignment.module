@@ -1,0 +1,354 @@
+<?php
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * @file
+ * Primary module hooks for Workflow Assignment module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\node\NodeInterface;
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_help().
+ */
+function workflow_assignment_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.workflow_assignment':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The Workflow Assignment module provides a flexible workflow system where each workflow can be assigned to a single user, group, or destination location.') . '</p>';
+      $output .= '<h3>' . t('Features') . '</h3>';
+      $output .= '<ul>';
+      $output .= '<li>' . t('Single assignment per workflow (user, group, or destination)') . '</li>';
+      $output .= '<li>' . t('Color-coded assignments: Green for users, Blue for groups, Orange for destinations') . '</li>';
+      $output .= '<li>' . t('Expandable description and comments fields') . '</li>';
+      $output .= '<li>' . t('Separate Workflow tab on content pages') . '</li>';
+      $output .= '<li>' . t('Quick edit functionality') . '</li>';
+      $output .= '</ul>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function workflow_assignment_theme() {
+  return [
+    'workflow_info_block' => [
+      'variables' => [
+        'workflow' => NULL,
+        'node' => NULL,
+      ],
+    ],
+    'workflow_tab_content' => [
+      'variables' => [
+        'workflows' => [],   // ← Changed to plural and default to empty array
+        'node' => NULL,
+        'can_edit' => FALSE,
+        'can_administer' => FALSE,
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_node_access().
+ *
+ * Custom access check for workflow tab visibility.
+ */
+function workflow_assignment_node_access(NodeInterface $node, $op, AccountInterface $account) {
+  // No opinion on node access.
+  return AccessResult::neutral();
+}
+
+/**
+ * Custom access callback for workflow tab.
+ */
+function workflow_assignment_node_has_workflow_field(NodeInterface $node) {
+  $config = \Drupal::config('workflow_assignment.settings');
+  $enabled_types = $config->get('enabled_content_types') ?: [];
+  
+  // Check if this content type is enabled for workflows.
+  if (in_array($node->bundle(), $enabled_types)) {
+    return AccessResult::allowed();
+  }
+  
+  return AccessResult::forbidden();
+}
+
+/**
+ * Implements hook_entity_operation().
+ */
+function workflow_assignment_entity_operation(EntityInterface $entity) {
+  $operations = [];
+  
+  if ($entity->getEntityTypeId() === 'workflow_list') {
+    $operations['quick_edit'] = [
+      'title' => t('Quick Edit'),
+      'url' => \Drupal\Core\Url::fromRoute('workflow_assignment.quick_edit', [
+        'workflow_list' => $entity->id(),
+      ]),
+      'weight' => 10,
+    ];
+  }
+  
+  return $operations;
+}
+
+/**
+ * Implements hook_entity_type_alter().
+ */
+function workflow_assignment_entity_type_alter(array &$entity_types) {
+  // Add route provider for workflow_list entity.
+  if (isset($entity_types['workflow_list'])) {
+    $entity_types['workflow_list']->setLinkTemplate('collection', '/admin/structure/workflow-list');
+    $entity_types['workflow_list']->setLinkTemplate('add-form', '/admin/structure/workflow-list/add');
+    $entity_types['workflow_list']->setLinkTemplate('edit-form', '/admin/structure/workflow-list/{workflow_list}/edit');
+    $entity_types['workflow_list']->setLinkTemplate('delete-form', '/admin/structure/workflow-list/{workflow_list}/delete');
+  }
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter() for node_form.
+ * 
+ * Filters out unchecked checkbox values (0) from workflow field
+ * before they reach field validation.
+ */
+function workflow_assignment_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Only process if the node has the workflow field
+  if (isset($form['field_workflow_list'])) {
+    // Add our custom validation handler to filter zero values
+    array_unshift($form['#validate'], 'workflow_assignment_node_form_validate');
+  }
+}
+
+/**
+ * Custom validation handler to filter out zero values from workflow field.
+ * 
+ * Checkboxes return 0 for unchecked items, but entity reference fields
+ * expect only valid entity IDs. This filters out the zeros before validation.
+ */
+function workflow_assignment_node_form_validate(&$form, FormStateInterface $form_state) {
+  // Get the current workflow field values
+  $workflow_values = $form_state->getValue('field_workflow_list');
+  
+  // Only process if we have values
+  if (!empty($workflow_values) && is_array($workflow_values)) {
+    $filtered = [];
+    
+    // Loop through all submitted values
+    foreach ($workflow_values as $delta => $value) {
+      // Skip non-numeric deltas (like 'add_more' button)
+      if (!is_numeric($delta)) {
+        continue;
+      }
+      
+      // Extract the target_id
+      if (is_array($value) && isset($value['target_id'])) {
+        $target_id = $value['target_id'];
+      }
+      elseif (!is_array($value)) {
+        $target_id = $value;
+      }
+      else {
+        // No target_id found, skip this value
+        continue;
+      }
+      
+      // Filter: Keep only valid entity IDs
+      // Reject: 0, '0', '', NULL, FALSE (all represent unchecked boxes)
+      if ($target_id !== 0 && 
+          $target_id !== '0' && 
+          $target_id !== '' && 
+          $target_id !== NULL && 
+          $target_id !== FALSE &&
+          !empty($target_id)) {
+        
+        // Keep this value
+        $filtered[] = is_array($value) ? $value : ['target_id' => $target_id];
+      }
+    }
+    
+    // Set the filtered values back to form state
+    // This happens before field validation, so only valid IDs are validated
+    $form_state->setValue('field_workflow_list', $filtered);
+  }
+}
+
+/**
+ * Implements hook_field_widget_multivalue_form_alter().
+ * 
+ * Fixes the "submitted value 0" error that occurs when using checkboxes
+ * for entity reference fields by filtering out unchecked values (zeros).
+ */
+function workflow_assignment_field_widget_multivalue_form_alter(array &$elements, FormStateInterface $form_state, array $context) {
+  // Only process the workflow list field
+  if ($context['items']->getName() == 'field_workflow_list') {
+    // Add validation to filter out zeros before entity reference validation
+    array_unshift($elements['#element_validate'], 'workflow_assignment_clean_checkbox_values');
+  }
+}
+
+/**
+ * Validation callback to clean checkbox values.
+ * 
+ * Removes zeros from checkbox submissions before entity reference validation
+ * to prevent "submitted value 0" errors.
+ */
+function workflow_assignment_clean_checkbox_values(&$element, FormStateInterface $form_state) {
+  $values = $form_state->getValue($element['#parents']);
+
+  if (is_array($values)) {
+    $cleaned = [];
+    foreach ($values as $key => $value) {
+      // Only keep non-zero values (checked checkboxes)
+      if ($value !== 0 && $value !== '0' && !empty($value)) {
+        $cleaned[] = ['target_id' => $value];
+      }
+    }
+    $form_state->setValueForElement($element, $cleaned);
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function workflow_assignment_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'workflow_notification':
+      $node = $params['node'];
+      $workflow = $params['workflow'];
+      $action = $params['action'];
+      $assigned_by = $params['assigned_by'];
+
+      $action_text = $action === 'assigned' ? t('assigned to') : t('unassigned from');
+
+      $message['subject'] = t('Workflow "@workflow" @action "@node"', [
+        '@workflow' => $workflow->label(),
+        '@action' => $action_text,
+        '@node' => $node->getTitle(),
+      ]);
+
+      $message['body'][] = t('Hello,');
+      $message['body'][] = '';
+      $message['body'][] = t('The workflow "@workflow" has been @action the content "@node" by @user.', [
+        '@workflow' => $workflow->label(),
+        '@action' => $action_text,
+        '@node' => $node->getTitle(),
+        '@user' => $assigned_by,
+      ]);
+      $message['body'][] = '';
+      $message['body'][] = t('You can view the content here: @url', [
+        '@url' => $node->toUrl('canonical', ['absolute' => TRUE])->toString(),
+      ]);
+      $message['body'][] = '';
+      $message['body'][] = t('Workflow Details:');
+      $message['body'][] = t('- Name: @name', ['@name' => $workflow->label()]);
+      if ($workflow->getDescription()) {
+        $message['body'][] = t('- Description: @desc', ['@desc' => $workflow->getDescription()]);
+      }
+      break;
+  }
+}
+
+/**
+ * Implements hook_node_presave().
+ *
+ * Track workflow assignment changes for notifications and history.
+ */
+function workflow_assignment_node_presave(NodeInterface $node) {
+  if (!$node->hasField('field_workflow_list')) {
+    return;
+  }
+
+  // Get current workflow IDs.
+  $new_workflows = [];
+  foreach ($node->get('field_workflow_list') as $item) {
+    if ($item->target_id) {
+      $new_workflows[] = $item->target_id;
+    }
+  }
+
+  // Get original workflow IDs if this is an update.
+  $original_workflows = [];
+  if (!$node->isNew() && isset($node->original) && $node->original->hasField('field_workflow_list')) {
+    foreach ($node->original->get('field_workflow_list') as $item) {
+      if ($item->target_id) {
+        $original_workflows[] = $item->target_id;
+      }
+    }
+  }
+
+  // Calculate added and removed workflows.
+  $added = array_diff($new_workflows, $original_workflows);
+  $removed = array_diff($original_workflows, $new_workflows);
+
+  // Store for use in hook_node_insert/update.
+  $node->_workflow_changes = [
+    'added' => $added,
+    'removed' => $removed,
+  ];
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function workflow_assignment_node_insert(NodeInterface $node) {
+  _workflow_assignment_process_changes($node);
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function workflow_assignment_node_update(NodeInterface $node) {
+  _workflow_assignment_process_changes($node);
+}
+
+/**
+ * Process workflow changes after node save.
+ */
+function _workflow_assignment_process_changes(NodeInterface $node) {
+  if (empty($node->_workflow_changes)) {
+    return;
+  }
+
+  $added = $node->_workflow_changes['added'];
+  $removed = $node->_workflow_changes['removed'];
+
+  if (empty($added) && empty($removed)) {
+    return;
+  }
+
+  // Log history.
+  $logger = \Drupal::service('workflow_assignment.history_logger');
+  foreach ($added as $workflow_id) {
+    $logger->logAssignment($workflow_id, $node->id());
+  }
+  foreach ($removed as $workflow_id) {
+    $logger->logUnassignment($workflow_id, $node->id());
+  }
+
+  // Send notifications.
+  $notification_service = \Drupal::service('workflow_assignment.notification');
+  $notification_service->sendAssignmentNotifications($node, $added, $removed);
+}
+
+/**
+ * Implements hook_entity_operation().
+ */
+function workflow_assignment_entity_operation_alter(array &$operations, EntityInterface $entity) {
+  if ($entity->getEntityTypeId() === 'workflow_list') {
+    $operations['clone'] = [
+      'title' => t('Clone'),
+      'url' => Url::fromRoute('entity.workflow_list.clone_form', [
+        'workflow_list' => $entity->id(),
+      ]),
+      'weight' => 20,
+    ];
+  }
+}

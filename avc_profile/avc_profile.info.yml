@@ -5,6 +5,7 @@ core_version_requirement: ^10
 base profile: social
 
 install:
+  - workflow_assignment
   - avc_core
   - avc_member
   - avc_group
@@ -18,4 +19,3 @@ dependencies:
   - social_user:social_user
   - social_profile:social_profile
   - social_group:social_group
-  - workflow_assignment:workflow_assignment
