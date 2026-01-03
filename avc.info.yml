@@ -16,6 +16,7 @@ dependencies:
   - drupal:views
   # Contrib
   - color:color
+  - flag:flag
   - improved_theme_settings:improved_theme_settings
   # Open Social core
   - social:social_group
