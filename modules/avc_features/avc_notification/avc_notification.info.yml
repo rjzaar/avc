@@ -1,0 +1,11 @@
+name: 'AVC Notification'
+type: module
+description: 'Advanced notification system with digest preferences for AV Commons'
+package: 'AV Commons'
+core_version_requirement: ^10
+dependencies:
+  - avc_core:avc_core
+  - avc_member:avc_member
+  - drupal:user
+  - drupal:node
+configure: avc_notification.settings

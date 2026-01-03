@@ -1,0 +1,4 @@
+services:
+  avc_member.worklist_service:
+    class: Drupal\avc_member\Service\MemberWorklistService
+    arguments: ['@entity_type.manager']

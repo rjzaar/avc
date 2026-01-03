@@ -1,0 +1,34 @@
+{#
+/**
+ * @file
+ * Skill endorsements display template.
+ *
+ * Available variables:
+ * - skill: The skill taxonomy term.
+ * - endorsements: Array of endorsement entities.
+ * - can_endorse: Boolean indicating if current user can endorse.
+ */
+#}
+<div class="skill-endorsements">
+  <h4>{{ skill.label }}</h4>
+
+  {% if endorsements %}
+  <div class="endorsement-count">
+    {{ endorsements|length }} {{ 'endorsement'|t }}{{ endorsements|length != 1 ? 's' : '' }}
+  </div>
+
+  <ul class="endorsers-list">
+    {% for endorsement in endorsements %}
+    <li class="endorser-item">
+      <span class="endorser-name">{{ endorsement.getEndorser.displayname }}</span>
+      {% if endorsement.comment %}
+      <span class="endorser-comment">"{{ endorsement.comment }}"</span>
+      {% endif %}
+      <span class="endorsement-date">{{ endorsement.created.value|date('M j, Y') }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="no-endorsements">{{ 'No endorsements yet for this skill.'|t }}</p>
+  {% endif %}
+</div>

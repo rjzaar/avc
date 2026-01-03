@@ -1,0 +1,87 @@
+<?php
+
+/**
+ * @file
+ * Member functionality for AV Commons.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function avc_member_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.avc_member':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Provides member profiles, dashboards, and worklists for AV Commons.') . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for social_user_register_form.
+ */
+function avc_member_form_social_user_register_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Add AV-specific registration fields.
+  // These extend the Open Social registration form.
+
+  $form['avc_fields'] = [
+    '#type' => 'fieldset',
+    '#title' => t('AV Commons Information'),
+    '#weight' => 10,
+  ];
+
+  $form['avc_fields']['field_av_level'] = [
+    '#type' => 'select',
+    '#title' => t('AV Level'),
+    '#options' => [
+      '' => t('- Select -'),
+      'disciple' => t('Disciple'),
+      'aspirant' => t('Aspirant'),
+      'sojourner' => t('Sojourner'),
+      'none' => t('None of the above'),
+    ],
+    '#required' => TRUE,
+  ];
+
+  $form['avc_fields']['field_public_domain_accept'] = [
+    '#type' => 'checkbox',
+    '#title' => t('I acknowledge that all my contributions to AV Commons can be licensed as public domain or any license the leaders of AV Commons choose without my contribution being acknowledged.'),
+    '#required' => TRUE,
+  ];
+
+  // Add custom submit handler.
+  $form['#submit'][] = 'avc_member_register_form_submit';
+}
+
+/**
+ * Custom submit handler for registration form.
+ */
+function avc_member_register_form_submit($form, FormStateInterface $form_state) {
+  // Save AV-specific fields to user profile.
+  // This will be implemented when profile fields are configured.
+}
+
+/**
+ * Implements hook_theme().
+ */
+function avc_member_theme($existing, $type, $theme, $path) {
+  return [
+    'member_dashboard' => [
+      'variables' => [
+        'user' => NULL,
+        'worklist' => [],
+        'group_worklists' => [],
+        'notification_settings' => [],
+      ],
+    ],
+    'member_worklist' => [
+      'variables' => [
+        'items' => [],
+        'empty_message' => NULL,
+      ],
+    ],
+  ];
+}

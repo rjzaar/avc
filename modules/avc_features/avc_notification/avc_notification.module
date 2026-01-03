@@ -1,0 +1,119 @@
+<?php
+
+/**
+ * @file
+ * Advanced notification system for AV Commons.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function avc_notification_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.avc_notification':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Provides advanced notification system with digest preferences for AV Commons.') . '</p>';
+      $output .= '<h4>' . t('Notification Preferences') . '</h4>';
+      $output .= '<ul>';
+      $output .= '<li>' . t('<strong>n</strong> - New/Immediate: Send notifications as they occur') . '</li>';
+      $output .= '<li>' . t('<strong>d</strong> - Daily: Aggregate into daily digest') . '</li>';
+      $output .= '<li>' . t('<strong>w</strong> - Weekly: Aggregate into weekly digest') . '</li>';
+      $output .= '<li>' . t('<strong>x</strong> - None: Do not send notifications') . '</li>';
+      $output .= '</ul>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_cron().
+ */
+function avc_notification_cron() {
+  // Process notification queue.
+  /** @var \Drupal\avc_notification\Service\NotificationProcessor $processor */
+  $processor = \Drupal::service('avc_notification.processor');
+  $processor->processQueue();
+}
+
+/**
+ * Implements hook_theme().
+ */
+function avc_notification_theme($existing, $type, $theme, $path) {
+  return [
+    'notification_email_workflow_advance' => [
+      'variables' => [
+        'recipient_name' => NULL,
+        'initiator_name' => NULL,
+        'resource_name' => NULL,
+        'check_type' => NULL,
+        'resource_link' => NULL,
+        'dashboard_link' => NULL,
+        'previous_person' => NULL,
+        'comment' => NULL,
+      ],
+      'template' => 'email/workflow-advance',
+    ],
+    'notification_email_daily_digest' => [
+      'variables' => [
+        'recipient_name' => NULL,
+        'items' => [],
+        'dashboard_link' => NULL,
+        'date' => NULL,
+      ],
+      'template' => 'email/daily-digest',
+    ],
+    'notification_email_weekly_digest' => [
+      'variables' => [
+        'recipient_name' => NULL,
+        'items' => [],
+        'dashboard_link' => NULL,
+        'week_start' => NULL,
+        'week_end' => NULL,
+      ],
+      'template' => 'email/weekly-digest',
+    ],
+    'notification_log' => [
+      'variables' => [
+        'notifications' => [],
+        'pager' => NULL,
+      ],
+      'template' => 'notification-log',
+    ],
+  ];
+}
+
+/**
+ * Implements hook_mail().
+ */
+function avc_notification_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'workflow_advance':
+      $message['subject'] = t('AV Commons Resource Check: @resource', [
+        '@resource' => $params['resource_name'],
+      ]);
+      $message['body'][] = \Drupal::service('renderer')->renderPlain($params['body']);
+      break;
+
+    case 'daily_digest':
+      $message['subject'] = t('AV Commons Daily Digest - @date', [
+        '@date' => $params['date'],
+      ]);
+      $message['body'][] = \Drupal::service('renderer')->renderPlain($params['body']);
+      break;
+
+    case 'weekly_digest':
+      $message['subject'] = t('AV Commons Weekly Digest - @week', [
+        '@week' => $params['week'],
+      ]);
+      $message['body'][] = \Drupal::service('renderer')->renderPlain($params['body']);
+      break;
+
+    case 'admin_alert':
+      $message['subject'] = t('AV Commons Admin Alert: @type', [
+        '@type' => $params['alert_type'],
+      ]);
+      $message['body'][] = $params['message'];
+      break;
+  }
+}

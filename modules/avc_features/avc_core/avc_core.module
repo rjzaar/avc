@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * @file
+ * Core functionality for AV Commons.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function avc_core_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.avc_core':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('AV Commons Core provides shared services and base functionality for the AV Commons platform.') . '</p>';
+      return $output;
+  }
+}

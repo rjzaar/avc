@@ -1,0 +1,19 @@
+workflow_assignment.settings:
+  title: 'Workflow Assignment'
+  description: 'Configure workflow assignment settings.'
+  route_name: workflow_assignment.settings
+  parent: system.admin_config_workflow
+
+workflow_assignment.history:
+  title: 'Workflow History'
+  description: 'View workflow assignment history and audit log.'
+  route_name: workflow_assignment.history
+  parent: system.admin_structure
+  weight: 10
+
+entity.workflow_template.collection:
+  title: 'Workflow Templates'
+  description: 'Manage reusable workflow templates.'
+  route_name: entity.workflow_template.collection
+  parent: system.admin_structure
+  weight: 11

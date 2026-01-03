@@ -1,0 +1,227 @@
+workflow_assignment.settings:
+  path: '/admin/config/workflow/workflow-assignment'
+  defaults:
+    _form: '\Drupal\workflow_assignment\Form\WorkflowAssignmentSettingsForm'
+    _title: 'Workflow Assignment Settings'
+  requirements:
+    _permission: 'administer workflow lists'
+
+entity.workflow_list.collection:
+  path: '/admin/structure/workflow-list'
+  defaults:
+    _entity_list: 'workflow_list'
+    _title: 'Workflow Lists'
+  requirements:
+    _permission: 'administer workflow lists'
+
+entity.workflow_list.add_form:
+  path: '/admin/structure/workflow-list/add'
+  defaults:
+    _entity_form: 'workflow_list.add'
+    _title: 'Add Workflow List'
+  requirements:
+    _permission: 'administer workflow lists'
+
+entity.workflow_list.edit_form:
+  path: '/admin/structure/workflow-list/{workflow_list}/edit'
+  defaults:
+    _entity_form: 'workflow_list.edit'
+    _title: 'Edit Workflow List'
+  requirements:
+    _permission: 'administer workflow lists'
+
+entity.workflow_list.delete_form:
+  path: '/admin/structure/workflow-list/{workflow_list}/delete'
+  defaults:
+    _entity_form: 'workflow_list.delete'
+    _title: 'Delete Workflow List'
+  requirements:
+    _permission: 'administer workflow lists'
+
+workflow_assignment.quick_edit:
+  path: '/admin/structure/workflow-list/{workflow_list}/quick-edit'
+  defaults:
+    _form: '\Drupal\workflow_assignment\Form\QuickEditWorkflowForm'
+    _title: 'Quick Edit Workflow'
+  requirements:
+    _permission: 'administer workflow lists'
+
+# New route for the workflow tab on nodes
+workflow_assignment.node_workflow_tab:
+  path: '/node/{node}/workflow'
+  defaults:
+    _controller: '\Drupal\workflow_assignment\Controller\NodeWorkflowController::workflowTab'
+    _title: 'Workflow'
+  requirements:
+    _permission: 'view workflow list assignments'
+    _node_has_workflow_field: 'TRUE'
+  options:
+    parameters:
+      node:
+        type: entity:node
+
+workflow_assignment.node_assign:
+  path: '/node/{node}/workflow/assign'
+  defaults:
+    _form: '\Drupal\workflow_assignment\Form\NodeAssignWorkflowForm'
+    _title: 'Assign Workflow'
+  requirements:
+    _permission: 'assign workflow lists to content'
+    node: \d+
+  options:
+    parameters:
+      node:
+        type: entity:node
+
+# AJAX endpoint for inline editing
+workflow_assignment.ajax_save:
+  path: '/api/workflow-assignment/save'
+  defaults:
+    _controller: '\Drupal\workflow_assignment\Controller\WorkflowAjaxController::save'
+  requirements:
+    _permission: 'administer workflow lists'
+  methods: [POST]
+
+# AJAX endpoint for reordering workflows on a node
+workflow_assignment.ajax_reorder:
+  path: '/api/workflow-assignment/reorder/{node}'
+  defaults:
+    _controller: '\Drupal\workflow_assignment\Controller\WorkflowAjaxController::reorder'
+  requirements:
+    _permission: 'assign workflow lists to content'
+    node: \d+
+  methods: [POST]
+  options:
+    parameters:
+      node:
+        type: entity:node
+
+# Clone workflow
+entity.workflow_list.clone_form:
+  path: '/admin/structure/workflow-list/{workflow_list}/clone'
+  defaults:
+    _form: '\Drupal\workflow_assignment\Form\WorkflowListCloneForm'
+    _title: 'Clone Workflow'
+  requirements:
+    _permission: 'administer workflow lists'
+
+# Workflow history/audit log
+workflow_assignment.history:
+  path: '/admin/structure/workflow-list/history'
+  defaults:
+    _controller: '\Drupal\workflow_assignment\Controller\WorkflowHistoryController::list'
+    _title: 'Workflow History'
+  requirements:
+    _permission: 'administer workflow lists'
+
+# Workflow templates
+entity.workflow_template.collection:
+  path: '/admin/structure/workflow-template'
+  defaults:
+    _entity_list: 'workflow_template'
+    _title: 'Workflow Templates'
+  requirements:
+    _permission: 'administer workflow lists'
+
+entity.workflow_template.add_form:
+  path: '/admin/structure/workflow-template/add'
+  defaults:
+    _entity_form: 'workflow_template.add'
+    _title: 'Add Workflow Template'
+  requirements:
+    _permission: 'administer workflow lists'
+
+entity.workflow_template.edit_form:
+  path: '/admin/structure/workflow-template/{workflow_template}/edit'
+  defaults:
+    _entity_form: 'workflow_template.edit'
+    _title: 'Edit Workflow Template'
+  requirements:
+    _permission: 'administer workflow lists'
+
+entity.workflow_template.delete_form:
+  path: '/admin/structure/workflow-template/{workflow_template}/delete'
+  defaults:
+    _entity_form: 'workflow_template.delete'
+    _title: 'Delete Workflow Template'
+  requirements:
+    _permission: 'administer workflow lists'
+
+workflow_assignment.apply_template:
+  path: '/node/{node}/workflow/apply-template'
+  defaults:
+    _form: '\Drupal\workflow_assignment\Form\ApplyTemplateForm'
+    _title: 'Apply Workflow Template'
+  requirements:
+    _permission: 'assign workflow lists to content'
+    node: \d+
+  options:
+    parameters:
+      node:
+        type: entity:node
+
+# Workflow Task routes
+entity.workflow_task.collection:
+  path: '/admin/structure/workflow-task'
+  defaults:
+    _entity_list: 'workflow_task'
+    _title: 'Workflow Tasks'
+  requirements:
+    _permission: 'administer workflow tasks'
+
+entity.workflow_task.add_form:
+  path: '/workflow-task/add'
+  defaults:
+    _entity_form: 'workflow_task.add'
+    _title: 'Add Workflow Task'
+  requirements:
+    _permission: 'create workflow tasks'
+
+entity.workflow_task.add_for_node:
+  path: '/node/{node}/workflow/add-task'
+  defaults:
+    _controller: '\Drupal\workflow_assignment\Controller\NodeWorkflowController::addTask'
+    _title: 'Add Workflow Task'
+  requirements:
+    _permission: 'create workflow tasks'
+    node: \d+
+  options:
+    parameters:
+      node:
+        type: entity:node
+
+entity.workflow_task.canonical:
+  path: '/workflow-task/{workflow_task}'
+  defaults:
+    _entity_view: 'workflow_task.full'
+    _title_callback: '\Drupal\Core\Entity\Controller\EntityController::title'
+  requirements:
+    _entity_access: 'workflow_task.view'
+  options:
+    parameters:
+      workflow_task:
+        type: entity:workflow_task
+
+entity.workflow_task.edit_form:
+  path: '/workflow-task/{workflow_task}/edit'
+  defaults:
+    _entity_form: 'workflow_task.edit'
+    _title: 'Edit Workflow Task'
+  requirements:
+    _entity_access: 'workflow_task.update'
+  options:
+    parameters:
+      workflow_task:
+        type: entity:workflow_task
+
+entity.workflow_task.delete_form:
+  path: '/workflow-task/{workflow_task}/delete'
+  defaults:
+    _entity_form: 'workflow_task.delete'
+    _title: 'Delete Workflow Task'
+  requirements:
+    _entity_access: 'workflow_task.delete'
+  options:
+    parameters:
+      workflow_task:
+        type: entity:workflow_task

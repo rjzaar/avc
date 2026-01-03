@@ -1,0 +1,40 @@
+# Routes for AVC Group module.
+
+avc_group.workflow:
+  path: '/group/{group}/workflow'
+  defaults:
+    _controller: '\Drupal\avc_group\Controller\GroupWorkflowController::dashboard'
+    _title: 'Group Workflow'
+  requirements:
+    _permission: 'view workflow list assignments'
+    group: \d+
+  options:
+    parameters:
+      group:
+        type: entity:group
+
+avc_group.workflow.add:
+  path: '/group/{group}/workflow/add'
+  defaults:
+    _controller: '\Drupal\avc_group\Controller\GroupWorkflowController::addAssignment'
+    _title: 'Add Workflow Assignment'
+  requirements:
+    _custom_access: '\Drupal\avc_group\Controller\GroupWorkflowController::addAssignmentAccess'
+    group: \d+
+  options:
+    parameters:
+      group:
+        type: entity:group
+
+avc_group.workflow.settings:
+  path: '/group/{group}/workflow/settings'
+  defaults:
+    _form: '\Drupal\avc_group\Form\GroupWorkflowSettingsForm'
+    _title: 'Workflow Settings'
+  requirements:
+    _custom_access: '\Drupal\avc_group\Controller\GroupWorkflowController::settingsAccess'
+    group: \d+
+  options:
+    parameters:
+      group:
+        type: entity:group

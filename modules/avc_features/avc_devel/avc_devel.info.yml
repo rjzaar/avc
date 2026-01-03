@@ -1,0 +1,11 @@
+name: 'AVC Development'
+type: module
+description: 'Development tools and test content generation for AV Commons'
+package: 'AV Commons'
+core_version_requirement: ^10
+dependencies:
+  - avc_core:avc_core
+  - avc_member:avc_member
+  - avc_group:avc_group
+  - avc_asset:avc_asset
+  - workflow_assignment:workflow_assignment

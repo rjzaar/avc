@@ -1,0 +1,7 @@
+services:
+  avc_devel.generator:
+    class: Drupal\avc_devel\Generator\TestContentGenerator
+    arguments:
+      - '@entity_type.manager'
+      - '@password_generator'
+      - '@logger.factory'

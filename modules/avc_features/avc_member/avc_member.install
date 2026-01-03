@@ -1,0 +1,61 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the AVC Member module.
+ */
+
+use Drupal\taxonomy\Entity\Vocabulary;
+use Drupal\taxonomy\Entity\Term;
+
+/**
+ * Implements hook_install().
+ */
+function avc_member_install() {
+  // Create the member_skills vocabulary if it doesn't exist.
+  $vocabulary = Vocabulary::load('member_skills');
+  if (!$vocabulary) {
+    $vocabulary = Vocabulary::create([
+      'vid' => 'member_skills',
+      'name' => 'Member Skills',
+      'description' => 'Skills that members can have for AV Commons',
+    ]);
+    $vocabulary->save();
+
+    // Create default skill terms.
+    $skills = [
+      'computer_skills' => 'Computer skills',
+      'pedagogy' => 'Pedagogy',
+      'prayer_warrior' => 'Prayer warrior',
+      'resource_trialing' => 'Resource trialing',
+      'spiritual_writing' => 'Spiritual writing',
+      'technical_skills' => 'Technical skills',
+      'video_editing' => 'Video editing',
+      'technical_writing' => 'Technical writing/editing',
+      'workflows' => 'Workflows/testing',
+      'theology' => 'Theology',
+      'creatives' => 'Creatives',
+    ];
+
+    $weight = 0;
+    foreach ($skills as $machine_name => $name) {
+      Term::create([
+        'vid' => 'member_skills',
+        'name' => $name,
+        'weight' => $weight++,
+      ])->save();
+    }
+  }
+
+  // Log installation.
+  \Drupal::logger('avc_member')->notice('AVC Member module installed. Member skills vocabulary created.');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function avc_member_uninstall() {
+  // Optionally remove the vocabulary.
+  // For safety, we don't delete data on uninstall.
+  \Drupal::logger('avc_member')->notice('AVC Member module uninstalled. Member skills vocabulary preserved.');
+}

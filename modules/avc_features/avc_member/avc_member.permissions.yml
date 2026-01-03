@@ -1,0 +1,13 @@
+administer avc member settings:
+  title: 'Administer AVC Member settings'
+  description: 'Configure AVC Member module settings.'
+  restrict access: true
+
+view own dashboard:
+  title: 'View own dashboard'
+  description: 'Access personal AVC dashboard and worklist.'
+
+view any dashboard:
+  title: 'View any dashboard'
+  description: 'Access any member dashboard (admin use).'
+  restrict access: true

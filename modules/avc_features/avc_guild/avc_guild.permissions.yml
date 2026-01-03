@@ -1,0 +1,27 @@
+administer guilds:
+  title: 'Administer guilds'
+  description: 'Configure guild settings and manage all guilds.'
+  restrict access: true
+
+administer guild scores:
+  title: 'Administer guild scores'
+  description: 'View and manage all guild scores.'
+  restrict access: true
+
+administer skill endorsements:
+  title: 'Administer skill endorsements'
+  description: 'View and manage all skill endorsements.'
+  restrict access: true
+
+administer ratifications:
+  title: 'Administer ratifications'
+  description: 'View and manage all ratifications.'
+  restrict access: true
+
+endorse skills:
+  title: 'Endorse skills'
+  description: 'Endorse other guild members for skills.'
+
+view guild leaderboard:
+  title: 'View guild leaderboard'
+  description: 'View the guild leaderboard.'

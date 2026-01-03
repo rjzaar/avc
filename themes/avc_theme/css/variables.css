@@ -1,0 +1,134 @@
+/**
+ * @file
+ * AV Commons Theme - CSS Custom Properties (Variables)
+ * Based on Apostoli Viae branding
+ */
+
+:root {
+  /* Primary Colors - Apostoli Viae Navy */
+  --avc-primary: #1E3A5F;
+  --avc-primary-light: #2C5282;
+  --avc-primary-dark: #152A46;
+  --avc-primary-rgb: 30, 58, 95;
+
+  /* Secondary Colors - Apostoli Viae Gold */
+  --avc-gold: #C9A227;
+  --avc-gold-light: #DDB93E;
+  --avc-gold-dark: #A68419;
+  --avc-gold-rgb: 201, 162, 39;
+
+  /* Accent - Burgundy (Catholic tradition) */
+  --avc-burgundy: #722F37;
+  --avc-burgundy-light: #8B3D47;
+  --avc-burgundy-dark: #5A252C;
+
+  /* Neutral Colors */
+  --avc-cream: #F5F1E8;
+  --avc-cream-dark: #E8E2D6;
+  --avc-white: #FFFFFF;
+  --avc-gray-100: #F7FAFC;
+  --avc-gray-200: #EDF2F7;
+  --avc-gray-300: #E2E8F0;
+  --avc-gray-400: #CBD5E0;
+  --avc-gray-500: #A0AEC0;
+  --avc-gray-600: #718096;
+  --avc-gray-700: #4A5568;
+  --avc-gray-800: #2D3748;
+  --avc-gray-900: #1A202C;
+
+  /* Semantic Colors */
+  --avc-success: #38A169;
+  --avc-success-light: #48BB78;
+  --avc-warning: #D69E2E;
+  --avc-warning-light: #ECC94B;
+  --avc-error: #C53030;
+  --avc-error-light: #E53E3E;
+  --avc-info: #3182CE;
+  --avc-info-light: #4299E1;
+
+  /* Workflow Status Colors */
+  --avc-status-draft: var(--avc-gray-500);
+  --avc-status-in-progress: var(--avc-info);
+  --avc-status-review: var(--avc-warning);
+  --avc-status-approved: var(--avc-success);
+  --avc-status-rejected: var(--avc-error);
+  --avc-status-published: var(--avc-primary);
+
+  /* Guild Role Colors */
+  --avc-role-junior: #48BB78;
+  --avc-role-endorsed: #4299E1;
+  --avc-role-mentor: #9F7AEA;
+  --avc-role-admin: var(--avc-gold);
+
+  /* AV Level Colors */
+  --avc-level-disciple: #48BB78;
+  --avc-level-aspirant: #4299E1;
+  --avc-level-sojourner: #9F7AEA;
+
+  /* Typography */
+  --avc-font-primary: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --avc-font-heading: 'Merriweather', Georgia, 'Times New Roman', serif;
+  --avc-font-mono: 'Source Code Pro', Menlo, Monaco, Consolas, monospace;
+
+  --avc-font-size-xs: 0.75rem;
+  --avc-font-size-sm: 0.875rem;
+  --avc-font-size-base: 1rem;
+  --avc-font-size-lg: 1.125rem;
+  --avc-font-size-xl: 1.25rem;
+  --avc-font-size-2xl: 1.5rem;
+  --avc-font-size-3xl: 1.875rem;
+  --avc-font-size-4xl: 2.25rem;
+
+  --avc-line-height-tight: 1.25;
+  --avc-line-height-normal: 1.5;
+  --avc-line-height-relaxed: 1.75;
+
+  /* Spacing */
+  --avc-space-1: 0.25rem;
+  --avc-space-2: 0.5rem;
+  --avc-space-3: 0.75rem;
+  --avc-space-4: 1rem;
+  --avc-space-5: 1.25rem;
+  --avc-space-6: 1.5rem;
+  --avc-space-8: 2rem;
+  --avc-space-10: 2.5rem;
+  --avc-space-12: 3rem;
+  --avc-space-16: 4rem;
+
+  /* Border Radius */
+  --avc-radius-sm: 0.25rem;
+  --avc-radius-md: 0.375rem;
+  --avc-radius-lg: 0.5rem;
+  --avc-radius-xl: 0.75rem;
+  --avc-radius-full: 9999px;
+
+  /* Shadows */
+  --avc-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --avc-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --avc-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --avc-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+  /* Transitions */
+  --avc-transition-fast: 150ms ease-in-out;
+  --avc-transition-normal: 300ms ease-in-out;
+  --avc-transition-slow: 500ms ease-in-out;
+
+  /* Z-index scale */
+  --avc-z-dropdown: 1000;
+  --avc-z-sticky: 1020;
+  --avc-z-fixed: 1030;
+  --avc-z-modal-backdrop: 1040;
+  --avc-z-modal: 1050;
+  --avc-z-tooltip: 1080;
+}
+
+/* Dark mode support (future) */
+@media (prefers-color-scheme: dark) {
+  :root.dark-mode {
+    --avc-primary: #4A7AB8;
+    --avc-cream: #1A202C;
+    --avc-white: #2D3748;
+    --avc-gray-100: #2D3748;
+    --avc-gray-900: #F7FAFC;
+  }
+}

@@ -1,0 +1,30 @@
+{#
+/**
+ * @file
+ * Template for member worklist (used in blocks).
+ *
+ * Variables:
+ * - items: Array of worklist items.
+ * - empty_message: Message to show when list is empty.
+ */
+#}
+<div class="avc-member-worklist-block">
+  {% if items %}
+    <ul class="worklist-items">
+      {% for item in items %}
+        <li class="worklist-item status-{{ item.status }}">
+          <span class="item-title">{{ item.label }}</span>
+          <span class="status-badge status-{{ item.status }}">
+            {% if item.status == 'current' %}
+              {{ 'Action needed'|t }}
+            {% else %}
+              {{ item.status|capitalize }}
+            {% endif %}
+          </span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="empty-message">{{ empty_message }}</p>
+  {% endif %}
+</div>

@@ -1,0 +1,57 @@
+{#
+/**
+ * @file
+ * Ratification queue template.
+ *
+ * Available variables:
+ * - items: Array of ratification items.
+ * - empty_message: Message to show when queue is empty.
+ */
+#}
+<div class="ratification-queue">
+  {% if items %}
+  <table class="ratification-queue-table">
+    <thead>
+      <tr>
+        <th>{{ 'Junior'|t }}</th>
+        <th>{{ 'Asset'|t }}</th>
+        <th>{{ 'Task'|t }}</th>
+        <th>{{ 'Claimed By'|t }}</th>
+        <th>{{ 'Date'|t }}</th>
+        <th>{{ 'Actions'|t }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td>
+          {% if item.junior_link %}
+          <a href="{{ item.junior_link }}">{{ item.junior }}</a>
+          {% else %}
+          {{ item.junior }}
+          {% endif %}
+        </td>
+        <td>
+          {% if item.asset_link %}
+          <a href="{{ item.asset_link }}">{{ item.asset }}</a>
+          {% else %}
+          {{ item.asset }}
+          {% endif %}
+        </td>
+        <td>{{ item.task }}</td>
+        <td>{{ item.mentor }}</td>
+        <td>{{ item.created }}</td>
+        <td class="actions">
+          {% if item.claim_url %}
+          <a href="{{ item.claim_url }}" class="button button--small">{{ 'Claim'|t }}</a>
+          {% endif %}
+          <a href="{{ item.review_url }}" class="button button--small button--primary">{{ 'Review'|t }}</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty-message">{{ empty_message ?: 'No pending ratifications.'|t }}</p>
+  {% endif %}
+</div>

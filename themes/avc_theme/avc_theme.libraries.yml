@@ -1,0 +1,20 @@
+global:
+  version: 1.0
+  css:
+    theme:
+      css/variables.css: { weight: 100 }
+      css/avc-overrides.css: { weight: 101 }
+      css/components/workflow.css: { weight: 102 }
+      css/components/dashboard.css: { weight: 102 }
+      css/components/guild.css: { weight: 102 }
+      css/pages/help.css: { weight: 102 }
+  js:
+    js/avc-theme.js: {}
+  dependencies:
+    - core/drupal
+
+brand-override:
+  version: 1.0
+  css:
+    theme:
+      css/brand.css: { weight: 50 }

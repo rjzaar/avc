@@ -1,11 +1,11 @@
-name: Social
+name: 'AV Commons'
 type: profile
-description: 'Open Social distribution profile.'
-core_version_requirement: ^9 || ^10
-version: '13.0.0-alpha22'
-project: social
+description: 'AV Commons - Collaborative workflow platform built on Open Social'
+core_version_requirement: ^10
+version: '1.0.0'
+project: avc
 
-# Dependencies that Open Social can not live without.
+# Dependencies that AVC can not live without (from Open Social).
 dependencies:
   # core
   - drupal:breakpoint
@@ -17,7 +17,7 @@ dependencies:
   # Contrib
   - color:color
   - improved_theme_settings:improved_theme_settings
-  # Open Social
+  # Open Social core
   - social:social_group
   - social:social_activity
   - social:social_core
@@ -26,7 +26,7 @@ dependencies:
 
 # Modules that are installed by default but can be uninstalled.
 install:
-  # Open Social
+  # Open Social features
   - social:social_comment
   - social:social_editor
   - social:social_event
@@ -49,6 +49,15 @@ install:
   - social:social_event_invite
   - social:social_advanced_queue
   - social:social_emoji
+  # AVC features
+  - avc:avc_core
+  - avc:avc_member
+  - avc:avc_group
+  - avc:avc_asset
+  - avc:avc_notification
+  - avc:avc_guild
+  - avc:avc_content
+  - avc:workflow_assignment
   # Contrib
   - ultimate_cron:ultimate_cron
 
@@ -56,5 +65,8 @@ themes:
   - gin
   - socialbase
   - socialblue
+
 distribution:
-  name: Open Social
+  name: 'AV Commons'
+  install:
+    theme: socialblue

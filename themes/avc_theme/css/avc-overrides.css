@@ -1,0 +1,166 @@
+/**
+ * @file
+ * AV Commons Theme Overrides for Open Social / SocialBlue
+ */
+
+/* Navbar - Navy with gold accent */
+.navbar-default {
+  background-color: #1E3A5F !important;
+  border-bottom: 3px solid #C9A227 !important;
+}
+
+.navbar-default .navbar-nav > li > a {
+  color: #fff !important;
+}
+
+.navbar-default .navbar-nav > li > a:hover,
+.navbar-default .navbar-nav > li > a:focus {
+  color: #C9A227 !important;
+}
+
+.navbar-default .navbar-brand {
+  color: #fff !important;
+}
+
+/* Primary buttons - Gold */
+.btn-primary {
+  background-color: #C9A227 !important;
+  border-color: #A68419 !important;
+  color: #1E3A5F !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+  background-color: #DDB93E !important;
+  border-color: #C9A227 !important;
+  color: #1E3A5F !important;
+}
+
+/* Secondary/Default buttons - Navy outline */
+.btn-default {
+  border-color: #1E3A5F;
+  color: #1E3A5F;
+}
+
+.btn-default:hover,
+.btn-default:focus {
+  background-color: #1E3A5F;
+  border-color: #1E3A5F;
+  color: #fff;
+}
+
+/* Links */
+a {
+  color: #1E3A5F;
+}
+
+a:hover,
+a:focus {
+  color: #C9A227;
+}
+
+/* Cards and panels */
+.card,
+.panel {
+  border-top: 3px solid #C9A227;
+}
+
+.card-title a,
+.panel-title a {
+  color: #1E3A5F;
+}
+
+/* Page titles */
+.page-title,
+h1.title {
+  color: #1E3A5F;
+  border-bottom: 2px solid #C9A227;
+  padding-bottom: 0.5rem;
+}
+
+/* Hero sections */
+.region--hero,
+.hero {
+  background-color: #1E3A5F;
+}
+
+/* Footer */
+.footer,
+.region--footer {
+  background-color: #152A46;
+  color: #fff;
+}
+
+.footer a {
+  color: #C9A227;
+}
+
+.footer a:hover {
+  color: #DDB93E;
+}
+
+/* Badges and labels */
+.badge-primary,
+.label-primary {
+  background-color: #1E3A5F;
+}
+
+.badge-accent,
+.label-accent {
+  background-color: #C9A227;
+  color: #1E3A5F;
+}
+
+/* Tabs */
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:hover,
+.nav-tabs > li.active > a:focus {
+  border-bottom: 3px solid #C9A227;
+  color: #1E3A5F;
+}
+
+/* Dropdown menus */
+.dropdown-menu > li > a:hover,
+.dropdown-menu > li > a:focus {
+  background-color: #F5F1E8;
+  color: #1E3A5F;
+}
+
+/* Alert/Message styling */
+.alert-info {
+  border-left: 4px solid #1E3A5F;
+}
+
+.alert-success {
+  border-left: 4px solid #38A169;
+}
+
+.alert-warning {
+  border-left: 4px solid #C9A227;
+}
+
+.alert-danger {
+  border-left: 4px solid #722F37;
+}
+
+/* Stream/Activity styling */
+.stream-item:hover {
+  background-color: #F5F1E8;
+}
+
+/* Selection highlight */
+::selection {
+  background-color: #C9A227;
+  color: #1E3A5F;
+}
+
+/* Focus states */
+:focus {
+  outline-color: #C9A227;
+}
+
+.form-control:focus {
+  border-color: #1E3A5F;
+  box-shadow: 0 0 0 2px rgba(30, 58, 95, 0.2);
+}

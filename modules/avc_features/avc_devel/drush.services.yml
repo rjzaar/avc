@@ -1,0 +1,7 @@
+services:
+  avc_devel.commands:
+    class: \Drupal\avc_devel\Commands\AvcDevelCommands
+    arguments:
+      - '@avc_devel.generator'
+    tags:
+      - { name: drush.command }

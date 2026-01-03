@@ -1,0 +1,9 @@
+name: 'AVC Asset'
+type: module
+description: 'Asset management (Projects, Documents, Resources) for AV Commons'
+package: 'AV Commons'
+core_version_requirement: ^10
+dependencies:
+  - avc_core:avc_core
+  - workflow_assignment:workflow_assignment
+  - drupal:node

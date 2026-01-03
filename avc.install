@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Install, update and uninstall functions for the social installation profile.
+ * Install, update and uninstall functions for the AVC installation profile.
  */
 
 use Drupal\user\Entity\User;
@@ -14,7 +14,7 @@ use Drupal\user\Entity\User;
  *
  * @see system_install()
  */
-function social_install() {
+function avc_install() {
   \Drupal::configFactory()
     ->getEditable('system.site')
     ->set('page.front', '/stream')
@@ -26,13 +26,13 @@ function social_install() {
   $user->save();
 
   // Disable secondary toolbar on frontend in Gin theme.
-  _social_core_disable_secondary_gin_toolbar();
+  _avc_core_disable_secondary_gin_toolbar();
 }
 
 /**
  * Implements hook_requirements().
  */
-function social_requirements($phase) : array {
+function avc_requirements($phase) : array {
   $requirements = [];
 
   switch ($phase) {
@@ -44,7 +44,7 @@ function social_requirements($phase) : array {
         $requirements['private_file_system'] = [
           'title' => t('Private File System'),
           'value' => t('Not configured'),
-          'description' => t('The private file system must be configured for Open Social to install. You may opt-out of the private file system for individual fields after installation. See https://www.drupal.org/documentation/modules/file for how to set the file_private_path in your settings.php.'),
+          'description' => t('The private file system must be configured for AV Commons to install. You may opt-out of the private file system for individual fields after installation. See https://www.drupal.org/documentation/modules/file for how to set the file_private_path in your settings.php.'),
           'severity' => REQUIREMENT_ERROR,
         ];
       }
@@ -58,7 +58,7 @@ function social_requirements($phase) : array {
 /**
  * Disable secondary toolbar on frontend in Gin theme.
  */
-function _social_core_disable_secondary_gin_toolbar() {
+function _avc_core_disable_secondary_gin_toolbar() {
   $config = \Drupal::configFactory()->getEditable('gin.settings');
   if (!empty($config->getRawData())) {
     \Drupal::configFactory()
@@ -71,6 +71,6 @@ function _social_core_disable_secondary_gin_toolbar() {
 /**
  * Disable secondary toolbar on frontend in Gin theme.
  */
-function social_update_11501() {
-  _social_core_disable_secondary_gin_toolbar();
+function avc_update_10001() {
+  _avc_core_disable_secondary_gin_toolbar();
 }

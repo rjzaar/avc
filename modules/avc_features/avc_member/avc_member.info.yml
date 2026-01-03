@@ -1,0 +1,11 @@
+name: 'AVC Member'
+type: module
+description: 'Member profiles, dashboards, and worklists for AV Commons'
+package: 'AV Commons'
+core_version_requirement: ^10
+dependencies:
+  - avc_core:avc_core
+  - social_user:social_user
+  - social_profile:social_profile
+  - workflow_assignment:workflow_assignment
+configure: avc_member.settings

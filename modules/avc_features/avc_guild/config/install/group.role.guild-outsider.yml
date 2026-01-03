@@ -1,0 +1,13 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - group.type.guild
+id: guild-outsider
+label: Outsider
+weight: -102
+internal: true
+audience: outsider
+group_type: guild
+permissions_ui: true
+permissions: []

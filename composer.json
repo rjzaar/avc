@@ -1,6 +1,6 @@
 {
-    "name": "goalgorilla/open_social",
-    "description": "Open Social is a distribution for building social communities and intranets.",
+    "name": "avc/avc",
+    "description": "AV Commons - Collaborative workflow platform built on Open Social",
     "license": "GPL-2.0-or-later",
     "type": "drupal-profile",
     "require": {
@@ -107,6 +107,7 @@
             "Drupal\\Tests\\social\\PHPStan\\": "tests/phpstan/src",
             "Drupal\\social\\Behat\\": "tests/behat/features/bootstrap",
             "Drupal\\social\\": "src",
+            "Drupal\\avc\\": "src",
             "OpenSocial\\TestBridge\\": "tests/test-bridge/src/"
         }
     },
@@ -213,6 +214,17 @@
         "sort-packages": true
     },
     "replace": {
+        "drupal/avc": "self.version",
+        "drupal/avc_core": "self.version",
+        "drupal/avc_member": "self.version",
+        "drupal/avc_group": "self.version",
+        "drupal/avc_asset": "self.version",
+        "drupal/avc_notification": "self.version",
+        "drupal/avc_guild": "self.version",
+        "drupal/avc_content": "self.version",
+        "drupal/avc_devel": "self.version",
+        "drupal/workflow_assignment": "self.version",
+        "drupal/avc_theme": "self.version",
         "drupal/social": "self.version",
         "drupal/socialbase": "self.version",
         "drupal/socialblue": "self.version"

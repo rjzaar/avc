@@ -1,0 +1,7 @@
+# Local task links for AVC Group module.
+
+avc_group.workflow:
+  route_name: avc_group.workflow
+  title: 'Workflow'
+  base_route: entity.group.canonical
+  weight: 50

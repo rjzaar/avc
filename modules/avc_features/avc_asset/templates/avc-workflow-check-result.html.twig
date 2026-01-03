@@ -1,0 +1,106 @@
+{#
+/**
+ * @file
+ * Template for workflow check results.
+ *
+ * Variables:
+ * - node: The asset node entity.
+ * - result: The check result array with:
+ *   - valid: Boolean indicating overall validity.
+ *   - status: 'valid', 'warning', or 'error'.
+ *   - messages: Array of status messages.
+ *   - entries: Array of entry validation results.
+ *   - fixes_applied: Array of applied fixes.
+ */
+#}
+<div class="avc-workflow-check-result status-{{ result.status }}">
+  <h3>{{ 'Workflow Check Results'|t }}: {{ node.label() }}</h3>
+
+  {# Overall status #}
+  <div class="check-status">
+    {% if result.valid %}
+      <span class="status-badge status-valid">{{ 'Valid'|t }}</span>
+    {% else %}
+      <span class="status-badge status-{{ result.status }}">{{ result.status|capitalize }}</span>
+    {% endif %}
+  </div>
+
+  {# Messages #}
+  {% if result.messages %}
+    <div class="check-messages">
+      <h4>{{ 'Messages'|t }}</h4>
+      <ul>
+        {% for message in result.messages %}
+          <li class="message-{{ message.type ?? 'info' }}">
+            {{ message.text ?? message }}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  {# Entry details #}
+  {% if result.entries %}
+    <div class="check-entries">
+      <h4>{{ 'Workflow Entries'|t }}</h4>
+      <table class="avc-check-table">
+        <thead>
+          <tr>
+            <th>{{ '#'|t }}</th>
+            <th>{{ 'Stage'|t }}</th>
+            <th>{{ 'Status'|t }}</th>
+            <th>{{ 'Issues'|t }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for index, entry in result.entries %}
+            <tr class="entry-{{ entry.status }}">
+              <td>{{ index + 1 }}</td>
+              <td>{{ entry.label }}</td>
+              <td>
+                <span class="status-badge status-{{ entry.status }}">
+                  {{ entry.status|capitalize }}
+                </span>
+              </td>
+              <td>
+                {% if entry.messages %}
+                  <ul class="entry-messages">
+                    {% for msg in entry.messages %}
+                      <li>{{ msg }}</li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  {{ 'OK'|t }}
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+
+  {# Fixes applied #}
+  {% if result.fixes_applied %}
+    <div class="check-fixes">
+      <h4>{{ 'Automatic Fixes Applied'|t }}</h4>
+      <ul>
+        {% for fix in result.fixes_applied %}
+          <li>{{ fix.description }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  {# Actions #}
+  <div class="check-actions">
+    <a href="{{ path('entity.node.canonical', {node: node.id()}) }}" class="button">
+      {{ 'Back to Asset'|t }}
+    </a>
+    {% if result.valid %}
+      <a href="{{ path('avc_asset.process', {node: node.id()}) }}" class="button button--primary">
+        {{ 'Process Workflow'|t }}
+      </a>
+    {% endif %}
+  </div>
+</div>

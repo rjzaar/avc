@@ -1,0 +1,17 @@
+# Routes for AVC Development module.
+
+avc_devel.generate:
+  path: '/admin/config/development/avc-generate'
+  defaults:
+    _form: '\Drupal\avc_devel\Form\GenerateContentForm'
+    _title: 'Generate AVC Test Content'
+  requirements:
+    _permission: 'administer site configuration'
+
+avc_devel.cleanup:
+  path: '/admin/config/development/avc-cleanup'
+  defaults:
+    _form: '\Drupal\avc_devel\Form\CleanupContentForm'
+    _title: 'Cleanup AVC Test Content'
+  requirements:
+    _permission: 'administer site configuration'

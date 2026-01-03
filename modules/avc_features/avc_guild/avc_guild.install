@@ -1,0 +1,127 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the AVC Guild module.
+ */
+
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
+
+/**
+ * Implements hook_install().
+ */
+function avc_guild_install() {
+  // Create guild skills taxonomy vocabulary if it doesn't exist.
+  _avc_guild_create_skills_vocabulary();
+
+  // Create group fields for guilds.
+  _avc_guild_create_group_fields();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function avc_guild_uninstall() {
+  // Clean up configuration.
+  \Drupal::configFactory()->getEditable('avc_guild.settings')->delete();
+}
+
+/**
+ * Create guild skills taxonomy vocabulary.
+ */
+function _avc_guild_create_skills_vocabulary() {
+  $vocab_storage = \Drupal::entityTypeManager()->getStorage('taxonomy_vocabulary');
+
+  // Check if vocabulary exists.
+  if (!$vocab_storage->load('guild_skills')) {
+    $vocab_storage->create([
+      'vid' => 'guild_skills',
+      'name' => 'Guild Skills',
+      'description' => 'Skills that can be tracked and endorsed within guilds.',
+    ])->save();
+
+    // Create some default skills.
+    $term_storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+    $default_skills = [
+      'Computer Skills',
+      'Pedagogy',
+      'Prayer Warrior',
+      'Resource Trialing',
+      'Spiritual Writing',
+      'Technical Skills',
+      'Video Editing',
+      'Technical Writing/Editing',
+      'Workflows/Testing',
+      'Theology',
+      'Creatives',
+    ];
+
+    foreach ($default_skills as $weight => $skill_name) {
+      $term_storage->create([
+        'vid' => 'guild_skills',
+        'name' => $skill_name,
+        'weight' => $weight,
+      ])->save();
+    }
+  }
+}
+
+/**
+ * Create group fields for guilds.
+ */
+function _avc_guild_create_group_fields() {
+  // Guild skills field.
+  if (!FieldStorageConfig::loadByName('group', 'field_guild_skills')) {
+    FieldStorageConfig::create([
+      'field_name' => 'field_guild_skills',
+      'entity_type' => 'group',
+      'type' => 'entity_reference',
+      'settings' => [
+        'target_type' => 'taxonomy_term',
+      ],
+      'cardinality' => -1,
+    ])->save();
+  }
+
+  // Scoring enabled field.
+  if (!FieldStorageConfig::loadByName('group', 'field_scoring_enabled')) {
+    FieldStorageConfig::create([
+      'field_name' => 'field_scoring_enabled',
+      'entity_type' => 'group',
+      'type' => 'boolean',
+      'cardinality' => 1,
+    ])->save();
+  }
+
+  // Promotion threshold field.
+  if (!FieldStorageConfig::loadByName('group', 'field_promotion_threshold')) {
+    FieldStorageConfig::create([
+      'field_name' => 'field_promotion_threshold',
+      'entity_type' => 'group',
+      'type' => 'integer',
+      'cardinality' => 1,
+    ])->save();
+  }
+
+  // Ratification required field.
+  if (!FieldStorageConfig::loadByName('group', 'field_ratification_required')) {
+    FieldStorageConfig::create([
+      'field_name' => 'field_ratification_required',
+      'entity_type' => 'group',
+      'type' => 'boolean',
+      'cardinality' => 1,
+    ])->save();
+  }
+
+  // Note: Field instances for the 'guild' group type should be created
+  // when the guild group type is created via config or UI.
+}
+
+/**
+ * Implements hook_schema().
+ */
+function avc_guild_schema() {
+  // Entities use Drupal's entity system.
+  return [];
+}

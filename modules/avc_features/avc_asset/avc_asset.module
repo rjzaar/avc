@@ -1,0 +1,265 @@
+<?php
+
+/**
+ * @file
+ * AVC Asset module - Asset management for AV Commons.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\node\NodeInterface;
+
+/**
+ * Implements hook_help().
+ */
+function avc_asset_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.avc_asset':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Provides asset management (Projects, Documents, Resources) with workflow integration for AV Commons.') . '</p>';
+      $output .= '<h4>' . t('Asset Types') . '</h4>';
+      $output .= '<ul>';
+      $output .= '<li>' . t('<strong>Projects</strong>: Can contain other assets, ideal for larger initiatives.') . '</li>';
+      $output .= '<li>' . t('<strong>Documents</strong>: Text-based content going through workflow.') . '</li>';
+      $output .= '<li>' . t('<strong>Resources</strong>: External links and references.') . '</li>';
+      $output .= '</ul>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function avc_asset_theme() {
+  return [
+    'avc_workflow_check_result' => [
+      'variables' => [
+        'node' => NULL,
+        'result' => [],
+      ],
+      'template' => 'avc-workflow-check-result',
+    ],
+    'avc_asset_worklist' => [
+      'variables' => [
+        'assets' => [],
+        'show_type' => TRUE,
+        'show_status' => TRUE,
+      ],
+      'template' => 'avc-asset-worklist',
+    ],
+    'avc_project_assets' => [
+      'variables' => [
+        'project' => NULL,
+        'assets' => [],
+      ],
+      'template' => 'avc-project-assets',
+    ],
+  ];
+}
+
+/**
+ * Implements hook_mail().
+ */
+function avc_asset_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'workflow_stage':
+      $node = $params['node'] ?? NULL;
+      $stage = $params['stage'] ?? NULL;
+      $is_resend = $params['is_resend'] ?? FALSE;
+
+      $subject_prefix = $is_resend ? '[Reminder] ' : '';
+      $message['subject'] = $subject_prefix . t('Workflow Assignment: @title', [
+        '@title' => $node ? $node->getTitle() : 'Unknown',
+      ]);
+
+      $body = [];
+      $body[] = t('You have been assigned to a workflow stage:');
+      $body[] = '';
+      $body[] = t('Asset: @title', ['@title' => $node ? $node->getTitle() : 'Unknown']);
+      $body[] = t('Stage: @stage', ['@stage' => $stage ? $stage->label() : 'Unknown']);
+      $body[] = '';
+      $body[] = t('Please log in to review and complete this assignment.');
+      $body[] = '';
+      $body[] = t('Best regards,');
+      $body[] = t('AV Commons');
+
+      $message['body'] = $body;
+      break;
+  }
+}
+
+/**
+ * Implements hook_node_presave().
+ */
+function avc_asset_node_presave(NodeInterface $node) {
+  // Auto-generate asset number if not set.
+  if (in_array($node->bundle(), ['avc_project', 'avc_document', 'avc_resource'])) {
+    if ($node->hasField('field_asset_number') && $node->isNew()) {
+      $current = $node->get('field_asset_number')->value;
+      if (empty($current)) {
+        $manager = \Drupal::service('avc_asset.manager');
+        $type = str_replace('avc_', '', $node->bundle());
+        $node->set('field_asset_number', $manager->generateAssetNumber($type));
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function avc_asset_node_insert(NodeInterface $node) {
+  // Initialize workflow if template is selected.
+  if (in_array($node->bundle(), ['avc_project', 'avc_document', 'avc_resource'])) {
+    if ($node->hasField('field_workflow_template')) {
+      $template_id = $node->get('field_workflow_template')->target_id ?? NULL;
+      if ($template_id) {
+        // Apply workflow template - this would be handled by workflow_assignment.
+        \Drupal::logger('avc_asset')->info('Applying workflow template @id to @title', [
+          '@id' => $template_id,
+          '@title' => $node->getTitle(),
+        ]);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_extra_field_info().
+ */
+function avc_asset_entity_extra_field_info() {
+  $extra = [];
+
+  $asset_types = ['avc_project', 'avc_document', 'avc_resource'];
+
+  foreach ($asset_types as $bundle) {
+    $extra['node'][$bundle]['display']['workflow_status'] = [
+      'label' => t('Workflow Status'),
+      'description' => t('Current workflow stage and status.'),
+      'weight' => 10,
+      'visible' => TRUE,
+    ];
+
+    $extra['node'][$bundle]['display']['workflow_actions'] = [
+      'label' => t('Workflow Actions'),
+      'description' => t('Actions for the current workflow stage.'),
+      'weight' => 11,
+      'visible' => TRUE,
+    ];
+  }
+
+  // Project-specific: contained assets.
+  $extra['node']['avc_project']['display']['contained_assets_table'] = [
+    'label' => t('Contained Assets Table'),
+    'description' => t('Table view of assets in this project.'),
+    'weight' => 20,
+    'visible' => TRUE,
+  ];
+
+  return $extra;
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_view() for nodes.
+ */
+function avc_asset_node_view(array &$build, NodeInterface $node, $view_mode) {
+  if (!in_array($node->bundle(), ['avc_project', 'avc_document', 'avc_resource'])) {
+    return;
+  }
+
+  // Add workflow status display.
+  $display = \Drupal::entityTypeManager()
+    ->getStorage('entity_view_display')
+    ->load('node.' . $node->bundle() . '.' . $view_mode);
+
+  if ($display && $display->getComponent('workflow_status')) {
+    $build['workflow_status'] = avc_asset_build_workflow_status($node);
+  }
+
+  if ($display && $display->getComponent('workflow_actions')) {
+    $build['workflow_actions'] = avc_asset_build_workflow_actions($node);
+  }
+
+  // Project contained assets table.
+  if ($node->bundle() === 'avc_project' && $display && $display->getComponent('contained_assets_table')) {
+    $manager = \Drupal::service('avc_asset.manager');
+    $assets = $manager->getProjectAssets($node);
+
+    $build['contained_assets_table'] = [
+      '#theme' => 'avc_project_assets',
+      '#project' => $node,
+      '#assets' => $assets,
+    ];
+  }
+}
+
+/**
+ * Builds the workflow status render array.
+ *
+ * @param \Drupal\node\NodeInterface $node
+ *   The node entity.
+ *
+ * @return array
+ *   A render array.
+ */
+function avc_asset_build_workflow_status(NodeInterface $node) {
+  $status = 'draft';
+  if ($node->hasField('field_process_status')) {
+    $status = $node->get('field_process_status')->value ?? 'draft';
+  }
+
+  return [
+    '#type' => 'container',
+    '#attributes' => ['class' => ['workflow-status-display']],
+    'label' => [
+      '#markup' => '<strong>' . t('Workflow Status') . ':</strong> ',
+    ],
+    'status' => [
+      '#markup' => '<span class="status-badge status-' . $status . '">' . ucfirst($status) . '</span>',
+    ],
+  ];
+}
+
+/**
+ * Builds the workflow actions render array.
+ *
+ * @param \Drupal\node\NodeInterface $node
+ *   The node entity.
+ *
+ * @return array
+ *   A render array.
+ */
+function avc_asset_build_workflow_actions(NodeInterface $node) {
+  $build = [
+    '#type' => 'container',
+    '#attributes' => ['class' => ['workflow-actions']],
+  ];
+
+  $current_user = \Drupal::currentUser();
+
+  if ($current_user->hasPermission('view workflow list assignments')) {
+    $build['check'] = [
+      '#type' => 'link',
+      '#title' => t('Check Workflow'),
+      '#url' => \Drupal\Core\Url::fromRoute('avc_asset.check', ['node' => $node->id()]),
+      '#attributes' => ['class' => ['button', 'button--small']],
+    ];
+  }
+
+  if ($current_user->hasPermission('assign workflow lists to content')) {
+    $build['process'] = [
+      '#type' => 'link',
+      '#title' => t('Process'),
+      '#url' => \Drupal\Core\Url::fromRoute('avc_asset.process', ['node' => $node->id()]),
+      '#attributes' => ['class' => ['button', 'button--small', 'button--primary']],
+    ];
+
+    $build['resend'] = [
+      '#type' => 'link',
+      '#title' => t('Resend Notification'),
+      '#url' => \Drupal\Core\Url::fromRoute('avc_asset.resend', ['node' => $node->id()]),
+      '#attributes' => ['class' => ['button', 'button--small']],
+    ];
+  }
+
+  return $build;
+}

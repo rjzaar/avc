@@ -1,0 +1,208 @@
+/**
+ * @file
+ * AV Commons Theme - Navigation styles
+ */
+
+/* Primary navigation */
+.region-primary-menu {
+  background-color: var(--avc-white);
+  border-bottom: 1px solid var(--avc-gray-200);
+  box-shadow: var(--avc-shadow-sm);
+}
+
+.menu--main {
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.menu--main > li {
+  margin: 0;
+  position: relative;
+}
+
+.menu--main > li > a {
+  display: block;
+  padding: var(--avc-space-4) var(--avc-space-5);
+  color: var(--avc-gray-700);
+  font-weight: 500;
+  font-size: var(--avc-font-size-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all var(--avc-transition-fast);
+  border-bottom: 3px solid transparent;
+}
+
+.menu--main > li > a:hover,
+.menu--main > li > a:focus {
+  color: var(--avc-primary);
+  background-color: var(--avc-gray-50);
+  border-bottom-color: var(--avc-gold);
+  text-decoration: none;
+}
+
+.menu--main > li.is-active > a,
+.menu--main > li > a.is-active {
+  color: var(--avc-primary);
+  border-bottom-color: var(--avc-primary);
+  background-color: var(--avc-gray-100);
+}
+
+/* Dropdown menus */
+.menu--main ul {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 220px;
+  background-color: var(--avc-white);
+  box-shadow: var(--avc-shadow-lg);
+  border-radius: 0 0 var(--avc-radius-md) var(--avc-radius-md);
+  list-style: none;
+  padding: var(--avc-space-2) 0;
+  margin: 0;
+  z-index: var(--avc-z-dropdown);
+}
+
+.menu--main li:hover > ul,
+.menu--main li:focus-within > ul {
+  display: block;
+}
+
+.menu--main ul a {
+  display: block;
+  padding: var(--avc-space-3) var(--avc-space-5);
+  color: var(--avc-gray-700);
+  font-size: var(--avc-font-size-sm);
+}
+
+.menu--main ul a:hover {
+  background-color: var(--avc-cream);
+  color: var(--avc-primary);
+  text-decoration: none;
+}
+
+/* Secondary menu */
+.region-secondary-menu {
+  background-color: var(--avc-gray-100);
+  padding: var(--avc-space-2) var(--avc-space-6);
+  font-size: var(--avc-font-size-sm);
+}
+
+.menu--secondary {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--avc-space-6);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.menu--secondary a {
+  color: var(--avc-gray-600);
+}
+
+.menu--secondary a:hover {
+  color: var(--avc-primary);
+}
+
+/* Sidebar navigation */
+.menu--sidebar {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu--sidebar li {
+  margin: 0;
+  border-bottom: 1px solid var(--avc-gray-200);
+}
+
+.menu--sidebar a {
+  display: block;
+  padding: var(--avc-space-3) var(--avc-space-4);
+  color: var(--avc-gray-700);
+  transition: all var(--avc-transition-fast);
+}
+
+.menu--sidebar a:hover,
+.menu--sidebar a.is-active {
+  background-color: var(--avc-cream);
+  color: var(--avc-primary);
+  padding-left: var(--avc-space-6);
+  text-decoration: none;
+}
+
+.menu--sidebar a.is-active {
+  border-left: 3px solid var(--avc-gold);
+}
+
+/* Group/Guild navigation tabs */
+.tabs--primary {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--avc-space-6) 0;
+  border-bottom: 2px solid var(--avc-gray-200);
+}
+
+.tabs--primary li {
+  margin: 0;
+}
+
+.tabs--primary a {
+  display: block;
+  padding: var(--avc-space-3) var(--avc-space-5);
+  color: var(--avc-gray-600);
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all var(--avc-transition-fast);
+}
+
+.tabs--primary a:hover {
+  color: var(--avc-primary);
+  border-bottom-color: var(--avc-gold-light);
+  text-decoration: none;
+}
+
+.tabs--primary a.is-active {
+  color: var(--avc-primary);
+  border-bottom-color: var(--avc-primary);
+}
+
+/* Mobile navigation */
+@media (max-width: 768px) {
+  .menu--main {
+    flex-direction: column;
+  }
+
+  .menu--main > li > a {
+    border-bottom: none;
+    border-left: 3px solid transparent;
+  }
+
+  .menu--main > li > a:hover,
+  .menu--main > li.is-active > a {
+    border-bottom: none;
+    border-left-color: var(--avc-gold);
+  }
+
+  .menu--main ul {
+    position: static;
+    box-shadow: none;
+    padding-left: var(--avc-space-4);
+    background-color: var(--avc-gray-50);
+  }
+
+  .menu--secondary {
+    flex-direction: column;
+    gap: var(--avc-space-2);
+  }
+}

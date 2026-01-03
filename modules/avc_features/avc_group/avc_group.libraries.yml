@@ -1,0 +1,11 @@
+dashboard:
+  version: VERSION
+  css:
+    theme:
+      css/dashboard.css: {}
+  js:
+    js/dashboard.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/once

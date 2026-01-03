@@ -1,0 +1,105 @@
+{#
+/**
+ * @file
+ * Guild dashboard template.
+ *
+ * Available variables:
+ * - guild: The guild entity.
+ * - members: Array of member data.
+ * - leaderboard: Array of leaderboard entries.
+ * - ratification_queue: Array of pending ratifications.
+ * - recent_activity: Array of recent activity.
+ */
+#}
+<div class="guild-dashboard">
+  <div class="guild-dashboard-header">
+    <h2>{{ guild.label }}</h2>
+    {% if guild.field_description.value %}
+    <div class="guild-description">
+      {{ guild.field_description.value|raw }}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="guild-dashboard-content">
+    <div class="guild-dashboard-main">
+      {# Leaderboard #}
+      <section class="guild-leaderboard-section">
+        <h3>{{ 'Top Members'|t }}</h3>
+        {% if leaderboard %}
+        <table class="guild-leaderboard-table">
+          <thead>
+            <tr>
+              <th>{{ 'Rank'|t }}</th>
+              <th>{{ 'Member'|t }}</th>
+              <th>{{ 'Role'|t }}</th>
+              <th>{{ 'Score'|t }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for index, entry in leaderboard %}
+            <tr class="guild-role-{{ entry.role }}">
+              <td>{{ index + 1 }}</td>
+              <td>
+                <a href="{{ path('avc_guild.member_profile', {'group': guild.id, 'user': entry.user.id}) }}">
+                  {{ entry.user.displayname }}
+                </a>
+              </td>
+              <td>{{ entry.role|capitalize }}</td>
+              <td>{{ entry.score }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <p>
+          <a href="{{ path('avc_guild.leaderboard', {'group': guild.id}) }}">
+            {{ 'View Full Leaderboard'|t }}
+          </a>
+        </p>
+        {% else %}
+        <p class="empty-message">{{ 'No scores yet.'|t }}</p>
+        {% endif %}
+      </section>
+
+      {# Recent Activity #}
+      {% if recent_activity %}
+      <section class="guild-activity-section">
+        <h3>{{ 'Recent Activity'|t }}</h3>
+        <ul class="guild-activity-list">
+          {% for activity in recent_activity %}
+          <li>{{ activity.message }}</li>
+          {% endfor %}
+        </ul>
+      </section>
+      {% endif %}
+    </div>
+
+    <div class="guild-dashboard-sidebar">
+      {# Ratification Queue (for mentors) #}
+      {% if ratification_queue %}
+      <section class="guild-ratification-section">
+        <h3>{{ 'Pending Ratifications'|t }}</h3>
+        <p>{{ ratification_queue|length }} {{ 'items awaiting review'|t }}</p>
+        <a href="{{ path('avc_guild.ratification_queue', {'group': guild.id}) }}" class="button">
+          {{ 'Review Queue'|t }}
+        </a>
+      </section>
+      {% endif %}
+
+      {# Members #}
+      <section class="guild-members-section">
+        <h3>{{ 'Members'|t }} ({{ members|length }})</h3>
+        <ul class="guild-members-list">
+          {% for member in members|slice(0, 10) %}
+          <li class="guild-role-{{ member.role }}">
+            <a href="{{ path('avc_guild.member_profile', {'group': guild.id, 'user': member.user.id}) }}">
+              {{ member.user.displayname }}
+            </a>
+            <span class="member-role">{{ member.role }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </section>
+    </div>
+  </div>
+</div>

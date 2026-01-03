@@ -1,0 +1,399 @@
+/**
+ * @file
+ * AV Commons Theme - Guild styles
+ */
+
+/* Guild header */
+.guild-header {
+  background: linear-gradient(135deg, var(--avc-primary) 0%, var(--avc-primary-dark) 100%);
+  color: var(--avc-white);
+  padding: var(--avc-space-8);
+  border-radius: var(--avc-radius-lg);
+  margin-bottom: var(--avc-space-6);
+  position: relative;
+}
+
+.guild-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--avc-gold) 0%, var(--avc-gold-light) 50%, var(--avc-gold) 100%);
+}
+
+.guild-header__title {
+  font-family: var(--avc-font-heading);
+  font-size: var(--avc-font-size-3xl);
+  margin: 0 0 var(--avc-space-2) 0;
+}
+
+.guild-header__description {
+  opacity: 0.9;
+  max-width: 600px;
+}
+
+/* Guild role badges */
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--avc-space-2);
+  padding: var(--avc-space-1) var(--avc-space-3);
+  border-radius: var(--avc-radius-full);
+  font-size: var(--avc-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.role-badge--junior {
+  background-color: rgba(72, 187, 120, 0.15);
+  color: var(--avc-role-junior);
+  border: 1px solid rgba(72, 187, 120, 0.3);
+}
+
+.role-badge--endorsed {
+  background-color: rgba(66, 153, 225, 0.15);
+  color: var(--avc-role-endorsed);
+  border: 1px solid rgba(66, 153, 225, 0.3);
+}
+
+.role-badge--mentor {
+  background-color: rgba(159, 122, 234, 0.15);
+  color: var(--avc-role-mentor);
+  border: 1px solid rgba(159, 122, 234, 0.3);
+}
+
+.role-badge--admin {
+  background-color: rgba(var(--avc-gold-rgb), 0.15);
+  color: var(--avc-gold-dark);
+  border: 1px solid rgba(var(--avc-gold-rgb), 0.3);
+}
+
+/* Guild member card */
+.guild-member {
+  display: flex;
+  gap: var(--avc-space-4);
+  padding: var(--avc-space-4);
+  background-color: var(--avc-white);
+  border-radius: var(--avc-radius-lg);
+  box-shadow: var(--avc-shadow-sm);
+  transition: all var(--avc-transition-fast);
+}
+
+.guild-member:hover {
+  box-shadow: var(--avc-shadow-md);
+  transform: translateY(-2px);
+}
+
+.guild-member__avatar {
+  flex: 0 0 60px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--avc-gray-200);
+}
+
+.guild-member--mentor .guild-member__avatar {
+  border-color: var(--avc-role-mentor);
+}
+
+.guild-member--admin .guild-member__avatar {
+  border-color: var(--avc-gold);
+}
+
+.guild-member__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.guild-member__name {
+  font-weight: 600;
+  color: var(--avc-primary);
+  margin: 0 0 var(--avc-space-1) 0;
+}
+
+.guild-member__score {
+  display: flex;
+  align-items: center;
+  gap: var(--avc-space-2);
+  font-size: var(--avc-font-size-sm);
+  color: var(--avc-gray-600);
+  margin-top: var(--avc-space-2);
+}
+
+.guild-member__score-value {
+  font-weight: 700;
+  color: var(--avc-gold-dark);
+}
+
+/* Guild member grid */
+.guild-members {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--avc-space-4);
+}
+
+/* Guild leaderboard */
+.leaderboard {
+  background-color: var(--avc-white);
+  border-radius: var(--avc-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--avc-shadow-md);
+}
+
+.leaderboard__header {
+  background: linear-gradient(135deg, var(--avc-gold) 0%, var(--avc-gold-dark) 100%);
+  color: var(--avc-primary-dark);
+  padding: var(--avc-space-4) var(--avc-space-5);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.leaderboard__title {
+  font-family: var(--avc-font-heading);
+  font-weight: 700;
+  margin: 0;
+}
+
+.leaderboard__entry {
+  display: flex;
+  align-items: center;
+  gap: var(--avc-space-4);
+  padding: var(--avc-space-4) var(--avc-space-5);
+  border-bottom: 1px solid var(--avc-gray-100);
+  transition: background-color var(--avc-transition-fast);
+}
+
+.leaderboard__entry:last-child {
+  border-bottom: none;
+}
+
+.leaderboard__entry:hover {
+  background-color: var(--avc-cream);
+}
+
+.leaderboard__rank {
+  flex: 0 0 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--avc-gray-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: var(--avc-font-size-lg);
+  color: var(--avc-gray-600);
+}
+
+.leaderboard__entry:nth-child(1) .leaderboard__rank {
+  background: linear-gradient(135deg, var(--avc-gold) 0%, var(--avc-gold-dark) 100%);
+  color: var(--avc-primary-dark);
+}
+
+.leaderboard__entry:nth-child(2) .leaderboard__rank {
+  background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%);
+  color: var(--avc-gray-800);
+}
+
+.leaderboard__entry:nth-child(3) .leaderboard__rank {
+  background: linear-gradient(135deg, #CD7F32 0%, #B87333 100%);
+  color: var(--avc-white);
+}
+
+.leaderboard__avatar {
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.leaderboard__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.leaderboard__name {
+  font-weight: 600;
+  color: var(--avc-primary);
+}
+
+.leaderboard__role {
+  font-size: var(--avc-font-size-sm);
+  color: var(--avc-gray-500);
+}
+
+.leaderboard__score {
+  flex: 0 0 auto;
+  font-family: var(--avc-font-heading);
+  font-size: var(--avc-font-size-xl);
+  font-weight: 700;
+  color: var(--avc-gold-dark);
+}
+
+/* Skill endorsements */
+.skill-endorsement {
+  display: flex;
+  align-items: center;
+  gap: var(--avc-space-3);
+  padding: var(--avc-space-3);
+  background-color: var(--avc-gray-50);
+  border-radius: var(--avc-radius-md);
+  margin-bottom: var(--avc-space-2);
+}
+
+.skill-endorsement__name {
+  flex: 1;
+  font-weight: 500;
+}
+
+.skill-endorsement__count {
+  display: flex;
+  align-items: center;
+  gap: var(--avc-space-1);
+  font-size: var(--avc-font-size-sm);
+  color: var(--avc-gray-600);
+}
+
+.skill-endorsement__endorsers {
+  display: flex;
+  margin-left: var(--avc-space-2);
+}
+
+.skill-endorsement__endorser {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--avc-white);
+  margin-left: -8px;
+}
+
+.skill-endorsement__endorser:first-child {
+  margin-left: 0;
+}
+
+/* Ratification queue */
+.ratification-queue {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ratification-queue__item {
+  display: flex;
+  gap: var(--avc-space-4);
+  padding: var(--avc-space-4);
+  border-bottom: 1px solid var(--avc-gray-100);
+  background-color: var(--avc-white);
+}
+
+.ratification-queue__item:last-child {
+  border-bottom: none;
+}
+
+.ratification-queue__item:hover {
+  background-color: var(--avc-cream);
+}
+
+.ratification-queue__item--claimed {
+  border-left: 4px solid var(--avc-warning);
+}
+
+.ratification-queue__content {
+  flex: 1;
+}
+
+.ratification-queue__title {
+  font-weight: 600;
+  color: var(--avc-primary);
+  margin: 0 0 var(--avc-space-1) 0;
+}
+
+.ratification-queue__meta {
+  font-size: var(--avc-font-size-sm);
+  color: var(--avc-gray-500);
+}
+
+.ratification-queue__actions {
+  flex: 0 0 auto;
+  display: flex;
+  gap: var(--avc-space-2);
+}
+
+/* Guild activity feed */
+.guild-activity {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.guild-activity__item {
+  display: flex;
+  gap: var(--avc-space-3);
+  padding: var(--avc-space-3) 0;
+  border-bottom: 1px solid var(--avc-gray-100);
+}
+
+.guild-activity__item:last-child {
+  border-bottom: none;
+}
+
+.guild-activity__icon {
+  flex: 0 0 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--avc-gray-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--avc-font-size-sm);
+}
+
+.guild-activity__icon--endorsement {
+  background-color: rgba(66, 153, 225, 0.1);
+  color: var(--avc-info);
+}
+
+.guild-activity__icon--ratification {
+  background-color: rgba(159, 122, 234, 0.1);
+  color: var(--avc-role-mentor);
+}
+
+.guild-activity__icon--score {
+  background-color: rgba(var(--avc-gold-rgb), 0.15);
+  color: var(--avc-gold-dark);
+}
+
+.guild-activity__content {
+  flex: 1;
+  font-size: var(--avc-font-size-sm);
+}
+
+.guild-activity__time {
+  font-size: var(--avc-font-size-xs);
+  color: var(--avc-gray-500);
+  margin-top: var(--avc-space-1);
+}
+
+@media (max-width: 768px) {
+  .guild-members {
+    grid-template-columns: 1fr;
+  }
+
+  .guild-member {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .guild-member__avatar {
+    margin: 0 auto;
+  }
+
+  .leaderboard__entry {
+    flex-wrap: wrap;
+  }
+}

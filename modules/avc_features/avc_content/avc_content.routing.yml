@@ -1,0 +1,79 @@
+avc_content.about:
+  path: '/about'
+  defaults:
+    _controller: '\Drupal\avc_content\Controller\ContentController::about'
+    _title: 'About AV Commons'
+  requirements:
+    _permission: 'access content'
+
+avc_content.contact:
+  path: '/contact'
+  defaults:
+    _controller: '\Drupal\avc_content\Controller\ContentController::contact'
+    _title: 'Contact Us'
+  requirements:
+    _permission: 'access content'
+
+avc_content.user_guide:
+  path: '/help/user-guide'
+  defaults:
+    _controller: '\Drupal\avc_content\Controller\ContentController::userGuide'
+    _title: 'AV Commons User Guide'
+  requirements:
+    _permission: 'access content'
+
+avc_content.getting_started:
+  path: '/help/getting-started'
+  defaults:
+    _controller: '\Drupal\avc_content\Controller\ContentController::gettingStarted'
+    _title: 'Getting Started'
+  requirements:
+    _permission: 'access content'
+
+avc_content.faq:
+  path: '/help/faq'
+  defaults:
+    _controller: '\Drupal\avc_content\Controller\ContentController::faq'
+    _title: 'Frequently Asked Questions'
+  requirements:
+    _permission: 'access content'
+
+avc_content.dashboard_help:
+  path: '/help/dashboard'
+  defaults:
+    _controller: '\Drupal\avc_content\Controller\ContentController::dashboardHelp'
+    _title: 'Dashboard Help'
+  requirements:
+    _permission: 'access content'
+
+avc_content.assets_help:
+  path: '/help/assets'
+  defaults:
+    _controller: '\Drupal\avc_content\Controller\ContentController::assetsHelp'
+    _title: 'Working with Assets'
+  requirements:
+    _permission: 'access content'
+
+avc_content.workflow_help:
+  path: '/help/workflow'
+  defaults:
+    _controller: '\Drupal\avc_content\Controller\ContentController::workflowHelp'
+    _title: 'Workflow Guide'
+  requirements:
+    _permission: 'access content'
+
+avc_content.guilds_help:
+  path: '/help/guilds'
+  defaults:
+    _controller: '\Drupal\avc_content\Controller\ContentController::guildsHelp'
+    _title: 'Guild System Guide'
+  requirements:
+    _permission: 'access content'
+
+avc_content.notifications_help:
+  path: '/help/notifications'
+  defaults:
+    _controller: '\Drupal\avc_content\Controller\ContentController::notificationsHelp'
+    _title: 'Notification Settings'
+  requirements:
+    _permission: 'access content'

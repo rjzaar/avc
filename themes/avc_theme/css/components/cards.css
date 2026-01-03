@@ -1,0 +1,245 @@
+/**
+ * @file
+ * AV Commons Theme - Card styles
+ */
+
+/* Base card */
+.card {
+  background-color: var(--avc-white);
+  border: 1px solid var(--avc-gray-200);
+  border-radius: var(--avc-radius-lg);
+  box-shadow: var(--avc-shadow-sm);
+  overflow: hidden;
+  transition: all var(--avc-transition-normal);
+}
+
+.card:hover {
+  box-shadow: var(--avc-shadow-md);
+}
+
+.card--clickable:hover {
+  transform: translateY(-2px);
+  border-color: var(--avc-gold);
+}
+
+/* Card parts */
+.card__header {
+  padding: var(--avc-space-4) var(--avc-space-5);
+  border-bottom: 1px solid var(--avc-gray-100);
+  background-color: var(--avc-gray-50);
+}
+
+.card__header--primary {
+  background: linear-gradient(135deg, var(--avc-primary) 0%, var(--avc-primary-dark) 100%);
+  color: var(--avc-white);
+  border-bottom: 3px solid var(--avc-gold);
+}
+
+.card__title {
+  font-family: var(--avc-font-heading);
+  font-size: var(--avc-font-size-lg);
+  font-weight: 600;
+  margin: 0;
+  color: var(--avc-primary);
+}
+
+.card__header--primary .card__title {
+  color: var(--avc-white);
+}
+
+.card__subtitle {
+  font-size: var(--avc-font-size-sm);
+  color: var(--avc-gray-600);
+  margin-top: var(--avc-space-1);
+}
+
+.card__body {
+  padding: var(--avc-space-5);
+}
+
+.card__footer {
+  padding: var(--avc-space-4) var(--avc-space-5);
+  border-top: 1px solid var(--avc-gray-100);
+  background-color: var(--avc-gray-50);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--avc-space-3);
+}
+
+/* Card with image */
+.card__image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+/* Card meta info */
+.card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--avc-space-4);
+  font-size: var(--avc-font-size-sm);
+  color: var(--avc-gray-600);
+  margin-top: var(--avc-space-4);
+}
+
+.card__meta-item {
+  display: flex;
+  align-items: center;
+  gap: var(--avc-space-1);
+}
+
+/* Content teaser card (articles, documents, etc.) */
+.teaser {
+  display: flex;
+  gap: var(--avc-space-5);
+  padding: var(--avc-space-5);
+  border-bottom: 1px solid var(--avc-gray-100);
+}
+
+.teaser:last-child {
+  border-bottom: none;
+}
+
+.teaser__image {
+  flex: 0 0 120px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: var(--avc-radius-md);
+}
+
+.teaser__content {
+  flex: 1;
+}
+
+.teaser__title {
+  font-size: var(--avc-font-size-lg);
+  font-weight: 600;
+  margin: 0 0 var(--avc-space-2) 0;
+}
+
+.teaser__title a {
+  color: var(--avc-primary);
+}
+
+.teaser__title a:hover {
+  color: var(--avc-gold-dark);
+}
+
+.teaser__summary {
+  font-size: var(--avc-font-size-sm);
+  color: var(--avc-gray-600);
+  margin: 0;
+  line-height: var(--avc-line-height-relaxed);
+}
+
+/* Asset card - for Projects, Documents, Resources */
+.asset-card {
+  position: relative;
+  border-left: 4px solid var(--avc-gray-400);
+}
+
+.asset-card--project {
+  border-left-color: var(--avc-primary);
+}
+
+.asset-card--document {
+  border-left-color: var(--avc-gold);
+}
+
+.asset-card--resource {
+  border-left-color: var(--avc-burgundy);
+}
+
+.asset-card__type {
+  display: inline-block;
+  padding: var(--avc-space-1) var(--avc-space-3);
+  font-size: var(--avc-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: var(--avc-radius-full);
+  margin-bottom: var(--avc-space-2);
+}
+
+.asset-card__type--project {
+  background-color: rgba(var(--avc-primary-rgb), 0.1);
+  color: var(--avc-primary);
+}
+
+.asset-card__type--document {
+  background-color: rgba(var(--avc-gold-rgb), 0.2);
+  color: var(--avc-gold-dark);
+}
+
+.asset-card__type--resource {
+  background-color: rgba(114, 47, 55, 0.1);
+  color: var(--avc-burgundy);
+}
+
+/* Guild card */
+.guild-card {
+  border-left: 4px solid var(--avc-gold);
+}
+
+.guild-card__role {
+  display: inline-block;
+  padding: var(--avc-space-1) var(--avc-space-3);
+  font-size: var(--avc-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  border-radius: var(--avc-radius-full);
+}
+
+.guild-card__role--junior {
+  background-color: rgba(72, 187, 120, 0.1);
+  color: var(--avc-role-junior);
+}
+
+.guild-card__role--endorsed {
+  background-color: rgba(66, 153, 225, 0.1);
+  color: var(--avc-role-endorsed);
+}
+
+.guild-card__role--mentor {
+  background-color: rgba(159, 122, 234, 0.1);
+  color: var(--avc-role-mentor);
+}
+
+.guild-card__role--admin {
+  background-color: rgba(var(--avc-gold-rgb), 0.2);
+  color: var(--avc-gold-dark);
+}
+
+/* Card grid layout */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--avc-space-6);
+}
+
+.card-grid--2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.card-grid--3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 768px) {
+  .card-grid,
+  .card-grid--2,
+  .card-grid--3 {
+    grid-template-columns: 1fr;
+  }
+
+  .teaser {
+    flex-direction: column;
+  }
+
+  .teaser__image {
+    flex: none;
+    width: 100%;
+    height: 150px;
+  }
+}

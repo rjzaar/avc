@@ -1,0 +1,30 @@
+name: AV Commons Theme
+type: theme
+description: 'Custom theme for AV Commons based on Apostoli Viae branding'
+package: AV Commons
+core_version_requirement: ^10
+base theme: socialblue
+
+libraries:
+  - avc_theme/global
+
+libraries-extend:
+  socialblue/brand:
+    - avc_theme/brand-override
+
+regions:
+  hidden: Hidden
+  header_top: Header top
+  header: Header
+  breadcrumb: Breadcrumb
+  hero: Hero
+  secondary_navigation: Secondary navigation
+  content_top: Content top
+  title: Page title
+  content: Content
+  complementary_top: Complementary top
+  complementary_bottom: Complementary bottom
+  content_bottom: Content bottom
+  sidebar_first: Sidebar First
+  sidebar_second: Sidebar Second
+  footer: Footer

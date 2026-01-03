@@ -1,0 +1,59 @@
+{#
+/**
+ * @file
+ * Guild leaderboard template.
+ *
+ * Available variables:
+ * - guild: The guild entity.
+ * - entries: Array of leaderboard entries.
+ * - limit: Maximum number of entries shown.
+ */
+#}
+<div class="guild-leaderboard">
+  <h2>{{ guild.label }} {{ 'Leaderboard'|t }}</h2>
+
+  {% if entries %}
+  <table class="leaderboard-table">
+    <thead>
+      <tr>
+        <th class="rank">{{ 'Rank'|t }}</th>
+        <th class="member">{{ 'Member'|t }}</th>
+        <th class="role">{{ 'Role'|t }}</th>
+        <th class="score">{{ 'Score'|t }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for index, entry in entries %}
+      <tr class="leaderboard-row rank-{{ index + 1 }} role-{{ entry.role }}">
+        <td class="rank">
+          {% if index < 3 %}
+          <span class="medal medal-{{ index + 1 }}">{{ index + 1 }}</span>
+          {% else %}
+          {{ index + 1 }}
+          {% endif %}
+        </td>
+        <td class="member">
+          <a href="{{ path('avc_guild.member_profile', {'group': guild.id, 'user': entry.user.id}) }}">
+            {{ entry.user.displayname }}
+          </a>
+        </td>
+        <td class="role">
+          <span class="role-badge role-{{ entry.role }}">
+            {{ entry.role|capitalize }}
+          </span>
+        </td>
+        <td class="score">{{ entry.score }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty-message">{{ 'No scores recorded yet.'|t }}</p>
+  {% endif %}
+
+  <p class="back-link">
+    <a href="{{ path('avc_guild.dashboard', {'group': guild.id}) }}">
+      {{ '&larr; Back to Guild Dashboard'|t }}
+    </a>
+  </p>
+</div>

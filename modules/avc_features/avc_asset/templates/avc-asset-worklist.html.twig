@@ -1,0 +1,70 @@
+{#
+/**
+ * @file
+ * Template for asset worklist display.
+ *
+ * Variables:
+ * - assets: Array of asset items with node, assignment, and status.
+ * - show_type: Whether to show asset type column.
+ * - show_status: Whether to show status column.
+ */
+#}
+<div class="avc-asset-worklist">
+  {% if assets %}
+    <table class="avc-worklist-table">
+      <thead>
+        <tr>
+          <th>{{ 'ID'|t }}</th>
+          <th>{{ 'Title'|t }}</th>
+          {% if show_type %}
+            <th>{{ 'Type'|t }}</th>
+          {% endif %}
+          {% if show_status %}
+            <th>{{ 'Status'|t }}</th>
+          {% endif %}
+          <th>{{ 'Stage'|t }}</th>
+          <th>{{ 'Actions'|t }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in assets %}
+          <tr class="worklist-item status-{{ item.status }}">
+            <td class="item-id">
+              {{ item.asset_number|default(item.node_id) }}
+            </td>
+            <td class="item-title">
+              <a href="{{ path('entity.node.canonical', {node: item.node_id}) }}">
+                {{ item.title }}
+              </a>
+            </td>
+            {% if show_type %}
+              <td class="item-type">
+                {{ item.type|default('-') }}
+              </td>
+            {% endif %}
+            {% if show_status %}
+              <td class="item-status">
+                <span class="status-badge status-{{ item.status }}">
+                  {% if item.status == 'current' %}
+                    {{ 'Active'|t }}
+                  {% else %}
+                    {{ item.status|capitalize }}
+                  {% endif %}
+                </span>
+              </td>
+            {% endif %}
+            <td class="item-stage">
+              {{ item.stage|default('-') }}
+            </td>
+            <td class="item-actions">
+              <a href="{{ path('entity.node.canonical', {node: item.node_id}) }}">{{ 'View'|t }}</a>
+              | <a href="{{ path('avc_asset.check', {node: item.node_id}) }}">{{ 'Workflow'|t }}</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="empty-message">{{ 'No assets found.'|t }}</p>
+  {% endif %}
+</div>

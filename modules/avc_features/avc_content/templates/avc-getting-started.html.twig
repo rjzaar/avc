@@ -1,0 +1,52 @@
+{#
+/**
+ * @file
+ * Template for the Getting Started page.
+ *
+ * Available variables:
+ * - steps: Array of getting started steps.
+ */
+#}
+<div class="help-page">
+  <div class="help-page__header">
+    <h1 class="help-page__title">{{ 'Getting Started with AV Commons'|t }}</h1>
+    <p class="help-page__subtitle">{{ 'Welcome! Follow these steps to get up and running quickly.'|t }}</p>
+  </div>
+
+  <div class="help-section">
+    <div class="help-section__header">
+      <h2 class="help-section__title">{{ 'First Steps'|t }}</h2>
+    </div>
+    <div class="help-section__content">
+      <div class="steps">
+        {% for step in steps %}
+          <div class="steps__item">
+            <div class="steps__item-title">{{ step.title }}</div>
+            <div class="steps__item-content">{{ step.content }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box info-box--tip">
+    <div class="info-box__title">{{ 'Tip'|t }}</div>
+    <p>{{ 'Bookmark your Dashboard for quick access. You\'ll use it daily to check your assignments and track your work.'|t }}</p>
+  </div>
+
+  <div class="card">
+    <div class="card__header card__header--primary">
+      <h3 class="card__title">{{ 'Ready to Learn More?'|t }}</h3>
+    </div>
+    <div class="card__body">
+      <p>{{ 'Explore our detailed guides:'|t }}</p>
+      <ul>
+        <li><a href="/help/dashboard">{{ 'Understanding Your Dashboard'|t }}</a></li>
+        <li><a href="/help/assets">{{ 'Working with Assets'|t }}</a></li>
+        <li><a href="/help/workflow">{{ 'The Workflow System'|t }}</a></li>
+        <li><a href="/help/guilds">{{ 'Joining and Participating in Guilds'|t }}</a></li>
+        <li><a href="/help/notifications">{{ 'Notification Settings'|t }}</a></li>
+      </ul>
+    </div>
+  </div>
+</div>

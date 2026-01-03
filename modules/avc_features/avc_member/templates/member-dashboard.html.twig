@@ -1,0 +1,112 @@
+{#
+/**
+ * @file
+ * Template for member dashboard.
+ *
+ * Variables:
+ * - user: The user entity.
+ * - worklist: Array of personal worklist items.
+ * - group_worklists: Array of group worklists.
+ * - notification_settings: User's notification settings.
+ */
+#}
+<div class="avc-member-dashboard">
+  <h2>{{ 'Dashboard'|t }}</h2>
+
+  {# Notification Settings Summary #}
+  <div class="dashboard-section notification-settings">
+    <h3>{{ 'Notification Preferences'|t }}</h3>
+    <p>
+      {{ 'Default notification:'|t }}
+      {% if notification_settings.default == 'n' %}
+        {{ 'Immediate'|t }}
+      {% elseif notification_settings.default == 'd' %}
+        {{ 'Daily digest'|t }}
+      {% elseif notification_settings.default == 'w' %}
+        {{ 'Weekly digest'|t }}
+      {% else %}
+        {{ 'None'|t }}
+      {% endif %}
+      <a href="{{ path('avc_member.notification_preferences', {'user': user.id()}) }}" class="edit-link">{{ 'Edit'|t }}</a>
+    </p>
+  </div>
+
+  {# Personal Worklist #}
+  <div class="dashboard-section personal-worklist">
+    <h3>{{ 'My Worklist'|t }}</h3>
+    {% if worklist %}
+      <table class="avc-worklist-table">
+        <thead>
+          <tr>
+            <th>{{ 'Task'|t }}</th>
+            <th>{{ 'Description'|t }}</th>
+            <th>{{ 'Status'|t }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in worklist %}
+            <tr class="worklist-item status-{{ item.status }}" data-task-id="{{ item.id }}" data-node-id="{{ item.node ? item.node.id : '' }}">
+              <td>{{ item.label }}</td>
+              <td>{{ item.description|default('-') }}</td>
+              <td>
+                <span class="status-badge status-{{ item.status }}">
+                  {% if item.status == 'current' %}
+                    {{ 'Action needed'|t }}
+                  {% elseif item.status == 'upcoming' %}
+                    {{ 'Upcoming'|t }}
+                  {% else %}
+                    {{ 'Completed'|t }}
+                  {% endif %}
+                </span>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="empty-message">{{ 'No current assignments'|t }}</p>
+    {% endif %}
+  </div>
+
+  {# Group Worklists #}
+  {% if group_worklists %}
+    <div class="dashboard-section group-worklists">
+      <h3>{{ 'Group Tasks'|t }}</h3>
+      {% for group_id, group_data in group_worklists %}
+        <div class="group-worklist">
+          <h4>{{ group_data.group_label }}</h4>
+          {% if group_data.items %}
+            <table class="avc-worklist-table">
+              <thead>
+                <tr>
+                  <th>{{ 'Task'|t }}</th>
+                  <th>{{ 'Status'|t }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in group_data.items %}
+                  <tr class="worklist-item status-{{ item.status }}" data-task-id="{{ item.id }}" data-node-id="{{ item.node ? item.node.id : '' }}">
+                    <td>{{ item.label }}</td>
+                    <td>
+                      <span class="status-badge status-{{ item.status }}">
+                        {% if item.status == 'current' %}
+                          {{ 'Action needed'|t }}
+                        {% elseif item.status == 'upcoming' %}
+                          {{ 'Upcoming'|t }}
+                        {% else %}
+                          {{ 'Completed'|t }}
+                        {% endif %}
+                      </span>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p class="empty-message">{{ 'No tasks for this group.'|t }}</p>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>

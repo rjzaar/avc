@@ -1,0 +1,13 @@
+services:
+  avc_group.workflow:
+    class: Drupal\avc_group\Service\GroupWorkflowService
+    arguments:
+      - '@entity_type.manager'
+      - '@current_user'
+
+  avc_group.notification:
+    class: Drupal\avc_group\Service\GroupNotificationService
+    arguments:
+      - '@entity_type.manager'
+      - '@plugin.manager.mail'
+      - '@config.factory'

@@ -1,0 +1,31 @@
+services:
+  avc_notification.preferences:
+    class: Drupal\avc_notification\Service\NotificationPreferences
+    arguments: ['@entity_type.manager']
+
+  avc_notification.service:
+    class: Drupal\avc_notification\Service\NotificationService
+    arguments: ['@entity_type.manager', '@avc_notification.preferences']
+
+  avc_notification.aggregator:
+    class: Drupal\avc_notification\Service\NotificationAggregator
+    arguments: ['@entity_type.manager', '@avc_notification.preferences']
+
+  avc_notification.sender:
+    class: Drupal\avc_notification\Service\NotificationSender
+    arguments: ['@plugin.manager.mail', '@renderer', '@config.factory', '@logger.channel.avc_notification']
+
+  avc_notification.processor:
+    class: Drupal\avc_notification\Service\NotificationProcessor
+    arguments:
+      - '@avc_notification.aggregator'
+      - '@avc_notification.sender'
+      - '@avc_notification.preferences'
+      - '@avc_notification.service'
+      - '@state'
+      - '@config.factory'
+      - '@logger.channel.avc_notification'
+
+  logger.channel.avc_notification:
+    parent: logger.channel_base
+    arguments: ['avc_notification']

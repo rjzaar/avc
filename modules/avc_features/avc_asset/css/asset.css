@@ -1,0 +1,250 @@
+/**
+ * @file
+ * Styles for AVC Asset module.
+ */
+
+/* Asset Admin */
+.avc-asset-admin {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.avc-asset-admin details {
+  margin-bottom: 20px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.avc-asset-admin details summary {
+  padding: 15px;
+  background: #f5f5f5;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.avc-asset-admin details[open] summary {
+  border-bottom: 1px solid #ddd;
+}
+
+/* Asset Tables */
+.avc-asset-table,
+.avc-worklist-table,
+.avc-check-table,
+.project-assets-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.avc-asset-table th,
+.avc-asset-table td,
+.avc-worklist-table th,
+.avc-worklist-table td,
+.avc-check-table th,
+.avc-check-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.avc-asset-table th,
+.avc-worklist-table th,
+.avc-check-table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+}
+
+.avc-asset-table tbody tr:hover,
+.avc-worklist-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Workflow Check Results */
+.avc-workflow-check-result {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.avc-workflow-check-result h3 {
+  margin-top: 0;
+  color: #333;
+  border-bottom: 2px solid #0074bd;
+  padding-bottom: 10px;
+}
+
+.avc-workflow-check-result h4 {
+  color: #555;
+  margin: 20px 0 10px;
+}
+
+.check-status {
+  margin: 15px 0;
+}
+
+.check-messages ul {
+  list-style: none;
+  padding: 0;
+}
+
+.check-messages li {
+  padding: 8px 12px;
+  margin: 5px 0;
+  border-radius: 4px;
+}
+
+.check-messages .message-error {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.check-messages .message-warning {
+  background-color: #fff3e0;
+  color: #ef6c00;
+}
+
+.check-messages .message-info {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.check-entries .entry-error {
+  background-color: #ffebee;
+}
+
+.check-entries .entry-warning {
+  background-color: #fff3e0;
+}
+
+.entry-messages {
+  list-style: disc;
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.check-fixes {
+  background-color: #e8f5e9;
+  padding: 15px;
+  border-radius: 4px;
+  margin: 15px 0;
+}
+
+.check-actions {
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.check-actions .button {
+  margin-right: 10px;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 3px;
+  font-size: 0.85em;
+  font-weight: 500;
+}
+
+.status-badge.status-valid,
+.status-badge.status-completed {
+  background-color: #4caf50;
+  color: white;
+}
+
+.status-badge.status-current,
+.status-badge.status-active {
+  background-color: #2196f3;
+  color: white;
+}
+
+.status-badge.status-upcoming,
+.status-badge.status-draft {
+  background-color: #9e9e9e;
+  color: white;
+}
+
+.status-badge.status-warning {
+  background-color: #ff9800;
+  color: white;
+}
+
+.status-badge.status-error {
+  background-color: #f44336;
+  color: white;
+}
+
+/* Workflow Status Display */
+.workflow-status-display {
+  padding: 10px 15px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+/* Workflow Actions */
+.workflow-actions {
+  margin: 15px 0;
+}
+
+.workflow-actions .button {
+  margin-right: 10px;
+  margin-bottom: 5px;
+}
+
+.workflow-actions .button--small {
+  padding: 6px 12px;
+  font-size: 0.9em;
+}
+
+/* Project Assets */
+.avc-project-assets {
+  margin: 20px 0;
+  padding: 15px;
+  background: #fafafa;
+  border-radius: 4px;
+}
+
+.avc-project-assets h4 {
+  margin-top: 0;
+  color: #0074bd;
+}
+
+.assets-count {
+  color: #666;
+  font-style: italic;
+  margin-top: 10px;
+}
+
+/* Empty Messages */
+.empty-message {
+  color: #757575;
+  font-style: italic;
+  padding: 20px;
+  text-align: center;
+  background-color: #fafafa;
+  border-radius: 4px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .avc-asset-table th,
+  .avc-asset-table td,
+  .avc-worklist-table th,
+  .avc-worklist-table td {
+    padding: 8px;
+    font-size: 0.9em;
+  }
+
+  .workflow-actions .button {
+    display: block;
+    margin-bottom: 10px;
+  }
+}

@@ -1,0 +1,63 @@
+{#
+/**
+ * @file
+ * Notification log display template.
+ *
+ * Available variables:
+ * - notifications: Array of notification entities.
+ * - pager: Pager render array.
+ */
+#}
+<div class="notification-log">
+  {% if notifications %}
+  <table class="notification-log-table">
+    <thead>
+      <tr>
+        <th>{{ 'Type'|t }}</th>
+        <th>{{ 'Message'|t }}</th>
+        <th>{{ 'Status'|t }}</th>
+        <th>{{ 'Created'|t }}</th>
+        <th>{{ 'Sent'|t }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for notification in notifications %}
+      <tr class="notification-log-row notification-status-{{ notification.status }}">
+        <td class="notification-event-type">
+          {{ notification.event_type }}
+        </td>
+        <td class="notification-message">
+          {{ notification.message }}
+        </td>
+        <td class="notification-status">
+          <span class="status-badge status-{{ notification.status }}">
+            {{ notification.status }}
+          </span>
+        </td>
+        <td class="notification-created">
+          {{ notification.created|date('Y-m-d H:i') }}
+        </td>
+        <td class="notification-sent">
+          {% if notification.sent %}
+            {{ notification.sent|date('Y-m-d H:i') }}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if pager %}
+  <div class="notification-log-pager">
+    {{ pager }}
+  </div>
+  {% endif %}
+
+  {% else %}
+  <p class="notification-log-empty">
+    {{ 'No notifications found.'|t }}
+  </p>
+  {% endif %}
+</div>

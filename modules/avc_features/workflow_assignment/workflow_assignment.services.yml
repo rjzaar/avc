@@ -1,0 +1,22 @@
+services:
+  workflow_assignment.notification:
+    class: Drupal\workflow_assignment\WorkflowNotificationService
+    arguments:
+      - '@plugin.manager.mail'
+      - '@entity_type.manager'
+      - '@config.factory'
+      - '@current_user'
+
+  workflow_assignment.history_logger:
+    class: Drupal\workflow_assignment\WorkflowHistoryLogger
+    arguments:
+      - '@database'
+      - '@current_user'
+      - '@datetime.time'
+
+  access_check.workflow.node_has_field:
+    class: Drupal\workflow_assignment\Access\NodeWorkflowAccessCheck
+    arguments:
+      - '@config.factory'
+    tags:
+      - { name: access_check, applies_to: _node_has_workflow_field }
