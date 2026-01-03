@@ -1085,9 +1085,11 @@ Open Social Distribution (base platform)
 10. Continue with remaining phases (Flagging, Courses, Suggestions, etc.)
 
 ### Test Coverage
-- **Behat Tests**: 26 scenarios, 137 steps passing
-- Feature files: `notification_system.feature`, `guild_system.feature`, `workflow_assignment.feature`, `member_worklist.feature`, `group_workflow.feature`
+- **Behat Tests**: 27 scenarios, 143 steps passing
+- Feature files: `notification_system.feature`, `guild_system.feature`, `workflow_assignment.feature`, `member_worklist.feature`, `member_dashboard.feature`, `group_workflow.feature`
 - Custom contexts: `CustomDrupalContext.php` for Open Social authentication compatibility
+- **Selenium 4 Support**: `mink/webdriver-classic-driver` with custom `WebdriverClassicExtension` for W3C WebDriver protocol
+- JavaScript tests use DDEV Selenium addon (`ddev/ddev-selenium-standalone-chrome`)
 
 ---
 
@@ -1106,4 +1108,4 @@ Open Social Distribution (base platform)
 *Last updated: 2026-01-03*
 *Platform: Open Social Distribution*
 *Based on: avc specs.docx, avc.gs prototype, workflow_assignment module analysis*
-*Implementation: Phases 1-5 complete with full Behat test coverage (26 scenarios, 137 steps)*
+*Implementation: Phases 1-5 complete with full Behat test coverage (27 scenarios, 143 steps) and Selenium 4 JavaScript testing*
