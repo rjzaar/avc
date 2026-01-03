@@ -1,0 +1,108 @@
+{
+  "id": "avctest",
+  "viewports": [
+    {
+      "label": "mobile",
+      "width": 375,
+      "height": 667
+    },
+    {
+      "label": "tablet",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "label": "desktop",
+      "width": 1280,
+      "height": 800
+    }
+  ],
+  "onBeforeScript": "playwright/onBefore.js",
+  "onReadyScript": "playwright/onReady.js",
+  "scenarios": [
+    {
+      "label": "Homepage",
+      "url": "http://ddev-avctest-web/",
+      "delay": 500,
+      "misMatchThreshold": 0.1,
+      "requireSameDimensions": true
+    },
+    {
+      "label": "About Page",
+      "url": "http://ddev-avctest-web/about",
+      "delay": 500,
+      "misMatchThreshold": 0.1
+    },
+    {
+      "label": "Contact Page",
+      "url": "http://ddev-avctest-web/contact",
+      "delay": 500,
+      "misMatchThreshold": 0.1
+    },
+    {
+      "label": "User Guide",
+      "url": "http://ddev-avctest-web/help/user-guide",
+      "delay": 500,
+      "misMatchThreshold": 0.1
+    },
+    {
+      "label": "Getting Started",
+      "url": "http://ddev-avctest-web/help/getting-started",
+      "delay": 500,
+      "misMatchThreshold": 0.1
+    },
+    {
+      "label": "FAQ",
+      "url": "http://ddev-avctest-web/help/faq",
+      "delay": 500,
+      "misMatchThreshold": 0.1
+    },
+    {
+      "label": "Dashboard Help",
+      "url": "http://ddev-avctest-web/help/dashboard",
+      "delay": 500,
+      "misMatchThreshold": 0.1
+    },
+    {
+      "label": "Assets Help",
+      "url": "http://ddev-avctest-web/help/assets",
+      "delay": 500,
+      "misMatchThreshold": 0.1
+    },
+    {
+      "label": "Workflow Help",
+      "url": "http://ddev-avctest-web/help/workflow",
+      "delay": 500,
+      "misMatchThreshold": 0.1
+    },
+    {
+      "label": "Guilds Help",
+      "url": "http://ddev-avctest-web/help/guilds",
+      "delay": 500,
+      "misMatchThreshold": 0.1
+    },
+    {
+      "label": "Notifications Help",
+      "url": "http://ddev-avctest-web/help/notifications",
+      "delay": 500,
+      "misMatchThreshold": 0.1
+    }
+  ],
+  "paths": {
+    "bitmaps_reference": "backstop_data/bitmaps_reference",
+    "bitmaps_test": "backstop_data/bitmaps_test",
+    "engine_scripts": "backstop_data/engine_scripts",
+    "html_report": "backstop_data/html_report",
+    "ci_report": "backstop_data/ci_report"
+  },
+  "report": ["browser", "CI"],
+  "engine": "playwright",
+  "engineOptions": {
+    "args": ["--no-sandbox"],
+    "browser": "chromium"
+  },
+  "asyncCaptureLimit": 5,
+  "asyncCompareLimit": 50,
+  "debug": false,
+  "debugWindow": false
+}
