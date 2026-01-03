@@ -6,8 +6,7 @@ dependencies:
 id: guild-outsider
 label: Outsider
 weight: -102
-internal: true
-audience: outsider
+admin: false
+scope: outsider
 group_type: guild
-permissions_ui: true
 permissions: []

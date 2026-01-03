@@ -6,11 +6,11 @@ dependencies:
 id: guild-member
 label: Member
 weight: -100
-internal: true
-audience: member
+admin: false
+scope: insider
+global_role: authenticated
 group_type: guild
-permissions_ui: true
 permissions:
   - 'view group'
-  - 'view group_membership content'
+  - 'view group_membership relationship'
   - 'leave group'

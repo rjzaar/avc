@@ -4,6 +4,7 @@ type: module
 core_version_requirement: ^9 || ^10
 dependencies:
   - address:address
+  - flag:flag
   - better_exposed_filters:better_exposed_filters
   - drupal:block
   - drupal:datetime

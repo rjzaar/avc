@@ -6,10 +6,10 @@ dependencies:
 id: guild-endorsed
 label: Endorsed
 weight: 10
-internal: false
-audience: member
+admin: false
+scope: insider
+global_role: authenticated
 group_type: guild
-permissions_ui: true
 permissions:
   - 'view group'
-  - 'view group_membership content'
+  - 'view group_membership relationship'
