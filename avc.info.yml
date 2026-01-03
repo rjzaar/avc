@@ -31,7 +31,8 @@ install:
   - social:social_comment
   - social:social_editor
   - social:social_event
-  - social:social_follow_content
+  # Temporarily disabled - causes views cache issue during install
+  # - social:social_follow_content
   - social:social_font
   - social:social_footer
   - social:social_group_gvbo
