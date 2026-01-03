@@ -8,5 +8,6 @@ label: Outsider
 weight: -102
 admin: false
 scope: outsider
+global_role: authenticated
 group_type: guild
 permissions: []
