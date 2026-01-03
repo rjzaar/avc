@@ -9,13 +9,28 @@ default:
         - Drupal\DrupalExtension\Context\MessageContext
         - Drupal\DrupalExtension\Context\DrushContext
         - FeatureContext
+      filters:
+        tags: '~@wip'
   autoload:
+    'Behat\WebdriverClassicExtension': '%paths.base%/bootstrap'
     '': '%paths.base%/bootstrap'
 
   extensions:
+    Behat\WebdriverClassicExtension\WebdriverClassicExtension: ~
     Drupal\MinkExtension:
       goutte: ~
-      selenium2: ~
+      webdriver_classic:
+        wd_host: 'http://selenium-chrome:4444'
+        browser: chrome
+        capabilities:
+          'goog:chromeOptions':
+            args:
+              - '--headless=new'
+              - '--no-sandbox'
+              - '--disable-dev-shm-usage'
+              - '--disable-gpu'
+              - '--window-size=1920,1080'
+      javascript_session: webdriver_classic
       base_url: 'https://avc.ddev.site'
       files_path: '%paths.base%/files'
 
