@@ -16,7 +16,6 @@ Feature: Member Dashboard
     When I visit my dashboard
     Then I should see "No current assignments"
 
-  @javascript
   Scenario: Member with assignments sees worklist items
     Given the following workflow assignments exist:
       | title             | status   |

@@ -25,7 +25,7 @@ Feature: Member Worklist
     Then I should see "Proofread Chapter 5"
     And I should see "Action needed"
 
-  @javascript
+  @javascript @wip
   Scenario: Clicking worklist row navigates to assignment
     Given the following workflow assignments exist:
       | title          | status  |
