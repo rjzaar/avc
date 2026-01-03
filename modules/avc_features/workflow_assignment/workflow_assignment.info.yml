@@ -7,4 +7,5 @@ dependencies:
   - drupal:node
   - drupal:taxonomy
   - drupal:user
+  - group:group
 configure: workflow_assignment.settings
