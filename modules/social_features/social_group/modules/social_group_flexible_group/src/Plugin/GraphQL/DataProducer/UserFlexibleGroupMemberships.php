@@ -30,7 +30,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class UserFlexibleGroupMemberships extends DataProducerPluginBase implements ContainerFactoryPluginInterface {
 
-  const string CID_BASE = 'social_group_flexible_group:memberships_created:';
+  const CID_BASE = 'social_group_flexible_group:memberships_created:';
 
   /**
    * {@inheritdoc}

@@ -29,7 +29,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class EventsCreated extends DataProducerPluginBase implements ContainerFactoryPluginInterface {
 
-  const string CID_BASE = 'social_event:user_events_created:';
+  const CID_BASE = 'social_event:user_events_created:';
 
   /**
    * {@inheritdoc}

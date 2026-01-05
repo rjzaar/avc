@@ -30,7 +30,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class CommentsCreated extends DataProducerPluginBase implements ContainerFactoryPluginInterface {
 
-  const string CID_BASE = 'social_comments:user_comments_created:';
+  const CID_BASE = 'social_comments:user_comments_created:';
 
   /**
    * {@inheritdoc}

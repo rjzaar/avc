@@ -56,16 +56,16 @@ class AutomaticGroupAffiliation {
   // beginning of the list up to this number are considered owned by the user.
   // Items beyond this threshold are system-added. A value of -1 means the user
   // has not yet managed the list, and all items are currently system-added.
-  const string AFFILIATION_OWNED_COUNT_FILED_NAME = 'affiliation_owned_count';
+  const AFFILIATION_OWNED_COUNT_FILED_NAME = 'affiliation_owned_count';
 
   // Default value of -1 means the user has not yet managed the list, and all
   // items are currently system-added.
-  const int DEFAULT_AFFILIATION_OWNED_COUNT_VALUE = -1;
+  const DEFAULT_AFFILIATION_OWNED_COUNT_VALUE = -1;
 
   // A list of affiliations the user has manually removed from their profile.
   // These entries are retained to prevent the system from automatically
   // re-adding them, ensuring the user's preferences are respected.
-  const string USER_REMOVED_AFFILIATIONS_FILED_NAME = 'user_removed_affiliations';
+  const USER_REMOVED_AFFILIATIONS_FILED_NAME = 'user_removed_affiliations';
 
   /**
    * User profile.

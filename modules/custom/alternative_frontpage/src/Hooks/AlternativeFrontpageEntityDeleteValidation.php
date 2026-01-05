@@ -25,7 +25,7 @@ class AlternativeFrontpageEntityDeleteValidation {
   /**
    * Views Bulk Operations delete action ID.
    */
-  private const string VBO_DELETE_ACTION = 'views_bulk_operations_delete_entity';
+  private const VBO_DELETE_ACTION = 'views_bulk_operations_delete_entity';
 
   /**
    * Alternative front page entity delete validation constructor.

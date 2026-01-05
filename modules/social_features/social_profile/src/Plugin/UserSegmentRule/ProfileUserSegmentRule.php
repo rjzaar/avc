@@ -34,11 +34,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 )]
 final class ProfileUserSegmentRule extends UserSegmentRulePluginBase {
 
-  public const string PLUGIN_ID = 'profile';
+  public const PLUGIN_ID = 'profile';
 
   // User profile user role condition and properties.
-  public const string CONDITION__USER_ROLES = 'user_roles';
-  public const string CONDITION__USER_ROLES__PROPERTY_ROLE = 'role';
+  public const CONDITION__USER_ROLES = 'user_roles';
+  public const CONDITION__USER_ROLES__PROPERTY_ROLE = 'role';
 
   public function __construct(
     array $configuration,

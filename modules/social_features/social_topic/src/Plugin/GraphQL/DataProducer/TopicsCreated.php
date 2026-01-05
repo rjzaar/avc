@@ -29,7 +29,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class TopicsCreated extends DataProducerPluginBase implements ContainerFactoryPluginInterface {
 
-  const string CID_BASE = 'social_topic:user_topics_created:';
+  const CID_BASE = 'social_topic:user_topics_created:';
 
   /**
    * {@inheritdoc}

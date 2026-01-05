@@ -19,8 +19,7 @@
         "drupal/color": "1.0.3",
         "drupal/config_modify": "^1",
         "drupal/config_update": "2.0.0-alpha4",
-        "drupal/core": "10.5.4",
-        "drupal/core-composer-scaffold": "10.5.4",
+        "drupal/core": "^10.5",
         "drupal/crop": "2.4.0",
         "drupal/csv_serialization": "2.1.0 || ~3.0 || ~4.0",
         "drupal/data_policy": "2.0.9",
@@ -28,6 +27,7 @@
         "drupal/editor_advanced_link": "2.3.2",
         "drupal/entity": "1.6.0",
         "drupal/entity_reference_revisions": "1.12.0",
+        "drupal/environment_indicator": "^4.0",
         "drupal/exif_orientation": "1.5.0",
         "drupal/field_group": "4.0.0",
         "drupal/flag": "^4.0@beta",
@@ -204,11 +204,6 @@
                 "Issue #3476944: Batch can't be processed after entity deletion since version 2.0": "https://www.drupal.org/files/issues/2024-09-26/metatag-fix-batc-execution-3476944-1.patch"
             }
         }
-    },
-    "scripts": {
-        "post-install-cmd": [
-            "@composer drupal:scaffold"
-        ]
     },
     "config": {
         "sort-packages": true

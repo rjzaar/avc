@@ -20,7 +20,7 @@ use Drupal\social_event_addtocal\Plugin\SocialAddToCalendarBase;
  */
 class AddToOutlook extends SocialAddToCalendarBase {
 
-  protected const string URL = 'https://outlook.live.com/calendar/0/deeplink/compose';
+  protected const URL = 'https://outlook.live.com/calendar/0/deeplink/compose';
 
   /**
    * {@inheritdoc}

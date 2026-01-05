@@ -26,7 +26,7 @@ class FrontpageEntityDeletionValidator implements ContainerInjectionInterface {
   /**
    * Entity types that can be set as front pages.
    */
-  private const array SUPPORTED_ENTITY_TYPES = [
+  private const SUPPORTED_ENTITY_TYPES = [
     'node' => 'getTitle',
     'group' => 'label',
   ];
