@@ -16,8 +16,8 @@ class ContentController extends ControllerBase {
     return [
       '#theme' => 'avc_about',
       '#content' => [
-        'intro' => $this->t('AV Commons is the collaborative platform for Apostoli Viae, designed to help our community work together on projects, documents, and resources.'),
-        'mission' => $this->t('Our mission is to provide a structured yet flexible environment where members at all levels can contribute to the mission of Apostoli Viae through collaborative work.'),
+        'intro' => $this->t('AV Commons is a community collaboration site designed to help members work together on projects, documents, and resources.'),
+        'mission' => $this->t('Our mission is to provide a structured yet flexible environment where members at all levels can contribute through collaborative work.'),
       ],
       '#attached' => [
         'library' => ['avc_theme/global'],
@@ -59,7 +59,7 @@ class ContentController extends ControllerBase {
         '#type' => 'container',
         '#attributes' => ['class' => ['card__body']],
         'content' => [
-          '#markup' => '<p>' . $this->t('For general questions about AV Commons or Apostoli Viae:') . '</p>' .
+          '#markup' => '<p>' . $this->t('For general questions about AV Commons:') . '</p>' .
             '<p><strong>' . $this->t('Email:') . '</strong> <a href="mailto:contact@apostoliviae.org">contact@apostoliviae.org</a></p>',
         ],
       ],
@@ -230,15 +230,15 @@ class ContentController extends ControllerBase {
     $faqs = [
       [
         'question' => $this->t('What is AV Commons?'),
-        'answer' => $this->t('AV Commons is the collaborative platform for Apostoli Viae members. It allows us to work together on projects, documents, and resources with proper workflow management and quality control.'),
+        'answer' => $this->t('AV Commons is a community collaboration site. It allows members to work together on projects, documents, and resources with proper workflow management and quality control.'),
       ],
       [
         'question' => $this->t('Who can join AV Commons?'),
-        'answer' => $this->t('AV Commons is open to all Apostoli Viae members, including Disciples, Aspirants, and Sojourners. Each level has access to appropriate features and groups.'),
+        'answer' => $this->t('AV Commons is open to all members, including Disciples, Aspirants, and Sojourners. Each level has access to appropriate features and groups.'),
       ],
       [
         'question' => $this->t('What are the different AV Levels?'),
-        'answer' => $this->t('<strong>Disciple:</strong> Active members committed to the Apostoli Viae way of life.<br><strong>Aspirant:</strong> Those discerning a deeper commitment.<br><strong>Sojourner:</strong> Friends and supporters of Apostoli Viae.'),
+        'answer' => $this->t('<strong>Disciple:</strong> Active members committed to the community.<br><strong>Aspirant:</strong> Those discerning a deeper commitment.<br><strong>Sojourner:</strong> Friends and supporters of the community.'),
       ],
       [
         'question' => $this->t('What is the difference between Groups and Guilds?'),
@@ -250,7 +250,7 @@ class ContentController extends ControllerBase {
       ],
       [
         'question' => $this->t('What happens to my contributions?'),
-        'answer' => $this->t('All contributions to AV Commons are licensed as public domain. By contributing, you acknowledge that your work can be used by Apostoli Viae without individual attribution.'),
+        'answer' => $this->t('All contributions to AV Commons are licensed as public domain. By contributing, you acknowledge that your work can be used by AV Commons without individual attribution.'),
       ],
       [
         'question' => $this->t('How do notifications work?'),
@@ -937,7 +937,7 @@ class ContentController extends ControllerBase {
    * Get overview content for user guide.
    */
   protected function getOverviewContent() {
-    return $this->t('<p>AV Commons is the collaborative platform for Apostoli Viae. It enables our community to:</p>
+    return $this->t('<p>AV Commons is a community collaboration site. It enables our community to:</p>
       <ul>
         <li><strong>Collaborate on Projects, Documents, and Resources</strong> - Work together on shared content with proper version control and approval workflows.</li>
         <li><strong>Participate in skill-based Guilds</strong> - Join specialized groups with mentorship, scoring, and endorsement features.</li>
