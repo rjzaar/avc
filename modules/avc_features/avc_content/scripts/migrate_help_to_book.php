@@ -987,6 +987,7 @@ foreach ($help_pages as $page) {
       'value' => $page['body'],
       'format' => 'full_html',
     ],
+    'field_content_visibility' => 'public',
     'status' => 1,
     'uid' => 1,
     'path' => [
