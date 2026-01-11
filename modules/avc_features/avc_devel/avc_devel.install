@@ -1,0 +1,223 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the AVC Development module.
+ */
+
+use Drupal\node\Entity\Node;
+use Drupal\user\Entity\User;
+
+/**
+ * Implements hook_install().
+ */
+function avc_devel_install() {
+  // Create sample content on module install.
+  avc_devel_create_sample_content();
+}
+
+/**
+ * Creates sample content for AVC asset types.
+ */
+function avc_devel_create_sample_content() {
+  $admin = User::load(1);
+  $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+
+  // Sample Documents.
+  $documents = [
+    [
+      'title' => 'Data Privacy Policy',
+      'body' => '<p>This document outlines the data privacy practices for AV Commons community members.</p><h3>Scope</h3><p>This policy applies to all personal data collected and processed by the community.</p><h3>Data Collection</h3><p>We collect only the minimum necessary personal information to provide community services.</p><h3>Data Protection</h3><p>All personal data is encrypted and stored securely in compliance with applicable regulations.</p>',
+    ],
+    [
+      'title' => 'Member Handbook',
+      'body' => '<p>Welcome to AV Commons! This handbook provides essential information for new and existing members.</p><h3>Getting Started</h3><p>After registration, complete your profile and introduce yourself in the welcome forum.</p><h3>Community Guidelines</h3><p>Treat all members with respect. Share knowledge freely. Collaborate openly.</p><h3>Support</h3><p>For assistance, contact a community leader or post in the support forum.</p>',
+    ],
+    [
+      'title' => 'Workflow Best Practices',
+      'body' => '<p>This guide covers best practices for using the workflow system effectively.</p><h3>Task Assignment</h3><p>Assign tasks to specific users or groups based on expertise and availability.</p><h3>Progress Tracking</h3><p>Update task status promptly to keep stakeholders informed.</p><h3>Communication</h3><p>Use task comments to document decisions and provide context for reviewers.</p>',
+    ],
+    [
+      'title' => 'Translation Style Guide',
+      'body' => '<p>Standards for maintaining consistency across all translations.</p><h3>Tone</h3><p>Use formal but accessible language. Maintain the spiritual depth of source material.</p><h3>Terminology</h3><p>Consult the approved glossary for standard translations of key terms.</p><h3>Review Process</h3><p>All translations undergo peer review and theological verification.</p>',
+    ],
+    [
+      'title' => 'Annual Report 2024',
+      'body' => '<p>Summary of community activities and achievements in 2024.</p><h3>Highlights</h3><ul><li>500+ new members joined the community</li><li>50 documents completed and published</li><li>10 translation projects finished</li><li>3 new workflow templates created</li></ul><h3>Looking Ahead</h3><p>Plans for 2025 include expanded translation efforts and improved collaboration tools.</p>',
+    ],
+  ];
+
+  // Sample Resources.
+  $resources = [
+    [
+      'title' => 'Vatican II Documents',
+      'body' => '<p>Official documents from the Second Vatican Council.</p><p>An essential resource for understanding the foundations of modern Catholic teaching and liturgical reform.</p><p><a href="https://www.vatican.va/archive/hist_councils/ii_vatican_council/">Access Documents</a></p>',
+    ],
+    [
+      'title' => 'Catechism of the Catholic Church',
+      'body' => '<p>The official compendium of Catholic doctrine.</p><p>This authoritative text covers beliefs, sacraments, moral life, and prayer.</p><p><a href="https://www.vatican.va/archive/ENG0015/_INDEX.HTM">Read Online</a></p>',
+    ],
+    [
+      'title' => 'Liturgy of the Hours App',
+      'body' => '<p>Mobile application for praying the Divine Office.</p><p>Available for iOS and Android. Features audio recordings and multiple language options.</p><p>Includes morning prayer, evening prayer, and night prayer for daily use.</p>',
+    ],
+    [
+      'title' => 'Scripture Study Tools',
+      'body' => '<p>Collection of resources for biblical study and meditation.</p><ul><li>Bible commentaries from Church Fathers</li><li>Greek/Hebrew lexicons</li><li>Study guides and reading plans</li><li>Audio recordings of Scripture</li></ul>',
+    ],
+  ];
+
+  // Sample Projects.
+  $projects = [
+    [
+      'title' => 'Liturgy Translation Project',
+      'body' => '<p>Translating liturgical texts into modern languages while preserving theological accuracy.</p><h3>Scope</h3><p>This project covers the complete liturgical calendar including seasonal prayers and feast days.</p><h3>Team</h3><p>Translation Team, Theology Group, Editorial Board</p><h3>Timeline</h3><p>Expected completion: Q4 2025</p>',
+    ],
+    [
+      'title' => 'Community Guidelines Revision',
+      'body' => '<p>Updating and clarifying community guidelines for 2025.</p><h3>Goals</h3><ul><li>Simplify language for clarity</li><li>Add new sections on digital etiquette</li><li>Incorporate member feedback</li><li>Align with updated privacy regulations</li></ul>',
+    ],
+    [
+      'title' => 'Formation Course Development',
+      'body' => '<p>Creating comprehensive online formation courses for new members.</p><h3>Modules</h3><ol><li>Introduction to Community Life</li><li>Spiritual Foundations</li><li>Practical Service</li><li>Deepening Commitment</li></ol><h3>Format</h3><p>Self-paced online learning with weekly live sessions.</p>',
+    ],
+  ];
+
+  $created = ['documents' => 0, 'resources' => 0, 'projects' => 0];
+
+  // Create documents.
+  foreach ($documents as $doc) {
+    if (!_avc_devel_node_exists($doc['title'], 'avc_document')) {
+      $node = Node::create([
+        'type' => 'avc_document',
+        'title' => $doc['title'],
+        'body' => ['value' => $doc['body'], 'format' => 'basic_html'],
+        'uid' => $admin->id(),
+        'status' => 1,
+      ]);
+      $node->save();
+      $created['documents']++;
+    }
+  }
+
+  // Create resources.
+  foreach ($resources as $res) {
+    if (!_avc_devel_node_exists($res['title'], 'avc_resource')) {
+      $node = Node::create([
+        'type' => 'avc_resource',
+        'title' => $res['title'],
+        'body' => ['value' => $res['body'], 'format' => 'basic_html'],
+        'uid' => $admin->id(),
+        'status' => 1,
+      ]);
+      $node->save();
+      $created['resources']++;
+    }
+  }
+
+  // Create projects.
+  foreach ($projects as $proj) {
+    if (!_avc_devel_node_exists($proj['title'], 'avc_project')) {
+      $node = Node::create([
+        'type' => 'avc_project',
+        'title' => $proj['title'],
+        'body' => ['value' => $proj['body'], 'format' => 'basic_html'],
+        'uid' => $admin->id(),
+        'status' => 1,
+      ]);
+      $node->save();
+      $created['projects']++;
+    }
+  }
+
+  // Create workflow tasks for the new content.
+  avc_devel_create_sample_workflow_tasks();
+
+  \Drupal::logger('avc_devel')->info('Created sample content: @docs documents, @res resources, @proj projects', [
+    '@docs' => $created['documents'],
+    '@res' => $created['resources'],
+    '@proj' => $created['projects'],
+  ]);
+}
+
+/**
+ * Creates sample workflow tasks for AVC assets.
+ */
+function avc_devel_create_sample_workflow_tasks() {
+  if (!\Drupal::entityTypeManager()->hasDefinition('workflow_task')) {
+    return;
+  }
+
+  $task_storage = \Drupal::entityTypeManager()->getStorage('workflow_task');
+  $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+  $admin = User::load(1);
+
+  // Get all AVC asset nodes.
+  $nids = $node_storage->getQuery()
+    ->condition('type', ['avc_document', 'avc_resource', 'avc_project'], 'IN')
+    ->accessCheck(FALSE)
+    ->execute();
+
+  $nodes = $node_storage->loadMultiple($nids);
+  $created = 0;
+
+  // Task templates with varying statuses.
+  $task_templates = [
+    ['title' => 'Initial Review', 'status' => 'completed'],
+    ['title' => 'Content Edit', 'status' => 'in_progress'],
+    ['title' => 'Theological Review', 'status' => 'pending'],
+    ['title' => 'Final Approval', 'status' => 'pending'],
+  ];
+
+  foreach ($nodes as $node) {
+    // Check if tasks already exist for this node.
+    $existing = $task_storage->getQuery()
+      ->condition('node_id', $node->id())
+      ->accessCheck(FALSE)
+      ->execute();
+
+    if (!empty($existing)) {
+      continue;
+    }
+
+    $weight = 0;
+    foreach ($task_templates as $template) {
+      $task = $task_storage->create([
+        'title' => $template['title'] . ' - ' . $node->getTitle(),
+        'description' => [
+          'value' => 'Review and process: ' . $node->getTitle(),
+          'format' => 'basic_html',
+        ],
+        'node_id' => $node->id(),
+        'weight' => $weight,
+        'assigned_type' => 'user',
+        'assigned_user' => $admin->id(),
+        'status' => $template['status'],
+        'uid' => $admin->id(),
+      ]);
+      $task->save();
+      $created++;
+      $weight++;
+    }
+  }
+
+  \Drupal::logger('avc_devel')->info('Created @count sample workflow tasks', ['@count' => $created]);
+}
+
+/**
+ * Helper function to check if a node exists.
+ */
+function _avc_devel_node_exists($title, $type) {
+  $existing = \Drupal::entityTypeManager()->getStorage('node')
+    ->loadByProperties(['title' => $title, 'type' => $type]);
+  return !empty($existing);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function avc_devel_uninstall() {
+  // Optionally clean up sample content on uninstall.
+  // This is commented out to preserve content if module is reinstalled.
+  // avc_devel_cleanup_sample_content();
+}

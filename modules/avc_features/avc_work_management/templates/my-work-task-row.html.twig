@@ -1,0 +1,76 @@
+{#
+/**
+ * @file
+ * Single task row template.
+ *
+ * Variables:
+ * - task: Task data array with:
+ *   - title: Task/node title
+ *   - node_url: URL to the node
+ *   - content_type_label: Human label (Document, Resource, Project)
+ *   - content_type_icon: Icon identifier
+ *   - status: Task status
+ *   - due_date: Due date timestamp
+ *   - assigned_label: Who it's assigned to
+ *   - completed_date: Completion timestamp
+ * - show_claim: Whether to show claim button
+ */
+#}
+<div class="task-row status-{{ task.status }}">
+
+  {# Content type icon #}
+  <div class="task-icon" style="color: {{ task.content_type_color }}">
+    {% if task.content_type_icon == 'file-text' %}
+      <span aria-label="{{ 'Document'|t }}"></span>
+    {% elseif task.content_type_icon == 'link' %}
+      <span aria-label="{{ 'Resource'|t }}"></span>
+    {% elseif task.content_type_icon == 'folder' %}
+      <span aria-label="{{ 'Project'|t }}"></span>
+    {% endif %}
+  </div>
+
+  {# Task title #}
+  <div class="task-title">
+    {% if task.node_url %}
+      <a href="{{ task.node_url }}">{{ task.title }}</a>
+    {% else %}
+      {{ task.title }}
+    {% endif %}
+  </div>
+
+  {# Content type label #}
+  <div class="task-type">
+    {{ task.content_type_label }}
+  </div>
+
+  {# Due date or completion date or assigned to #}
+  <div class="task-meta">
+    {% if task.status == 'completed' and task.completed_date %}
+      <span class="completed-date">
+        {{ 'Completed'|t }} {{ task.completed_date|date('M j') }}
+      </span>
+    {% elseif task.due_date %}
+      <span class="due-date {% if task.due_date < 'now'|date('U') %}overdue{% endif %}">
+        {{ 'Due:'|t }} {{ task.due_date|date('M j') }}
+      </span>
+    {% elseif task.assigned_type == 'group' %}
+      <span class="assigned-group">
+        {{ task.assigned_label }}
+      </span>
+    {% endif %}
+  </div>
+
+  {# Action button #}
+  <div class="task-action">
+    {% if show_claim and task.assigned_type == 'group' %}
+      <a href="/my-work/claim/{{ task.task_id }}" class="btn btn-claim">
+        {{ 'Claim'|t }}
+      </a>
+    {% elseif task.node_url %}
+      <a href="{{ task.node_url }}" class="btn btn-open">
+        {{ 'Open'|t }}
+      </a>
+    {% endif %}
+  </div>
+
+</div>

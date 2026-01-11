@@ -1,0 +1,11 @@
+name: 'AVC Work Management'
+type: module
+description: 'Provides My Work dashboard for workflow task management'
+package: AVC
+core_version_requirement: ^9 || ^10
+dependencies:
+  - drupal:node
+  - drupal:user
+  - workflow_assignment:workflow_assignment
+  - avc_asset:avc_asset
+  - group:group

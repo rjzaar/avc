@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * @file
+ * AVC Work Management module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function avc_work_management_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.avc_work_management':
+      return '<p>' . t('Provides a My Work dashboard for viewing and managing workflow tasks.') . '</p>';
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function avc_work_management_theme() {
+  return [
+    'my_work_dashboard' => [
+      'variables' => [
+        'summary' => [],
+        'sections' => [],
+        'available_count' => 0,
+        'user' => NULL,
+      ],
+      'template' => 'my-work-dashboard',
+    ],
+    'my_work_summary_cards' => [
+      'variables' => [
+        'summary' => [],
+      ],
+      'template' => 'my-work-summary-cards',
+    ],
+    'my_work_task_list' => [
+      'variables' => [
+        'section' => [],
+      ],
+      'template' => 'my-work-task-list',
+    ],
+    'my_work_task_row' => [
+      'variables' => [
+        'task' => [],
+        'show_claim' => FALSE,
+      ],
+      'template' => 'my-work-task-row',
+    ],
+    'my_work_section' => [
+      'variables' => [
+        'section' => [],
+      ],
+      'template' => 'my-work-section',
+    ],
+  ];
+}

@@ -1,0 +1,48 @@
+# Content types to track in dashboard
+tracked_content_types:
+  avc_document:
+    label: 'Documents'
+    icon: 'file-text'
+    color: '#4a90d9'
+  avc_resource:
+    label: 'Resources'
+    icon: 'link'
+    color: '#7b68ee'
+  avc_project:
+    label: 'Projects'
+    icon: 'folder'
+    color: '#50c878'
+
+# Dashboard sections
+sections:
+  active:
+    label: 'Action Needed'
+    status: 'in_progress'
+    assigned_to: 'user'
+    limit: 10
+    show_view_all: true
+  available:
+    label: 'Available to Claim'
+    status: 'pending'
+    assigned_to: 'group'
+    limit: 5
+    show_view_all: true
+    show_claim: true
+  upcoming:
+    label: 'Upcoming'
+    status: 'pending'
+    assigned_to: 'user'
+    limit: 5
+    show_view_all: true
+  completed:
+    label: 'Recently Completed'
+    status: 'completed'
+    assigned_to: 'user'
+    limit: 5
+    show_view_all: true
+
+# Display options
+display:
+  show_due_dates: true
+  show_content_type_icon: true
+  date_format: 'M j'

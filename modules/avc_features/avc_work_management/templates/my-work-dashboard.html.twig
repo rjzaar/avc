@@ -1,0 +1,93 @@
+{#
+/**
+ * @file
+ * My Work Dashboard template.
+ *
+ * Variables:
+ * - summary: Array of content type summaries with counts.
+ * - sections: Array of task sections (active, available, upcoming, completed).
+ * - available_count: Total available tasks to claim.
+ * - user: Current user account.
+ */
+#}
+<div class="my-work-dashboard">
+
+  {# Header #}
+  <div class="my-work-header">
+    <h1 class="my-work-title">{{ 'My Work'|t }}</h1>
+  </div>
+
+  {# Summary Cards by Content Type #}
+  <div class="my-work-summary">
+    {% for type_id, type_data in summary %}
+      <div class="summary-card" style="--card-color: {{ type_data.color }}">
+        <div class="summary-card-header">
+          <span class="summary-icon">
+            {% if type_data.icon == 'file-text' %}
+              <span class="icon-doc" aria-hidden="true"></span>
+            {% elseif type_data.icon == 'link' %}
+              <span class="icon-link" aria-hidden="true"></span>
+            {% elseif type_data.icon == 'folder' %}
+              <span class="icon-folder" aria-hidden="true"></span>
+            {% endif %}
+          </span>
+          <span class="summary-label">{{ type_data.label }}</span>
+        </div>
+        <div class="summary-card-body">
+          <div class="summary-stat summary-active">
+            <span class="stat-icon active-icon" aria-hidden="true"></span>
+            <span class="stat-count">{{ type_data.active }}</span>
+            <span class="stat-label">{{ 'Active'|t }}</span>
+          </div>
+          <div class="summary-stat summary-upcoming">
+            <span class="stat-icon upcoming-icon" aria-hidden="true"></span>
+            <span class="stat-count">{{ type_data.upcoming }}</span>
+            <span class="stat-label">{{ 'Upcoming'|t }}</span>
+          </div>
+          <div class="summary-stat summary-completed">
+            <span class="stat-icon completed-icon" aria-hidden="true"></span>
+            <span class="stat-count">{{ type_data.completed }}</span>
+            <span class="stat-label">{{ 'Completed'|t }}</span>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  {# Task Sections #}
+  <div class="my-work-sections">
+    {% for section_id, section in sections %}
+      {% if section.tasks is not empty or section_id == 'available' %}
+        <div class="task-section section-{{ section_id }}">
+          <div class="section-header">
+            <h2 class="section-title">
+              {{ section.label }}
+              <span class="section-count">({{ section.total }})</span>
+            </h2>
+            {% if section.show_view_all %}
+              <a href="{{ section.view_all_url }}" class="view-all-link">
+                {{ 'View All'|t }}
+              </a>
+            {% endif %}
+          </div>
+
+          <div class="section-content">
+            {% if section.tasks is empty %}
+              <p class="no-tasks">{{ 'No tasks in this section.'|t }}</p>
+            {% else %}
+              <div class="task-list">
+                {% for task_data in section.tasks %}
+                  {% include '@avc_work_management/my-work-task-row.html.twig' with {
+                    'task': task_data,
+                    'show_claim': section.show_claim
+                  } %}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+</div>

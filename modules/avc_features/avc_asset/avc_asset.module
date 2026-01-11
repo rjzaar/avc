@@ -161,26 +161,22 @@ function avc_asset_entity_extra_field_info() {
 /**
  * Implements hook_ENTITY_TYPE_view() for nodes.
  */
-function avc_asset_node_view(array &$build, NodeInterface $node, $view_mode) {
+function avc_asset_node_view(array &$build, NodeInterface $node, $display, $view_mode) {
   if (!in_array($node->bundle(), ['avc_project', 'avc_document', 'avc_resource'])) {
     return;
   }
 
   // Add workflow status display.
-  $display = \Drupal::entityTypeManager()
-    ->getStorage('entity_view_display')
-    ->load('node.' . $node->bundle() . '.' . $view_mode);
-
-  if ($display && $display->getComponent('workflow_status')) {
+  if ($display->getComponent('workflow_status')) {
     $build['workflow_status'] = avc_asset_build_workflow_status($node);
   }
 
-  if ($display && $display->getComponent('workflow_actions')) {
+  if ($display->getComponent('workflow_actions')) {
     $build['workflow_actions'] = avc_asset_build_workflow_actions($node);
   }
 
   // Project contained assets table.
-  if ($node->bundle() === 'avc_project' && $display && $display->getComponent('contained_assets_table')) {
+  if ($node->bundle() === 'avc_project' && $display->getComponent('contained_assets_table')) {
     $manager = \Drupal::service('avc_asset.manager');
     $assets = $manager->getProjectAssets($node);
 
@@ -210,6 +206,7 @@ function avc_asset_build_workflow_status(NodeInterface $node) {
   return [
     '#type' => 'container',
     '#attributes' => ['class' => ['workflow-status-display']],
+    '#attached' => ['library' => ['avc_asset/workflow']],
     'label' => [
       '#markup' => '<strong>' . t('Workflow Status') . ':</strong> ',
     ],
@@ -232,6 +229,7 @@ function avc_asset_build_workflow_actions(NodeInterface $node) {
   $build = [
     '#type' => 'container',
     '#attributes' => ['class' => ['workflow-actions']],
+    '#attached' => ['library' => ['avc_asset/workflow']],
   ];
 
   $current_user = \Drupal::currentUser();

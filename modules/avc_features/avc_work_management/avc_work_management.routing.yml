@@ -1,0 +1,28 @@
+avc_work_management.my_work:
+  path: '/my-work'
+  defaults:
+    _controller: '\Drupal\avc_work_management\Controller\MyWorkController::dashboard'
+    _title: 'My Work'
+  requirements:
+    _permission: 'access my work dashboard'
+
+avc_work_management.my_work_section:
+  path: '/my-work/{section}'
+  defaults:
+    _controller: '\Drupal\avc_work_management\Controller\MyWorkController::section'
+    _title_callback: '\Drupal\avc_work_management\Controller\MyWorkController::sectionTitle'
+  requirements:
+    _permission: 'access my work dashboard'
+    section: 'active|available|upcoming|completed'
+
+avc_work_management.claim_task:
+  path: '/my-work/claim/{workflow_task}'
+  defaults:
+    _form: '\Drupal\avc_work_management\Form\ClaimTaskForm'
+    _title: 'Claim Task'
+  requirements:
+    _permission: 'claim workflow tasks'
+  options:
+    parameters:
+      workflow_task:
+        type: entity:workflow_task

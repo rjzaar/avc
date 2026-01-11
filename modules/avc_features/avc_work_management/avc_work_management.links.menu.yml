@@ -1,0 +1,5 @@
+avc_work_management.my_work:
+  title: 'My Work'
+  route_name: avc_work_management.my_work
+  menu_name: main
+  weight: -10

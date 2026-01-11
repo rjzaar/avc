@@ -1,0 +1,16 @@
+services:
+  avc_work_management.task_query:
+    class: Drupal\avc_work_management\Service\WorkTaskQueryService
+    arguments:
+      - '@entity_type.manager'
+      - '@current_user'
+      - '@group.membership_loader'
+      - '@config.factory'
+
+  avc_work_management.task_action:
+    class: Drupal\avc_work_management\Service\WorkTaskActionService
+    arguments:
+      - '@entity_type.manager'
+      - '@current_user'
+      - '@datetime.time'
+      - '@logger.factory'

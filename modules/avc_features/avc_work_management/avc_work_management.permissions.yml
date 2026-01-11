@@ -1,0 +1,12 @@
+access my work dashboard:
+  title: 'Access My Work dashboard'
+  description: 'View personal workflow task dashboard'
+
+claim workflow tasks:
+  title: 'Claim workflow tasks'
+  description: 'Claim group-assigned tasks for personal work'
+
+view all work dashboards:
+  title: 'View all user work dashboards'
+  description: 'Administrators can view any user work dashboard'
+  restrict access: true

@@ -1,0 +1,23 @@
+avc_work_management.settings:
+  type: config_object
+  label: 'AVC Work Management settings'
+  mapping:
+    tracked_content_types:
+      type: mapping
+      label: 'Tracked content types'
+      mapping:
+        '*':
+          type: mapping
+          mapping:
+            label:
+              type: string
+            icon:
+              type: string
+            color:
+              type: string
+    sections:
+      type: mapping
+      label: 'Dashboard sections'
+    display:
+      type: mapping
+      label: 'Display options'

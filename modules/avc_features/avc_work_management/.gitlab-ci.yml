@@ -1,0 +1,131 @@
+# GitLab CI/CD configuration for avc_work_management module
+# This can be included in a parent .gitlab-ci.yml or run standalone
+
+variables:
+  MYSQL_DATABASE: drupal
+  MYSQL_ROOT_PASSWORD: root
+  SIMPLETEST_DB: "mysql://root:root@mysql/drupal"
+  SIMPLETEST_BASE_URL: "http://localhost"
+  BROWSERTEST_OUTPUT_DIRECTORY: "/tmp"
+  MINK_DRIVER_ARGS_WEBDRIVER: '["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless","--no-sandbox"]}}, "http://chromedriver:9515"]'
+
+stages:
+  - lint
+  - test
+  - behat
+
+# Base image with PHP and Composer
+.php-base:
+  image: drupalci/php-8.2-apache:production
+  services:
+    - name: mysql:8.0
+      alias: mysql
+  before_script:
+    - composer install --no-progress --no-interaction
+    - ./vendor/bin/drush site:install --db-url=$SIMPLETEST_DB -y
+    - ./vendor/bin/drush en avc_work_management -y
+
+# PHP Lint - Check for syntax errors
+php-lint:
+  stage: lint
+  image: php:8.2-cli
+  script:
+    - find src -name "*.php" -exec php -l {} \;
+    - find tests -name "*.php" -exec php -l {} \;
+  only:
+    changes:
+      - "**/*.php"
+
+# PHP CodeSniffer - Drupal coding standards
+phpcs:
+  stage: lint
+  image: drupalci/php-8.2-apache:production
+  script:
+    - composer require --dev drupal/coder
+    - ./vendor/bin/phpcs --standard=Drupal,DrupalPractice --extensions=php,module,install,inc src/ tests/
+  allow_failure: true
+
+# PHPStan - Static analysis
+phpstan:
+  stage: lint
+  image: drupalci/php-8.2-apache:production
+  script:
+    - composer require --dev phpstan/phpstan phpstan/phpstan-deprecation-rules mglaman/phpstan-drupal
+    - ./vendor/bin/phpstan analyse src --level=5
+  allow_failure: true
+
+# Unit Tests
+phpunit-unit:
+  extends: .php-base
+  stage: test
+  script:
+    - ./vendor/bin/phpunit --testsuite=unit --colors=always
+  artifacts:
+    when: always
+    reports:
+      junit: build/logs/junit.xml
+    paths:
+      - build/logs/
+
+# Kernel Tests
+phpunit-kernel:
+  extends: .php-base
+  stage: test
+  script:
+    - ./vendor/bin/phpunit --testsuite=kernel --colors=always
+  artifacts:
+    when: always
+    reports:
+      junit: build/logs/junit.xml
+    paths:
+      - build/logs/
+
+# Functional Tests
+phpunit-functional:
+  extends: .php-base
+  stage: test
+  services:
+    - name: mysql:8.0
+      alias: mysql
+    - name: selenium/standalone-chrome:latest
+      alias: chromedriver
+  script:
+    - ./vendor/bin/phpunit --testsuite=functional --colors=always
+  artifacts:
+    when: always
+    reports:
+      junit: build/logs/junit.xml
+    paths:
+      - build/logs/
+      - /tmp/simpletest/
+
+# Behat Tests
+behat:
+  extends: .php-base
+  stage: behat
+  services:
+    - name: mysql:8.0
+      alias: mysql
+    - name: selenium/standalone-chrome:latest
+      alias: chromedriver
+  script:
+    - ./vendor/bin/behat --tags=@work-management --format=pretty --format=junit --out=,build/logs/behat
+  artifacts:
+    when: always
+    reports:
+      junit: build/logs/behat/*.xml
+    paths:
+      - build/logs/
+  allow_failure: true
+
+# Combined test job for quick verification
+test-all:
+  extends: .php-base
+  stage: test
+  services:
+    - name: mysql:8.0
+      alias: mysql
+  script:
+    - ./vendor/bin/phpunit --testsuite=unit,kernel --colors=always
+  only:
+    - merge_requests

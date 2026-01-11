@@ -1,0 +1,27 @@
+{#
+/**
+ * @file
+ * Full section page (View All).
+ */
+#}
+<div class="my-work-section-page">
+
+  <div class="section-header">
+    <h1>{{ section.label }}</h1>
+    <a href="/my-work" class="back-link">{{ '← Back to My Work'|t }}</a>
+  </div>
+
+  {% if section.tasks is empty %}
+    <p class="no-tasks">{{ 'No tasks in this section.'|t }}</p>
+  {% else %}
+    <div class="task-list task-list-full">
+      {% for task_data in section.tasks %}
+        {% include '@avc_work_management/my-work-task-row.html.twig' with {
+          'task': task_data,
+          'show_claim': section.show_claim
+        } %}
+      {% endfor %}
+    </div>
+  {% endif %}
+
+</div>
