@@ -3,6 +3,9 @@
 /**
  * @file
  * AVC Content module - Initial site content for AV Commons.
+ *
+ * Help content has been migrated to Book pages.
+ * See: scripts/migrate_help_to_book.php
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -14,41 +17,14 @@ function avc_content_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
     case 'help.page.avc_content':
       $output = '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('Provides initial site content and documentation pages for AV Commons.') . '</p>';
-      $output .= '<h4>' . t('Pages Included') . '</h4>';
+      $output .= '<p>' . t('Provides initial site content for AV Commons.') . '</p>';
+      $output .= '<p>' . t('Help documentation is now managed as Book pages, allowing content to be edited through the CMS and go through workflow approval.') . '</p>';
+      $output .= '<h4>' . t('Help Pages') . '</h4>';
       $output .= '<ul>';
-      $output .= '<li>' . t('About AV Commons') . '</li>';
-      $output .= '<li>' . t('Contact Us') . '</li>';
-      $output .= '<li>' . t('User Guide (comprehensive help for all features)') . '</li>';
-      $output .= '<li>' . t('Getting Started') . '</li>';
-      $output .= '<li>' . t('FAQ') . '</li>';
+      $output .= '<li><a href="/help">' . t('Help Center') . '</a></li>';
+      $output .= '<li><a href="/about">' . t('About AV Commons') . '</a></li>';
+      $output .= '<li><a href="/contact">' . t('Contact Us') . '</a></li>';
       $output .= '</ul>';
       return $output;
   }
-}
-
-/**
- * Implements hook_theme().
- */
-function avc_content_theme($existing, $type, $theme, $path) {
-  return [
-    'avc_user_guide' => [
-      'variables' => [
-        'sections' => [],
-      ],
-      'template' => 'avc-user-guide',
-    ],
-    'avc_getting_started' => [
-      'variables' => [
-        'steps' => [],
-      ],
-      'template' => 'avc-getting-started',
-    ],
-    'avc_about' => [
-      'variables' => [
-        'content' => [],
-      ],
-      'template' => 'avc-about',
-    ],
-  ];
 }
