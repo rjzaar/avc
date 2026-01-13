@@ -4,6 +4,7 @@ namespace Drupal\social_demo;
 
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\Core\Password\PasswordGeneratorInterface;
 use Drupal\profile\Entity\ProfileInterface;
 use Drupal\profile\ProfileStorageInterface;
 use Drupal\file\FileStorageInterface;
@@ -28,6 +29,13 @@ abstract class DemoUser extends DemoContent {
   protected $profileStorage;
 
   /**
+   * The password generator.
+   *
+   * @var \Drupal\Core\Password\PasswordGeneratorInterface
+   */
+  protected $passwordGenerator;
+
+  /**
    * DemoUser constructor.
    */
   public function __construct(
@@ -41,6 +49,7 @@ abstract class DemoUser extends DemoContent {
     TermStorageInterface $term_storage,
     LoggerChannelFactoryInterface $logger_channel_factory,
     ProfileStorageInterface $profile_storage,
+    PasswordGeneratorInterface $password_generator,
   ) {
     parent::__construct(
       $configuration,
@@ -54,6 +63,7 @@ abstract class DemoUser extends DemoContent {
       $logger_channel_factory
     );
     $this->profileStorage = $profile_storage;
+    $this->passwordGenerator = $password_generator;
   }
 
   /**
@@ -71,6 +81,7 @@ abstract class DemoUser extends DemoContent {
       $container->get('entity_type.manager')->getStorage('taxonomy_term'),
       $container->get('logger.factory'),
       $container->get('entity_type.manager')->getStorage('profile'),
+      $container->get('password_generator'),
     );
   }
 
@@ -127,7 +138,8 @@ abstract class DemoUser extends DemoContent {
 
       $entry = $this->getEntry($item);
       $account = $this->entityStorage->create($entry);
-      $account->setPassword($item['name']);
+      // Generate complex random password (16 characters) for security.
+      $account->setPassword($this->passwordGenerator->generate(16));
       $account->enforceIsNew();
       $account->save();
 
