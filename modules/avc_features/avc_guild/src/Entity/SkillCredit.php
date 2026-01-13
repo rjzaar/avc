@@ -242,4 +242,24 @@ class SkillCredit extends ContentEntityBase {
     return $this->get('reviewer_id')->entity;
   }
 
+  /**
+   * Gets the notes.
+   *
+   * @return string
+   *   The notes text.
+   */
+  public function getNotes(): string {
+    return $this->get('notes')->value ?? '';
+  }
+
+  /**
+   * Gets the created timestamp.
+   *
+   * @return int
+   *   The created timestamp.
+   */
+  public function getCreatedTime(): int {
+    return (int) $this->get('created')->value;
+  }
+
 }
