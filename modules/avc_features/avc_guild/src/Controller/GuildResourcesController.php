@@ -12,6 +12,24 @@ use Drupal\Core\Url;
 class GuildResourcesController extends ControllerBase {
 
   /**
+   * Helper to create a link item with visible URL.
+   *
+   * @param string $text
+   *   Link text.
+   * @param \Drupal\Core\Url $url
+   *   URL object.
+   *
+   * @return array
+   *   Render array with link and URL.
+   */
+  protected function createLinkWithUrl($text, Url $url) {
+    $link = Link::fromTextAndUrl($text, $url);
+    return [
+      '#markup' => $link->toString() . ' <code>' . $url->toString() . '</code>',
+    ];
+  }
+
+  /**
    * Guild resources overview page.
    *
    * @return array
@@ -43,9 +61,10 @@ class GuildResourcesController extends ControllerBase {
 
     $dashboard_items = [];
     foreach ($groups as $group) {
-      $dashboard_items[] = Link::fromTextAndUrl(
+      $url = Url::fromRoute('avc_guild.dashboard', ['group' => $group->id()]);
+      $dashboard_items[] = $this->createLinkWithUrl(
         $this->t('@group Guild Dashboard', ['@group' => $group->label()]),
-        Url::fromRoute('avc_guild.dashboard', ['group' => $group->id()])
+        $url
       );
     }
     $build['dashboard_section']['list'] = [
@@ -62,9 +81,10 @@ class GuildResourcesController extends ControllerBase {
 
     $leaderboard_items = [];
     foreach ($groups as $group) {
-      $leaderboard_items[] = Link::fromTextAndUrl(
+      $url = Url::fromRoute('avc_guild.leaderboard', ['group' => $group->id()]);
+      $leaderboard_items[] = $this->createLinkWithUrl(
         $this->t('@group Leaderboard', ['@group' => $group->label()]),
-        Url::fromRoute('avc_guild.leaderboard', ['group' => $group->id()])
+        $url
       );
     }
     $build['leaderboard_section']['list'] = [
@@ -81,9 +101,10 @@ class GuildResourcesController extends ControllerBase {
 
     $skills_items = [];
     foreach ($groups as $group) {
-      $skills_items[] = Link::fromTextAndUrl(
+      $url = Url::fromRoute('avc_guild.my_skills', ['group' => $group->id()]);
+      $skills_items[] = $this->createLinkWithUrl(
         $this->t('My Skills - @group', ['@group' => $group->label()]),
-        Url::fromRoute('avc_guild.my_skills', ['group' => $group->id()])
+        $url
       );
     }
 
@@ -101,15 +122,16 @@ class GuildResourcesController extends ControllerBase {
         $user = $progress->get('user_id')->entity;
         $group = $progress->get('guild_id')->entity;
         if ($user && $group) {
-          $skills_items[] = Link::fromTextAndUrl(
+          $url = Url::fromRoute('avc_guild.member_skills', [
+            'group' => $group->id(),
+            'user' => $user->id(),
+          ]);
+          $skills_items[] = $this->createLinkWithUrl(
             $this->t("@user's Skills (@group)", [
               '@user' => $user->getDisplayName(),
               '@group' => $group->label(),
             ]),
-            Url::fromRoute('avc_guild.member_skills', [
-              'group' => $group->id(),
-              'user' => $user->id(),
-            ])
+            $url
           );
         }
       }
@@ -136,15 +158,16 @@ class GuildResourcesController extends ControllerBase {
           break;
         }
         $user = $membership->getUser();
-        $profile_items[] = Link::fromTextAndUrl(
+        $url = Url::fromRoute('avc_guild.member_profile', [
+          'group' => $group->id(),
+          'user' => $user->id(),
+        ]);
+        $profile_items[] = $this->createLinkWithUrl(
           $this->t('@user Profile (@group)', [
             '@user' => $user->getDisplayName(),
             '@group' => $group->label(),
           ]),
-          Url::fromRoute('avc_guild.member_profile', [
-            'group' => $group->id(),
-            'user' => $user->id(),
-          ])
+          $url
         );
         $count++;
       }
@@ -162,9 +185,10 @@ class GuildResourcesController extends ControllerBase {
 
     $verification_items = [];
     foreach ($groups as $group) {
-      $verification_items[] = Link::fromTextAndUrl(
+      $url = Url::fromRoute('avc_guild.verification_queue', ['group' => $group->id()]);
+      $verification_items[] = $this->createLinkWithUrl(
         $this->t('@group Pending Verifications', ['@group' => $group->label()]),
-        Url::fromRoute('avc_guild.verification_queue', ['group' => $group->id()])
+        $url
       );
     }
     $build['verification_section']['list'] = [
@@ -180,18 +204,21 @@ class GuildResourcesController extends ControllerBase {
 
     $admin_items = [];
     foreach ($groups as $group) {
-      $admin_items[] = Link::fromTextAndUrl(
+      $url = Url::fromRoute('avc_guild.skill_admin', ['group' => $group->id()]);
+      $admin_items[] = $this->createLinkWithUrl(
         $this->t('@group Skills Administration', ['@group' => $group->label()]),
-        Url::fromRoute('avc_guild.skill_admin', ['group' => $group->id()])
+        $url
       );
-      $admin_items[] = Link::fromTextAndUrl(
+      $url = Url::fromRoute('avc_guild.skills_report', ['group' => $group->id()]);
+      $admin_items[] = $this->createLinkWithUrl(
         $this->t('@group Skills Analytics Report', ['@group' => $group->label()]),
-        Url::fromRoute('avc_guild.skills_report', ['group' => $group->id()])
+        $url
       );
     }
-    $admin_items[] = Link::fromTextAndUrl(
+    $url = Url::fromRoute('avc_guild.settings');
+    $admin_items[] = $this->createLinkWithUrl(
       $this->t('Global Guild Settings'),
-      Url::fromRoute('avc_guild.settings')
+      $url
     );
 
     $build['admin_section']['list'] = [
