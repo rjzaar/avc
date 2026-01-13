@@ -1,0 +1,239 @@
+{#
+/**
+ * @file
+ * Template for displaying a member's skill progress dashboard.
+ *
+ * Available variables:
+ * - group: The guild group entity.
+ * - user: The user entity.
+ * - skills: Array of skill progress data.
+ * - credit_history: Array of recent credit entities.
+ * - empty_message: Message to show if no skills.
+ */
+#}
+<div class="skill-progress-dashboard">
+  <div class="skill-progress-header">
+    <h2>{{ 'Skill Progress in'|t }} {{ group.label }}</h2>
+    <p class="user-info">{{ user.getDisplayName }}</p>
+  </div>
+
+  {% if skills is empty %}
+    <div class="messages messages--info">
+      {{ empty_message|default('No skill progress to display.'|t) }}
+    </div>
+  {% else %}
+    <div class="skill-progress-list">
+      {% for skill_data in skills %}
+        <div class="skill-progress-item">
+          <div class="skill-header">
+            <h3 class="skill-name">{{ skill_data.skill.label }}</h3>
+            <div class="skill-level">
+              <span class="level-badge level-{{ skill_data.level }}">
+                {{ 'Level'|t }} {{ skill_data.level }}: {{ skill_data.level_name }}
+              </span>
+            </div>
+          </div>
+
+          {% if skill_data.next_level %}
+            <div class="skill-progress">
+              <div class="progress-section">
+                <h4>{{ 'Credits Progress'|t }}</h4>
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: {{ skill_data.progress_percentage }}%">
+                    <span class="progress-text">
+                      {{ skill_data.credits }} / {{ skill_data.credits_required }} {{ 'credits'|t }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {% if skill_data.days_required > 0 %}
+                <div class="progress-section">
+                  <h4>{{ 'Time Requirement'|t }}</h4>
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ skill_data.days_percentage }}%">
+                      <span class="progress-text">
+                        {{ skill_data.days_at_level }} / {{ skill_data.days_required }} {{ 'days'|t }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+
+              <div class="next-level-info">
+                <strong>{{ 'Next Level:'|t }}</strong>
+                {{ 'Level'|t }} {{ skill_data.next_level }} - {{ skill_data.next_level_name }}
+              </div>
+
+              {% if skill_data.pending_verification %}
+                <div class="verification-pending">
+                  <span class="status-badge status-pending">
+                    {{ 'Verification Pending'|t }}
+                  </span>
+                </div>
+              {% endif %}
+            </div>
+          {% else %}
+            <div class="max-level-achieved">
+              <span class="status-badge status-success">
+                {{ 'Maximum Level Achieved'|t }}
+              </span>
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if credit_history is not empty %}
+    <div class="credit-history">
+      <h3>{{ 'Recent Credit History'|t }}</h3>
+      <table class="credit-history-table">
+        <thead>
+          <tr>
+            <th>{{ 'Date'|t }}</th>
+            <th>{{ 'Skill'|t }}</th>
+            <th>{{ 'Credits'|t }}</th>
+            <th>{{ 'Source'|t }}</th>
+            <th>{{ 'Notes'|t }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for credit in credit_history %}
+            <tr>
+              <td>{{ credit.getCreatedTime|date('Y-m-d') }}</td>
+              <td>{{ credit.getSkill ? credit.getSkill.label : '-' }}</td>
+              <td class="credits-value">+{{ credit.getCredits }}</td>
+              <td>{{ credit.getSourceType }}</td>
+              <td>{{ credit.getNotes|default('-') }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</div>
+
+<style>
+.skill-progress-dashboard {
+  padding: 20px;
+}
+
+.skill-progress-header {
+  margin-bottom: 30px;
+}
+
+.skill-progress-item {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.skill-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.skill-name {
+  margin: 0;
+  font-size: 1.4em;
+}
+
+.level-badge {
+  display: inline-block;
+  padding: 5px 15px;
+  border-radius: 20px;
+  background: #4CAF50;
+  color: white;
+  font-weight: bold;
+}
+
+.progress-section {
+  margin-bottom: 15px;
+}
+
+.progress-section h4 {
+  margin: 0 0 5px 0;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.progress-bar {
+  background: #e0e0e0;
+  border-radius: 10px;
+  height: 30px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  background: linear-gradient(90deg, #4CAF50, #8BC34A);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  color: white;
+  font-weight: bold;
+  font-size: 0.9em;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.next-level-info {
+  margin-top: 10px;
+  padding: 10px;
+  background: #e3f2fd;
+  border-radius: 5px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 5px 15px;
+  border-radius: 5px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.status-pending {
+  background: #FFC107;
+  color: #000;
+}
+
+.status-success {
+  background: #4CAF50;
+  color: white;
+}
+
+.credit-history {
+  margin-top: 40px;
+}
+
+.credit-history-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.credit-history-table th,
+.credit-history-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.credit-history-table th {
+  background: #f5f5f5;
+  font-weight: bold;
+}
+
+.credits-value {
+  color: #4CAF50;
+  font-weight: bold;
+}
+</style>

@@ -44,6 +44,10 @@ class TestContentGenerator {
     'nodes' => [],
     'workflow_tasks' => [],
     'taxonomy_terms' => [],
+    'skill_levels' => [],
+    'member_skill_progress' => [],
+    'skill_credits' => [],
+    'level_verifications' => [],
   ];
 
   /**
@@ -94,6 +98,14 @@ class TestContentGenerator {
 
     // Generate workflow tasks for the assets.
     $summary['workflow_tasks'] = $this->generateWorkflowTasks();
+
+    // Generate guild skill level content.
+    if (\Drupal::moduleHandler()->moduleExists('avc_guild')) {
+      $summary['skill_levels'] = $this->generateSkillLevels();
+      $summary['member_skill_progress'] = $this->generateMemberSkillProgress();
+      $summary['skill_credits'] = $this->generateSkillCredits();
+      $summary['level_verifications'] = $this->generateLevelVerifications();
+    }
 
     // Store generated IDs for cleanup.
     $this->saveGeneratedIds();
@@ -638,7 +650,19 @@ class TestContentGenerator {
     $generated = \Drupal::state()->get('avc_devel.generated', []);
 
     // Delete in reverse order of creation.
-    foreach (['workflow_tasks', 'nodes', 'groups', 'users'] as $type) {
+    $delete_order = [
+      'level_verifications',
+      'skill_credits',
+      'member_skill_progress',
+      'skill_levels',
+      'workflow_tasks',
+      'nodes',
+      'groups',
+      'users',
+      'taxonomy_terms',
+    ];
+
+    foreach ($delete_order as $type) {
       $count = 0;
       $ids = $generated[$type] ?? [];
 
@@ -679,6 +703,10 @@ class TestContentGenerator {
       'nodes' => 'node',
       'workflow_tasks' => 'workflow_task',
       'taxonomy_terms' => 'taxonomy_term',
+      'skill_levels' => 'skill_level',
+      'member_skill_progress' => 'member_skill_progress',
+      'skill_credits' => 'skill_credit',
+      'level_verifications' => 'level_verification',
     ];
     return $map[$key] ?? NULL;
   }
@@ -697,6 +725,414 @@ class TestContentGenerator {
   protected function getRandomLastName() {
     $names = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez', 'Wilson', 'Anderson', 'Thomas', 'Taylor', 'Moore'];
     return $names[array_rand($names)];
+  }
+
+  /**
+   * Generates skill level configurations for guilds.
+   *
+   * @return int
+   *   Number of skill levels created.
+   */
+  public function generateSkillLevels() {
+    $created = 0;
+
+    if (!$this->entityTypeManager->hasDefinition('skill_level')) {
+      $this->logger->warning('Skill level entity type not available.');
+      return 0;
+    }
+
+    $groups = $this->getTestGroups();
+    if (empty($groups)) {
+      $this->logger->warning('No test groups available for skill levels.');
+      return 0;
+    }
+
+    // Get guild_skills taxonomy terms, or create some if they don't exist.
+    $skills = $this->getOrCreateGuildSkills();
+    if (empty($skills)) {
+      $this->logger->warning('No guild skills available.');
+      return 0;
+    }
+
+    // Use the SkillConfigurationService to create default levels.
+    $config_service = \Drupal::service('avc_guild.skill_configuration');
+    $group_storage = $this->entityTypeManager->getStorage('group');
+
+    foreach ($groups as $group_id) {
+      $group = $group_storage->load($group_id);
+      if (!$group) {
+        continue;
+      }
+
+      // Create skill levels for 2-3 random skills per guild.
+      $selected_skills = (array) array_rand(array_flip($skills), min(3, count($skills)));
+
+      foreach ($selected_skills as $skill_id) {
+        $skill = $this->entityTypeManager->getStorage('taxonomy_term')->load($skill_id);
+        if (!$skill) {
+          continue;
+        }
+
+        // Check if levels already exist.
+        $existing = $config_service->getSkillLevels($group, $skill);
+        if (!empty($existing)) {
+          continue;
+        }
+
+        // Create default levels.
+        $levels = $config_service->createDefaultLevels($group, $skill);
+        foreach ($levels as $level) {
+          $this->generated['skill_levels'][] = $level->id();
+          $created++;
+        }
+      }
+    }
+
+    $this->logger->info('Generated @count skill level configurations.', ['@count' => $created]);
+    return $created;
+  }
+
+  /**
+   * Generates member skill progress records.
+   *
+   * @return int
+   *   Number of progress records created.
+   */
+  public function generateMemberSkillProgress() {
+    $created = 0;
+
+    if (!$this->entityTypeManager->hasDefinition('member_skill_progress')) {
+      $this->logger->warning('Member skill progress entity type not available.');
+      return 0;
+    }
+
+    $groups = $this->getTestGroups();
+    $users = $this->getTestUsers();
+
+    if (empty($groups) || empty($users)) {
+      $this->logger->warning('No test groups or users available for member skill progress.');
+      return 0;
+    }
+
+    $storage = $this->entityTypeManager->getStorage('member_skill_progress');
+    $group_storage = $this->entityTypeManager->getStorage('group');
+    $config_service = \Drupal::service('avc_guild.skill_configuration');
+
+    foreach ($groups as $group_id) {
+      $group = $group_storage->load($group_id);
+      if (!$group) {
+        continue;
+      }
+
+      // Get skill levels for this guild.
+      $guild_skills = $config_service->getGuildSkillLevels($group);
+      if (empty($guild_skills)) {
+        continue;
+      }
+
+      // Get members of this group.
+      $members = $group->getMembers();
+      if (empty($members)) {
+        continue;
+      }
+
+      foreach ($members as $membership) {
+        $user = $membership->getUser();
+        if (!$user) {
+          continue;
+        }
+
+        // Create progress for 1-2 random skills.
+        $selected_skill_ids = array_rand($guild_skills, min(2, count($guild_skills)));
+        if (!is_array($selected_skill_ids)) {
+          $selected_skill_ids = [$selected_skill_ids];
+        }
+
+        foreach ($selected_skill_ids as $skill_id) {
+          $skill = $this->entityTypeManager->getStorage('taxonomy_term')->load($skill_id);
+          if (!$skill) {
+            continue;
+          }
+
+          // Check if progress already exists.
+          $existing = $storage->getQuery()
+            ->accessCheck(FALSE)
+            ->condition('user_id', $user->id())
+            ->condition('guild_id', $group->id())
+            ->condition('skill_id', $skill->id())
+            ->execute();
+
+          if (!empty($existing)) {
+            continue;
+          }
+
+          // Randomly assign level (0-3) and credits.
+          $current_level = rand(0, 3);
+          $current_credits = $current_level === 0 ? rand(0, 30) : rand(0, 100);
+
+          $progress = $storage->create([
+            'user_id' => $user->id(),
+            'guild_id' => $group->id(),
+            'skill_id' => $skill->id(),
+            'current_level' => $current_level,
+            'current_credits' => $current_credits,
+            'level_achieved_date' => strtotime('-' . rand(10, 180) . ' days'),
+            'pending_verification' => FALSE,
+          ]);
+
+          $progress->save();
+          $this->generated['member_skill_progress'][] = $progress->id();
+          $created++;
+        }
+      }
+    }
+
+    $this->logger->info('Generated @count member skill progress records.', ['@count' => $created]);
+    return $created;
+  }
+
+  /**
+   * Generates sample skill credits.
+   *
+   * @return int
+   *   Number of credits created.
+   */
+  public function generateSkillCredits() {
+    $created = 0;
+
+    if (!$this->entityTypeManager->hasDefinition('skill_credit')) {
+      $this->logger->warning('Skill credit entity type not available.');
+      return 0;
+    }
+
+    $storage = $this->entityTypeManager->getStorage('skill_credit');
+    $progress_storage = $this->entityTypeManager->getStorage('member_skill_progress');
+
+    // Get all test progress records.
+    $progress_ids = $progress_storage->getQuery()
+      ->accessCheck(FALSE)
+      ->execute();
+
+    if (empty($progress_ids)) {
+      $this->logger->warning('No member skill progress records available for credits.');
+      return 0;
+    }
+
+    $progress_records = $progress_storage->loadMultiple($progress_ids);
+    $source_types = ['task_review', 'endorsement', 'manual'];
+
+    foreach ($progress_records as $progress) {
+      // Create 5-10 credits per member skill.
+      $num_credits = rand(5, 10);
+
+      for ($i = 0; $i < $num_credits; $i++) {
+        $source_type = $source_types[array_rand($source_types)];
+        $credit_amount = rand(1, 15);
+
+        $credit = $storage->create([
+          'user_id' => $progress->get('user_id')->target_id,
+          'guild_id' => $progress->get('guild_id')->target_id,
+          'skill_id' => $progress->get('skill_id')->target_id,
+          'credits' => $credit_amount,
+          'source_type' => $source_type,
+          'notes' => 'Test credit generated by avc_devel module.',
+          'created' => strtotime('-' . rand(1, 180) . ' days'),
+        ]);
+
+        $credit->save();
+        $this->generated['skill_credits'][] = $credit->id();
+        $created++;
+      }
+    }
+
+    $this->logger->info('Generated @count skill credits.', ['@count' => $created]);
+    return $created;
+  }
+
+  /**
+   * Generates sample level verifications.
+   *
+   * @return int
+   *   Number of verifications created.
+   */
+  public function generateLevelVerifications() {
+    $created = 0;
+
+    if (!$this->entityTypeManager->hasDefinition('level_verification')) {
+      $this->logger->warning('Level verification entity type not available.');
+      return 0;
+    }
+
+    $storage = $this->entityTypeManager->getStorage('level_verification');
+    $progress_storage = $this->entityTypeManager->getStorage('member_skill_progress');
+    $config_service = \Drupal::service('avc_guild.skill_configuration');
+
+    // Get progress records where level > 0 (members who could have verifications).
+    $progress_ids = $progress_storage->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('current_level', 0, '>')
+      ->execute();
+
+    if (empty($progress_ids)) {
+      $this->logger->warning('No member skill progress records with levels for verifications.');
+      return 0;
+    }
+
+    $progress_records = $progress_storage->loadMultiple($progress_ids);
+
+    // Create 2-3 pending verifications.
+    $pending_count = 0;
+    foreach (array_slice($progress_records, 0, 3) as $progress) {
+      if ($pending_count >= 3) {
+        break;
+      }
+
+      $guild = $progress->getGuild();
+      $skill = $progress->getSkill();
+      if (!$guild || !$skill) {
+        continue;
+      }
+
+      $current_level = $progress->getCurrentLevel();
+      $target_level = $current_level + 1;
+
+      // Get level config for target level.
+      $level_config = $config_service->getLevelConfig($guild, $skill, $target_level);
+      if (!$level_config) {
+        continue;
+      }
+
+      // Check if verification already exists.
+      $existing = $storage->getQuery()
+        ->accessCheck(FALSE)
+        ->condition('user_id', $progress->get('user_id')->target_id)
+        ->condition('guild_id', $guild->id())
+        ->condition('skill_id', $skill->id())
+        ->condition('target_level', $target_level)
+        ->condition('status', 'pending')
+        ->execute();
+
+      if (!empty($existing)) {
+        continue;
+      }
+
+      $verification = $storage->create([
+        'user_id' => $progress->get('user_id')->target_id,
+        'guild_id' => $guild->id(),
+        'skill_id' => $skill->id(),
+        'target_level' => $target_level,
+        'status' => 'pending',
+        'verification_type' => $level_config->getVerificationType(),
+        'votes_required' => $level_config->getVotesRequired(),
+        'votes_approve' => 0,
+        'votes_deny' => 0,
+        'votes_defer' => 0,
+      ]);
+
+      $verification->save();
+      $this->generated['level_verifications'][] = $verification->id();
+      $created++;
+      $pending_count++;
+    }
+
+    // Create 2-3 approved verifications (historical).
+    $approved_count = 0;
+    foreach (array_slice($progress_records, 3, 3) as $progress) {
+      if ($approved_count >= 3) {
+        break;
+      }
+
+      $guild = $progress->getGuild();
+      $skill = $progress->getSkill();
+      if (!$guild || !$skill) {
+        continue;
+      }
+
+      $current_level = $progress->getCurrentLevel();
+      if ($current_level === 0) {
+        continue;
+      }
+
+      // Get level config for current level (the one they achieved).
+      $level_config = $config_service->getLevelConfig($guild, $skill, $current_level);
+      if (!$level_config) {
+        continue;
+      }
+
+      $verification = $storage->create([
+        'user_id' => $progress->get('user_id')->target_id,
+        'guild_id' => $guild->id(),
+        'skill_id' => $skill->id(),
+        'target_level' => $current_level,
+        'status' => 'approved',
+        'verification_type' => $level_config->getVerificationType(),
+        'votes_required' => $level_config->getVotesRequired(),
+        'votes_approve' => $level_config->getVotesRequired(),
+        'votes_deny' => 0,
+        'votes_defer' => 0,
+        'created' => strtotime('-' . rand(30, 180) . ' days'),
+        'completed' => strtotime('-' . rand(20, 170) . ' days'),
+        'feedback' => 'Approved based on demonstrated competency. Good work!',
+      ]);
+
+      $verification->save();
+      $this->generated['level_verifications'][] = $verification->id();
+      $created++;
+      $approved_count++;
+    }
+
+    $this->logger->info('Generated @count level verifications.', ['@count' => $created]);
+    return $created;
+  }
+
+  /**
+   * Gets or creates guild skills taxonomy terms.
+   *
+   * @return array
+   *   Array of term IDs.
+   */
+  protected function getOrCreateGuildSkills() {
+    $term_storage = $this->entityTypeManager->getStorage('taxonomy_term');
+
+    // Check if guild_skills vocabulary exists.
+    $vocab_storage = $this->entityTypeManager->getStorage('taxonomy_vocabulary');
+    if (!$vocab_storage->load('guild_skills')) {
+      return [];
+    }
+
+    // Get existing terms.
+    $existing = $term_storage->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('vid', 'guild_skills')
+      ->execute();
+
+    if (!empty($existing)) {
+      return array_values($existing);
+    }
+
+    // Create default skill terms.
+    $skill_names = [
+      'Technical Writing',
+      'Translation',
+      'Editing',
+      'Proofreading',
+      'Theology',
+      'Research',
+    ];
+
+    $created_ids = [];
+    foreach ($skill_names as $name) {
+      $term = $term_storage->create([
+        'vid' => 'guild_skills',
+        'name' => $name,
+      ]);
+      $term->save();
+      $created_ids[] = $term->id();
+      $this->generated['taxonomy_terms'][] = $term->id();
+    }
+
+    $this->logger->info('Created @count guild skills terms.', ['@count' => count($created_ids)]);
+    return $created_ids;
   }
 
 }

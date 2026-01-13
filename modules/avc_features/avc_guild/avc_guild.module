@@ -71,6 +71,15 @@ function avc_guild_theme($existing, $type, $theme, $path) {
         'limit' => 10,
       ],
     ],
+    'skill_progress_dashboard' => [
+      'variables' => [
+        'group' => NULL,
+        'user' => NULL,
+        'skills' => [],
+        'credit_history' => [],
+        'empty_message' => NULL,
+      ],
+    ],
   ];
 }
 
@@ -260,3 +269,63 @@ function avc_guild_group_content_insert($group_content) {
     }
   }
 }
+
+
+/**
+ * Hook for when skill level verification is initiated.
+ *
+ * @param \Drupal\avc_guild\Entity\LevelVerification $verification
+ *   The verification entity.
+ * @param \Drupal\user\UserInterface $user
+ *   The user being verified.
+ * @param \Drupal\group\Entity\GroupInterface $guild
+ *   The guild context.
+ * @param \Drupal\taxonomy\TermInterface $skill
+ *   The skill being verified.
+ * @param int $target_level
+ *   The target level.
+ */
+function hook_avc_guild_verification_initiated($verification, $user, $guild, $skill, $target_level) {
+  // Modules can implement this hook to react to verification initiation.
+  // For example, send notifications to eligible verifiers.
+}
+
+/**
+ * Hook for when skill level verification is approved.
+ *
+ * @param \Drupal\avc_guild\Entity\LevelVerification $verification
+ *   The verification entity.
+ */
+function hook_avc_guild_verification_approved($verification) {
+  // Modules can implement this hook to react to verification approval.
+  // For example, send congratulations notification to user.
+}
+
+/**
+ * Hook for when skill level verification is denied.
+ *
+ * @param \Drupal\avc_guild\Entity\LevelVerification $verification
+ *   The verification entity.
+ */
+function hook_avc_guild_verification_denied($verification) {
+  // Modules can implement this hook to react to verification denial.
+  // For example, send feedback notification to user.
+}
+
+/**
+ * Hook for when a skill level is granted to a user.
+ *
+ * @param \Drupal\user\UserInterface $user
+ *   The user.
+ * @param \Drupal\group\Entity\GroupInterface $guild
+ *   The guild context.
+ * @param \Drupal\taxonomy\TermInterface $skill
+ *   The skill.
+ * @param int $level
+ *   The granted level.
+ */
+function hook_avc_guild_level_granted($user, $guild, $skill, $level) {
+  // Modules can implement this hook to react to level advancement.
+  // For example, update user role, send notification, etc.
+}
+

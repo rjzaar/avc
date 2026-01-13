@@ -91,6 +91,42 @@ class RatificationForm extends ContentEntityForm {
         '#description' => $this->t('Provide feedback for the junior member. Required when requesting changes.'),
         '#rows' => 4,
       ];
+
+      // Add skill credits section.
+      $form['skill_credits'] = [
+        '#type' => 'fieldset',
+        '#title' => $this->t('Award Skill Credits'),
+        '#description' => $this->t('Award credits for demonstrated skills in this work.'),
+        '#weight' => 1,
+        '#states' => [
+          'visible' => [
+            ':input[name="status"]' => ['value' => Ratification::STATUS_APPROVED],
+          ],
+        ],
+      ];
+
+      // Get available skills.
+      $skills = $this->getAvailableSkills($guild);
+      if (!empty($skills)) {
+        foreach ($skills as $skill_id => $skill_name) {
+          $form['skill_credits']['skill_' . $skill_id] = [
+            '#type' => 'radios',
+            '#title' => $skill_name,
+            '#options' => [
+              0 => $this->t('None'),
+              5 => $this->t('Standard (+5 credits)'),
+              10 => $this->t('Good (+10 credits)'),
+              15 => $this->t('Exceptional (+15 credits)'),
+            ],
+            '#default_value' => 0,
+          ];
+        }
+      }
+      else {
+        $form['skill_credits']['no_skills'] = [
+          '#markup' => '<p>' . $this->t('No skills configured for this guild.') . '</p>',
+        ];
+      }
     }
 
     return $form;
@@ -123,8 +159,26 @@ class RatificationForm extends ContentEntityForm {
     $mentor = $this->currentUser();
 
     if ($status === Ratification::STATUS_APPROVED) {
-      $this->ratificationService->approve($ratification, $mentor, $feedback);
+      // Collect skill credits.
+      $skill_credits = [];
+      $guild = $ratification->getGuild();
+      $skills = $this->getAvailableSkills($guild);
+
+      foreach ($skills as $skill_id => $skill_name) {
+        $field_name = 'skill_' . $skill_id;
+        $credits = $form_state->getValue($field_name);
+        if ($credits > 0) {
+          $skill_credits[$skill_id] = $credits;
+        }
+      }
+
+      $this->ratificationService->approve($ratification, $mentor, $feedback, $skill_credits);
       $this->messenger()->addStatus($this->t('Work has been approved.'));
+
+      if (!empty($skill_credits)) {
+        $count = count($skill_credits);
+        $this->messenger()->addStatus($this->t('Awarded skill credits for @count skills.', ['@count' => $count]));
+      }
     }
     elseif ($status === Ratification::STATUS_CHANGES_REQUESTED) {
       $this->ratificationService->requestChanges($ratification, $mentor, $feedback);
@@ -134,6 +188,41 @@ class RatificationForm extends ContentEntityForm {
     $form_state->setRedirect('avc_guild.ratification_queue', [
       'group' => $ratification->getGuild()->id(),
     ]);
+  }
+
+  /**
+   * Gets available skills for a guild.
+   *
+   * @param \Drupal\group\Entity\GroupInterface $guild
+   *   The guild.
+   *
+   * @return array
+   *   Array of skill_id => skill_name.
+   */
+  protected function getAvailableSkills($guild) {
+    $skills = [];
+
+    try {
+      $term_storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+      $query = $term_storage->getQuery()
+        ->accessCheck(FALSE)
+        ->condition('vid', 'guild_skills')
+        ->sort('name');
+
+      $term_ids = $query->execute();
+
+      if (!empty($term_ids)) {
+        $terms = $term_storage->loadMultiple($term_ids);
+        foreach ($terms as $term) {
+          $skills[$term->id()] = $term->label();
+        }
+      }
+    }
+    catch (\Exception $e) {
+      \Drupal::logger('avc_guild')->error('Error loading skills: @message', ['@message' => $e->getMessage()]);
+    }
+
+    return $skills;
   }
 
 }

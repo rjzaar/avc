@@ -105,11 +105,15 @@ class RatificationService {
    *   The mentor approving.
    * @param string $feedback
    *   Optional feedback.
+   * @param array $skill_credits
+   *   Optional array of skill credits to award.
+   *   Format: [skill_id => credits].
    */
   public function approve(
     Ratification $ratification,
     AccountInterface $mentor,
-    string $feedback = ''
+    string $feedback = '',
+    array $skill_credits = []
   ) {
     $ratification->approve($mentor, $feedback);
     $ratification->save();
@@ -140,6 +144,11 @@ class RatificationService {
       $ratification->id()
     );
 
+    // Award skill credits if provided.
+    if (!empty($skill_credits)) {
+      $this->awardSkillCredits($junior, $guild, $skill_credits, $mentor, $ratification);
+    }
+
     // Notify junior.
     if ($this->notificationService && $asset) {
       $this->notificationService->queueRatificationComplete(
@@ -157,6 +166,58 @@ class RatificationService {
     if ($task) {
       $task->set('status', 'completed');
       $task->save();
+    }
+  }
+
+  /**
+   * Awards skill credits to a user.
+   *
+   * @param \Drupal\Core\Session\AccountInterface $user
+   *   The user receiving credits.
+   * @param \Drupal\group\Entity\GroupInterface $guild
+   *   The guild.
+   * @param array $skill_credits
+   *   Array of skill_id => credits.
+   * @param \Drupal\Core\Session\AccountInterface $reviewer
+   *   The reviewer awarding credits.
+   * @param \Drupal\avc_guild\Entity\Ratification $ratification
+   *   The ratification entity.
+   */
+  protected function awardSkillCredits(
+    AccountInterface $user,
+    GroupInterface $guild,
+    array $skill_credits,
+    AccountInterface $reviewer,
+    Ratification $ratification
+  ) {
+    // Check if skill progression service is available.
+    if (!\Drupal::hasService('avc_guild.skill_progression')) {
+      return;
+    }
+
+    $skill_progression = \Drupal::service('avc_guild.skill_progression');
+    $term_storage = $this->entityTypeManager->getStorage('taxonomy_term');
+
+    foreach ($skill_credits as $skill_id => $credits) {
+      if ($credits <= 0) {
+        continue;
+      }
+
+      $skill = $term_storage->load($skill_id);
+      if (!$skill) {
+        continue;
+      }
+
+      $skill_progression->awardCredits(
+        $user,
+        $guild,
+        $skill,
+        $credits,
+        'task_reviewed_approved',
+        $ratification->id(),
+        $reviewer,
+        'Awarded via ratification approval'
+      );
     }
   }
 

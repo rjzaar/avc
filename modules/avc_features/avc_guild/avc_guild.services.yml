@@ -21,3 +21,13 @@ services:
       - '@avc_guild.scoring'
       - '@avc_guild.endorsement'
       - '@avc_guild.ratification'
+
+  avc_guild.skill_configuration:
+    class: Drupal\avc_guild\Service\SkillConfigurationService
+    arguments: ['@entity_type.manager']
+
+  avc_guild.skill_progression:
+    class: Drupal\avc_guild\Service\SkillProgressionService
+    arguments:
+      - '@entity_type.manager'
+      - '@avc_guild.skill_configuration'

@@ -122,6 +122,88 @@ function _avc_guild_create_group_fields() {
  * Implements hook_schema().
  */
 function avc_guild_schema() {
-  // Entities use Drupal's entity system.
-  return [];
+  $schema = [];
+
+  // Level verification vote table (not a content entity).
+  $schema['level_verification_vote'] = [
+    'description' => 'Stores individual votes on level verifications.',
+    'fields' => [
+      'id' => [
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'verification_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'verifier_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'vote' => [
+        'type' => 'varchar',
+        'length' => 16,
+        'not null' => TRUE,
+      ],
+      'feedback' => [
+        'type' => 'text',
+        'size' => 'medium',
+      ],
+      'created' => [
+        'type' => 'int',
+        'not null' => TRUE,
+      ],
+    ],
+    'primary key' => ['id'],
+    'unique keys' => [
+      'verification_verifier' => ['verification_id', 'verifier_id'],
+    ],
+    'indexes' => [
+      'verification_id' => ['verification_id'],
+    ],
+  ];
+
+  return $schema;
+}
+
+/**
+ * Create skill level system entities and tables.
+ */
+function avc_guild_update_9001() {
+  // Install new entity types.
+  $entity_type_manager = \Drupal::entityTypeManager();
+  $entity_definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+
+  $entity_types = [
+    'skill_level',
+    'member_skill_progress',
+    'skill_credit',
+    'level_verification',
+  ];
+
+  foreach ($entity_types as $entity_type_id) {
+    $entity_type = $entity_type_manager->getDefinition($entity_type_id);
+    if (!$entity_definition_update_manager->getEntityType($entity_type_id)) {
+      $entity_definition_update_manager->installEntityType($entity_type);
+    }
+  }
+
+  return t('Created skill level system entity types.');
+}
+
+/**
+ * Create level_verification_vote table.
+ */
+function avc_guild_update_9002() {
+  $schema = avc_guild_schema();
+  $database = \Drupal::database();
+
+  if (!$database->schema()->tableExists('level_verification_vote')) {
+    $database->schema()->createTable('level_verification_vote', $schema['level_verification_vote']);
+  }
+
+  return t('Created level_verification_vote table.');
 }

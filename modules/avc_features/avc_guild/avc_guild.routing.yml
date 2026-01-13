@@ -117,3 +117,97 @@ entity.ratification.delete_form:
     parameters:
       ratification:
         type: entity:ratification
+
+# Phase 2: Skill Level Configuration Routes
+avc_guild.skill_admin:
+  path: '/group/{group}/admin/skills'
+  defaults:
+    _controller: '\Drupal\avc_guild\Controller\SkillAdminController::skillsList'
+    _title_callback: '\Drupal\avc_guild\Controller\SkillAdminController::skillsTitle'
+  requirements:
+    _custom_access: '\Drupal\avc_guild\Controller\SkillAdminController::access'
+  options:
+    parameters:
+      group:
+        type: entity:group
+
+avc_guild.skill_configure:
+  path: '/group/{group}/admin/skills/{skill}'
+  defaults:
+    _form: '\Drupal\avc_guild\Form\GuildSkillLevelConfigForm'
+    _title: 'Configure Skill Levels'
+  requirements:
+    _custom_access: '\Drupal\avc_guild\Controller\SkillAdminController::access'
+  options:
+    parameters:
+      group:
+        type: entity:group
+      skill:
+        type: entity:taxonomy_term
+
+# Phase 4: Verification Workflow Routes
+avc_guild.verification_queue:
+  path: '/group/{group}/verifications'
+  defaults:
+    _controller: '\Drupal\avc_guild\Controller\VerificationQueueController::queue'
+    _title: 'Pending Verifications'
+  requirements:
+    _custom_access: '\Drupal\avc_guild\Controller\VerificationQueueController::access'
+  options:
+    parameters:
+      group:
+        type: entity:group
+
+avc_guild.verification_vote:
+  path: '/group/{group}/verification/{level_verification}/vote'
+  defaults:
+    _form: '\Drupal\avc_guild\Form\LevelVerificationVoteForm'
+    _title: 'Vote on Verification'
+  requirements:
+    _custom_access: '\Drupal\avc_guild\Controller\VerificationQueueController::voteAccess'
+  options:
+    parameters:
+      group:
+        type: entity:group
+      level_verification:
+        type: entity:level_verification
+
+# Phase 5: Member Skill Progress Routes
+avc_guild.my_skills:
+  path: '/group/{group}/my-skills'
+  defaults:
+    _controller: '\Drupal\avc_guild\Controller\SkillProgressController::mySkills'
+    _title: 'My Skills'
+  requirements:
+    _custom_access: '\Drupal\avc_guild\Controller\GuildDashboardController::access'
+  options:
+    parameters:
+      group:
+        type: entity:group
+
+avc_guild.member_skills:
+  path: '/group/{group}/member/{user}/skills'
+  defaults:
+    _controller: '\Drupal\avc_guild\Controller\SkillProgressController::memberSkills'
+    _title_callback: '\Drupal\avc_guild\Controller\SkillProgressController::memberSkillsTitle'
+  requirements:
+    _custom_access: '\Drupal\avc_guild\Controller\GuildDashboardController::memberAccess'
+  options:
+    parameters:
+      group:
+        type: entity:group
+      user:
+        type: entity:user
+
+# Phase 6: Analytics and Reporting Routes
+avc_guild.skills_report:
+  path: '/group/{group}/admin/skills/report'
+  defaults:
+    _controller: '\Drupal\avc_guild\Controller\GuildSkillsReportController::report'
+    _title: 'Skills Analytics'
+  requirements:
+    _custom_access: '\Drupal\avc_guild\Controller\SkillAdminController::access'
+  options:
+    parameters:
+      group:
+        type: entity:group

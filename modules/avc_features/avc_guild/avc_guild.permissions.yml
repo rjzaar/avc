@@ -25,3 +25,39 @@ endorse skills:
 view guild leaderboard:
   title: 'View guild leaderboard'
   description: 'View the guild leaderboard.'
+
+administer skill levels:
+  title: 'Administer skill levels'
+  description: 'Create and configure skill levels for guilds.'
+  restrict access: true
+
+administer member skill progress:
+  title: 'Administer member skill progress'
+  description: 'View and modify member skill progress records.'
+  restrict access: true
+
+administer skill credits:
+  title: 'Administer skill credits'
+  description: 'View and manage skill credit records.'
+  restrict access: true
+
+administer level verifications:
+  title: 'Administer level verifications'
+  description: 'View and manage level verification records.'
+  restrict access: true
+
+view own skill progress:
+  title: 'View own skill progress'
+  description: 'View your own skill progress in guilds.'
+
+view member skill progress:
+  title: 'View member skill progress'
+  description: 'View other guild members\' skill progress.'
+
+view skill credits:
+  title: 'View skill credits'
+  description: 'View skill credit records for guild members.'
+
+vote on level verifications:
+  title: 'Vote on level verifications'
+  description: 'Vote on pending skill level verifications.'
