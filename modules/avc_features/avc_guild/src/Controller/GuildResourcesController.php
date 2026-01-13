@@ -44,13 +44,25 @@ class GuildResourcesController extends ControllerBase {
       '#value' => $this->t('This page provides an overview of all guild features and sample navigation links. Use these to explore guilds, skills tracking, endorsements, and leaderboards.'),
     ];
 
-    // Get sample groups for links.
+    // Get sample guild groups for links (only groups with type 'guild').
     $group_storage = $this->entityTypeManager()->getStorage('group');
     $group_ids = $group_storage->getQuery()
       ->accessCheck(FALSE)
+      ->condition('type', 'guild')
       ->range(0, 6)
       ->execute();
     $groups = $group_storage->loadMultiple($group_ids);
+
+    // Show helpful message if no guilds exist.
+    if (empty($groups)) {
+      $build['no_guilds'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'div',
+        '#attributes' => ['class' => ['messages', 'messages--warning']],
+        '#value' => $this->t('No guilds found. Create a group with type "Guild" to see guild features in action.'),
+      ];
+      return $build;
+    }
 
     // Guild Dashboard & Overview.
     $build['dashboard_section'] = [

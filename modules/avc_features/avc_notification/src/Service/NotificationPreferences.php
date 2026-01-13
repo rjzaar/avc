@@ -153,13 +153,18 @@ class NotificationPreferences {
     // Fall back to checking the user's membership in this group.
     $membership = $group->getMember($user);
 
-    if ($membership) {
-      $group_content = $membership->getGroupContent();
-      if ($group_content->hasField('field_notification_override')) {
-        $value = $group_content->get('field_notification_override')->value;
-        if ($value) {
-          return $value;
+    if ($membership && $membership instanceof \Drupal\Core\Entity\FieldableEntityInterface) {
+      // In Group 3.x+, the membership entity itself has the fields.
+      try {
+        if ($membership->hasField('field_notification_override')) {
+          $value = $membership->get('field_notification_override')->value;
+          if ($value) {
+            return $value;
+          }
         }
+      }
+      catch (\Exception $e) {
+        // Field doesn't exist or other error, continue.
       }
     }
 

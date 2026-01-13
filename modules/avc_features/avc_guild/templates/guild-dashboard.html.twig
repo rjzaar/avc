@@ -14,9 +14,9 @@
 <div class="guild-dashboard">
   <div class="guild-dashboard-header">
     <h2>{{ guild.label }}</h2>
-    {% if guild.field_description.value %}
+    {% if guild.description %}
     <div class="guild-description">
-      {{ guild.field_description.value|raw }}
+      {{ guild.description|raw }}
     </div>
     {% endif %}
   </div>

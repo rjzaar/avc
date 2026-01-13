@@ -1,0 +1,17 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - group.type.guild
+id: guild-mentor
+label: Mentor
+weight: -70
+admin: false
+scope: individual
+group_type: guild
+permissions:
+  - 'view group'
+  - 'view group_membership relationship'
+  - 'leave group'
+  - 'endorse skills'
+  - 'administer ratifications'

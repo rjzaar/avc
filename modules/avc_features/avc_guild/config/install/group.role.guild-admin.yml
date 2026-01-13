@@ -1,0 +1,12 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - group.type.guild
+id: guild-admin
+label: Admin
+weight: -60
+admin: true
+scope: individual
+group_type: guild
+permissions: []

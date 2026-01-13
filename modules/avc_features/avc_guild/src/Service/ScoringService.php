@@ -201,7 +201,10 @@ class ScoringService {
       $score = $this->getTotalScore($user, $guild);
 
       $leaderboard[] = [
-        'user' => $user,
+        'user' => [
+          'id' => $user->id(),
+          'displayname' => $user->getDisplayName(),
+        ],
         'score' => $score,
         'role' => avc_guild_get_member_role($guild, $user),
       ];

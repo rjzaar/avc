@@ -145,7 +145,13 @@ class GuildService {
    */
   public function getGuildDashboard(GroupInterface $guild) {
     return [
-      'guild' => $guild,
+      'guild' => [
+        'id' => $guild->id(),
+        'label' => $guild->label(),
+        'description' => $guild->hasField('field_description') && !$guild->get('field_description')->isEmpty()
+          ? $guild->get('field_description')->value
+          : NULL,
+      ],
       'members' => $this->getGuildMembers($guild),
       'leaderboard' => $this->scoringService->getLeaderboard($guild),
       'pending_ratifications' => $this->ratificationService->getPendingForGuild($guild),
@@ -172,7 +178,10 @@ class GuildService {
       }
 
       $members[] = [
-        'user' => $user,
+        'user' => [
+          'id' => $user->id(),
+          'displayname' => $user->getDisplayName(),
+        ],
         'role' => avc_guild_get_member_role($guild, $user),
         'score' => $this->scoringService->getTotalScore($user, $guild),
       ];
