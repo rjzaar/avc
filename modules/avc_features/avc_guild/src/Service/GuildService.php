@@ -124,8 +124,14 @@ class GuildService {
    */
   public function getMemberProfile(AccountInterface $user, GroupInterface $guild) {
     return [
-      'user' => $user,
-      'guild' => $guild,
+      'user' => [
+        'id' => $user->id(),
+        'displayname' => $user->getDisplayName(),
+      ],
+      'guild' => [
+        'id' => $guild->id(),
+        'label' => $guild->label(),
+      ],
       'role' => avc_guild_get_member_role($guild, $user),
       'score' => $this->scoringService->getTotalScore($user, $guild),
       'score_breakdown' => $this->scoringService->getScoreBreakdown($user, $guild),

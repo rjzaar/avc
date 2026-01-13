@@ -139,7 +139,10 @@ class GuildDashboardController extends ControllerBase {
 
     return [
       '#theme' => 'guild_leaderboard',
-      '#guild' => $group,
+      '#guild' => [
+        'id' => $group->id(),
+        'label' => $group->label(),
+      ],
       '#entries' => $leaderboard,
       '#limit' => 50,
       '#cache' => [
