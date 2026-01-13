@@ -52,7 +52,7 @@ view own skill progress:
 
 view member skill progress:
   title: 'View member skill progress'
-  description: 'View other guild members\' skill progress.'
+  description: "View other guild members' skill progress."
 
 view skill credits:
   title: 'View skill credits'
