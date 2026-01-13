@@ -41,7 +41,8 @@ class VerificationQueueController extends ControllerBase {
    */
   public function queue(GroupInterface $group): array {
     $build = [];
-    $current_user = $this->currentUser();
+    $current_user_account = $this->currentUser();
+    $current_user = $this->entityTypeManager()->getStorage('user')->load($current_user_account->id());
 
     $build['title'] = [
       '#markup' => '<h1>' . $this->t('Pending Verifications') . '</h1>',
@@ -155,6 +156,7 @@ class VerificationQueueController extends ControllerBase {
     }
 
     $account = $this->currentUser();
+    $user = $this->entityTypeManager()->getStorage('user')->load($account->id());
 
     // Can't vote if not a guild member.
     if (!$group->getMember($account)) {
@@ -172,12 +174,12 @@ class VerificationQueueController extends ControllerBase {
     }
 
     // Check if user is qualified to verify.
-    if (!$this->skillProgressionService->canVerify($account, $level_verification)) {
+    if (!$this->skillProgressionService->canVerify($user, $level_verification)) {
       return \Drupal\Core\Access\AccessResult::forbidden();
     }
 
     // Check if already voted.
-    if ($this->skillProgressionService->hasVoted($level_verification, $account)) {
+    if ($this->skillProgressionService->hasVoted($level_verification, $user)) {
       // Allow viewing, but form will show "already voted" message.
       return \Drupal\Core\Access\AccessResult::allowed();
     }
