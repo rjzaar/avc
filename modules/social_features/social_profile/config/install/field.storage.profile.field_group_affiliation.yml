@@ -11,8 +11,6 @@ entity_type: profile
 type: group_affiliation
 settings:
   target_type: group
-  handler_settings:
-    target_bundles: {  }
 module: social_profile
 locked: false
 cardinality: -1
