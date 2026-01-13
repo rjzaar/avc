@@ -14,7 +14,7 @@
 <div class="skill-progress-dashboard">
   <div class="skill-progress-header">
     <h2>{{ 'Skill Progress in'|t }} {{ group.label }}</h2>
-    <p class="user-info">{{ user.getDisplayName }}</p>
+    <p class="user-info">{{ user.displayname }}</p>
   </div>
 
   {% if skills is empty %}
@@ -26,7 +26,7 @@
       {% for skill_data in skills %}
         <div class="skill-progress-item">
           <div class="skill-header">
-            <h3 class="skill-name">{{ skill_data.skill.label }}</h3>
+            <h3 class="skill-name">{{ skill_data.skill.name }}</h3>
             <div class="skill-level">
               <span class="level-badge level-{{ skill_data.level }}">
                 {{ 'Level'|t }} {{ skill_data.level }}: {{ skill_data.level_name }}
@@ -101,11 +101,11 @@
         <tbody>
           {% for credit in credit_history %}
             <tr>
-              <td>{{ credit.getCreatedTime|date('Y-m-d') }}</td>
-              <td>{{ credit.getSkill ? credit.getSkill.label : '-' }}</td>
-              <td class="credits-value">+{{ credit.getCredits }}</td>
-              <td>{{ credit.getSourceType }}</td>
-              <td>{{ credit.getNotes|default('-') }}</td>
+              <td>{{ credit.created_time|date('Y-m-d') }}</td>
+              <td>{{ credit.skill_name }}</td>
+              <td class="credits-value">+{{ credit.credits }}</td>
+              <td>{{ credit.source_type }}</td>
+              <td>{{ credit.notes }}</td>
             </tr>
           {% endfor %}
         </tbody>
