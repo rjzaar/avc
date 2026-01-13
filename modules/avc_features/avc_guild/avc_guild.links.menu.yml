@@ -1,0 +1,9 @@
+# Main menu links for guild resources
+
+avc_guild.resources:
+  title: 'Guild Resources'
+  description: 'Overview of guild features, skills tracking, and navigation.'
+  route_name: avc_guild.resources
+  menu_name: main
+  parent: avc_content.help
+  weight: 26

@@ -211,3 +211,12 @@ avc_guild.skills_report:
     parameters:
       group:
         type: entity:group
+
+# Guild Resources Overview
+avc_guild.resources:
+  path: '/guild-resources'
+  defaults:
+    _controller: '\Drupal\avc_guild\Controller\GuildResourcesController::overview'
+    _title: 'Guild Resources'
+  requirements:
+    _user_is_logged_in: 'TRUE'
