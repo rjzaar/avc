@@ -18,7 +18,9 @@ This document provides a numbered, phased implementation plan for the AV Commons
 | 2 | Group System | ✅ COMPLETE | Group workflow dashboard, member lists, assignment forms |
 | 3 | Asset System | ✅ COMPLETE | Asset management, workflow processor, checker |
 | 4 | Notifications | ✅ COMPLETE | Queue entity, digest preferences, email templates |
-| 5 | Guild System | ✅ COMPLETE | Scoring, endorsements, ratification workflow |
+| 5 | Guild System | ✅ COMPLETE | Scoring, endorsements, ratification, skill level system |
+| 5.5 | Work Management | ✅ COMPLETE | My Work dashboard with unified task view |
+| 5.6 | Email Reply | ✅ COMPLETE | Inbound email webhook for comment creation |
 | 6 | Forums | 🔲 NOT STARTED | Leverage Open Social Topics |
 | 7-10 | Future Phases | 🔲 NOT STARTED | Versioning, Flagging, Courses, Suggestions |
 
@@ -27,6 +29,9 @@ This document provides a numbered, phased implementation plan for the AV Commons
 - Implemented notification queue with n/d/w/x digest preferences
 - Created Guild group type with junior/endorsed/mentor/admin roles
 - Built scoring, endorsement, and ratification systems
+- **NEW**: Implemented Guild Skill Level System with 4 entities (SkillLevel, MemberSkillProgress, SkillCredit, LevelVerification)
+- **NEW**: Created My Work dashboard for unified task management
+- **NEW**: Added email reply webhook for inbound email processing
 
 ---
 
@@ -87,13 +92,16 @@ The AVC implementation is organized as a Drupal installation profile at `avc_pro
 ```
 avc_profile/
 ├── avc_profile.info.yml          # Main profile
-├── modules/
+├── modules/avc_features/
 │   ├── avc_core/                 # Shared services, base fields
 │   ├── avc_member/               # ✅ Phase 1: Member dashboards
 │   ├── avc_group/                # ✅ Phase 2: Group workflow
 │   ├── avc_asset/                # ✅ Phase 3: Asset management
 │   ├── avc_notification/         # ✅ Phase 4: Notification system
-│   ├── avc_guild/                # ✅ Phase 5: Guild system
+│   ├── avc_guild/                # ✅ Phase 5: Guild system + Skill Levels
+│   ├── avc_work_management/      # ✅ Phase 5.5: My Work dashboard
+│   ├── avc_email_reply/          # ✅ Phase 5.6: Inbound email handling
+│   ├── avc_content/              # Help content and documentation
 │   ├── avc_devel/                # Development & test content
 │   └── workflow_assignment/      # Core workflow engine
 └── tests/behat/                  # Behat test configuration
@@ -580,6 +588,8 @@ modules/custom/avc_notification/
 **Status**: Implemented in `avc_profile/modules/avc_guild/`
 
 #### Implemented Components
+
+**Core Guild System (Phase 5.0):**
 - `GuildScore` entity for tracking member points
 - `SkillEndorsement` entity for skill endorsements
 - `Ratification` entity for junior work approval
@@ -589,9 +599,21 @@ modules/custom/avc_notification/
 - `GuildService` as main guild operations facade
 - `GuildDashboardController` for guild pages
 - `RatificationQueueController` for mentor queue
-- Forms: RatificationForm, EndorseSkillForm, GuildSettingsForm
 - Guild roles: junior, endorsed, mentor, admin
-- Templates: dashboard, member profile, leaderboard, ratification queue
+
+**Guild Skill Level System (Phase 5.1 - IMPLEMENTED):**
+- `SkillLevel` entity - Configurable skill levels per guild (Level 1-10 with names, descriptions, credit requirements)
+- `MemberSkillProgress` entity - Tracks member's current level and credits per skill
+- `SkillCredit` entity - Records individual credit events (task_review, endorsement, assessment, time, manual)
+- `LevelVerification` entity - Verification workflow for level advancement (pending/approved/denied/deferred/expired)
+- `SkillConfigurationService` - Configure skill levels for guilds
+- `SkillProgressionService` - Manage member progression and credit accumulation
+- `SkillAdminController` - Admin interface for skill configuration
+- `SkillProgressController` - Member skill progress views
+- `VerificationQueueController` - Verification voting interface
+- `GuildSkillsReportController` - Analytics and reporting
+- Forms: `GuildSkillLevelConfigForm`, `LevelVerificationVoteForm`
+- Routes: skill admin, my skills, verification queue, analytics
 
 #### 5.1 Create Guild Group Type
 ```
@@ -750,6 +772,111 @@ Dependencies:
   - workflow_assignment
   - avc_member
   - avc_group
+```
+
+---
+
+### PHASE 5.5: Work Management Dashboard ✅ COMPLETE
+**Goal**: Unified "My Work" dashboard for workflow task visibility
+**Platform**: Custom module leveraging WorkflowTask entities
+**Dependency**: Phase 3 (Asset System), workflow_assignment
+**Status**: Implemented in `avc_profile/modules/avc_work_management/`
+
+#### Implemented Components
+- `MyWorkController` - Dashboard with summary cards and task sections
+- `WorkTaskQueryService` - Query service for task filtering and counting
+- `WorkTaskActionService` - Service for claiming, completing, and releasing tasks
+- `ClaimTaskForm` - Confirmation form for claiming group tasks
+- Dashboard route: `/my-work` with section views (`/my-work/active`, `/my-work/available`, etc.)
+- Summary cards by content type (Documents, Resources, Projects)
+- Task sections: Action Needed, Available to Claim, Upcoming, Recently Completed
+- Task claiming workflow (group → user assignment)
+- Responsive CSS styling with color-coded task states
+- Templates: dashboard, task list, task row, section views
+- Permissions: `access my work dashboard`, `claim workflow tasks`
+
+#### Key Features
+- **Summary Cards**: Show active/upcoming/completed counts per content type with custom icons/colors
+- **Action Needed**: Tasks assigned to me, status `in_progress`
+- **Available to Claim**: Group tasks I can claim, status `pending`
+- **Upcoming**: Tasks assigned to me, status `pending`
+- **Recently Completed**: My finished tasks, status `completed`
+- **Claim Action**: Converts group-assigned task to user-assigned task
+- **View All**: Dedicated pages for each section showing full task lists
+- **Cache Management**: Smart cache tags for real-time updates
+
+#### Files to Reference
+```
+modules/custom/avc_work_management/
+├── avc_work_management.info.yml
+├── avc_work_management.module
+├── avc_work_management.routing.yml
+├── avc_work_management.services.yml
+├── avc_work_management.permissions.yml
+├── src/
+│   ├── Controller/MyWorkController.php
+│   ├── Service/WorkTaskQueryService.php
+│   ├── Service/WorkTaskActionService.php
+│   └── Form/ClaimTaskForm.php
+├── templates/
+│   ├── my-work-dashboard.html.twig
+│   ├── my-work-task-row.html.twig
+│   └── my-work-section.html.twig
+└── css/my-work-dashboard.css
+
+Dependencies:
+  - workflow_assignment
+  - avc_asset
+  - group
+```
+
+---
+
+### PHASE 5.6: Email Reply System ✅ COMPLETE
+**Goal**: Allow group members to reply to notification emails to create comments
+**Platform**: Inbound email webhook with email parsing
+**Dependency**: Phase 4 (Notifications), comment module, group module
+**Status**: Implemented in `avc_profile/modules/avc_email_reply/`
+
+#### Implemented Components
+- `InboundEmailController` - Webhook endpoint for receiving emails (`/api/email/inbound`)
+- `EmailReplyParser` service - Parse inbound emails and extract content
+- `EmailReplySettingsForm` - Admin configuration for webhook secret and allowed domains
+- Webhook authentication via secret token
+- Email sender verification (must match user account)
+- Reply-to header parsing for entity context
+- Comment creation from email body
+- Group membership validation
+- XSS protection and HTML sanitization
+
+#### Key Features
+- **Webhook Endpoint**: POST `/api/email/inbound` accepts email data from email service
+- **Security**: Secret token validation, sender email verification, group membership checks
+- **Reply-To Parsing**: Extracts entity type, ID, and user from reply-to header
+- **Comment Creation**: Creates comments on nodes with proper attribution
+- **HTML Handling**: Strips HTML tags, preserves line breaks, removes signatures
+- **Error Handling**: Returns appropriate HTTP status codes with error messages
+
+#### Configuration
+- Webhook secret for authentication
+- Allowed email domains list
+- Reply-to email format: `reply+{entity_type}.{entity_id}.{user_id}@example.com`
+
+#### Files to Reference
+```
+modules/custom/avc_email_reply/
+├── avc_email_reply.info.yml
+├── avc_email_reply.routing.yml
+├── avc_email_reply.services.yml
+├── src/
+│   ├── Controller/InboundEmailController.php
+│   ├── Service/EmailReplyParser.php
+│   └── Form/EmailReplySettingsForm.php
+
+Dependencies:
+  - comment
+  - avc_notification
+  - group
 ```
 
 ---
@@ -931,6 +1058,9 @@ Minimal - mostly configuration:
 | 3: Assets | High | High | Custom (workflow focus) | ✅ COMPLETE |
 | 4: Notifications | High | Medium | Extend social_notifications | ✅ COMPLETE |
 | 5: Guilds | High | Medium | Custom group type | ✅ COMPLETE |
+| 5.1: Guild Skill Levels | High | Medium-High | Custom entities | ✅ COMPLETE |
+| 5.5: Work Management | High | Medium | Custom dashboard | ✅ COMPLETE |
+| 5.6: Email Reply | Medium | Low-Medium | Custom webhook | ✅ COMPLETE |
 | 6: Forums | Low | Minimal | Use social_topic as-is | 🔲 Pending |
 | 7: Versioning | Medium | Low | Drupal revisions | 🔲 Pending |
 | 8: Flagging | Low | Low | Custom | 🔲 Pending |
@@ -1076,13 +1206,16 @@ Open Social Distribution (base platform)
 5. ~~**Phase 3: Asset System** - Asset management, WorkflowTask entity~~
 6. ~~**Phase 4: Notification System** - Queue entity, n/d/w/x preferences, email templates, digest processing~~
 7. ~~**Phase 5: Guild System** - Guild group type, scoring, endorsements, ratification workflow~~
+8. ~~**Phase 5.1: Guild Skill Levels** - Multi-level skill progression system with 4 entities~~
+9. ~~**Phase 5.5: Work Management** - Unified "My Work" dashboard with task claiming~~
+10. ~~**Phase 5.6: Email Reply System** - Inbound email webhook for comment creation~~
 
 ### In Progress / Next
-8. **Phase 6: Forums** - Leverage Open Social Topics for group discussions
-9. **Phase 7: Version Control** - Asset versioning with comparison tools
+11. **Phase 6: Forums** - Leverage Open Social Topics for group discussions
+12. **Phase 7: Version Control** - Asset versioning with comparison tools
 
 ### Future
-10. Continue with remaining phases (Flagging, Courses, Suggestions, etc.)
+13. Continue with remaining phases (Flagging, Courses, Suggestions, etc.)
 
 ### Test Coverage
 - **Behat Tests**: 27 scenarios, 143 steps passing
@@ -1105,7 +1238,8 @@ Open Social Distribution (base platform)
 ---
 
 *Document created: 2026-01-02*
-*Last updated: 2026-01-03*
+*Last updated: 2026-01-13*
 *Platform: Open Social Distribution*
 *Based on: avc specs.docx, avc.gs prototype, workflow_assignment module analysis*
-*Implementation: Phases 1-5 complete with full Behat test coverage (27 scenarios, 143 steps) and Selenium 4 JavaScript testing*
+*Implementation: Phases 1-5.6 complete (Member, Group, Asset, Notification, Guild, Skill Levels, Work Management, Email Reply)*
+*Test coverage: 27 scenarios, 143 steps with Behat + Selenium 4 JavaScript testing*

@@ -44,6 +44,13 @@ class NotificationSender {
   protected $logger;
 
   /**
+   * The reply token service (optional).
+   *
+   * @var \Drupal\avc_email_reply\Service\ReplyTokenService|null
+   */
+  protected $replyTokenService;
+
+  /**
    * Constructs a NotificationSender.
    *
    * @param \Drupal\Core\Mail\MailManagerInterface $mail_manager
@@ -65,6 +72,11 @@ class NotificationSender {
     $this->renderer = $renderer;
     $this->configFactory = $config_factory;
     $this->logger = $logger;
+
+    // Lazy load reply token service if available.
+    if ($this->isEmailReplyEnabled()) {
+      $this->replyTokenService = \Drupal::service('avc_email_reply.reply_token');
+    }
   }
 
   /**
@@ -340,6 +352,15 @@ class NotificationSender {
     array $params,
     NotificationQueue $notification
   ) {
+    // Add reply headers if email reply is enabled.
+    $reply_headers = $this->getReplyHeaders($notification);
+    if (!empty($reply_headers)) {
+      if (!isset($params['headers'])) {
+        $params['headers'] = [];
+      }
+      $params['headers'] = array_merge($params['headers'], $reply_headers);
+    }
+
     $result = $this->mailManager->mail(
       'avc_notification',
       $key,
@@ -363,6 +384,70 @@ class NotificationSender {
     ]);
 
     return FALSE;
+  }
+
+  /**
+   * Check if email reply module is enabled.
+   *
+   * @return bool
+   *   TRUE if the avc_email_reply module is installed.
+   */
+  protected function isEmailReplyEnabled(): bool {
+    return \Drupal::moduleHandler()->moduleExists('avc_email_reply');
+  }
+
+  /**
+   * Get reply headers for a notification.
+   *
+   * @param \Drupal\avc_notification\Entity\NotificationQueue $notification
+   *   The notification.
+   *
+   * @return array
+   *   Array of headers including Reply-To and Message-ID, or empty array.
+   */
+  protected function getReplyHeaders(NotificationQueue $notification): array {
+    if (!$this->isEmailReplyEnabled() || !$this->replyTokenService) {
+      return [];
+    }
+
+    $asset = $notification->getAsset();
+    $user = $notification->getTargetUser();
+    $group = $notification->getTargetGroup();
+
+    // Only add reply headers if we have an asset.
+    if (!$asset || !$user) {
+      return [];
+    }
+
+    // Generate reply token.
+    try {
+      $token = $this->replyTokenService->generateToken(
+        $asset->getEntityTypeId(),
+        (int) $asset->id(),
+        (int) $user->id(),
+        $group ? (int) $group->id() : NULL
+      );
+    }
+    catch (\Exception $e) {
+      return [];
+    }
+
+    // Get reply domain from config.
+    $reply_config = $this->configFactory->get('avc_email_reply.settings');
+    $reply_domain = $reply_config->get('reply_domain');
+
+    if (!$reply_domain) {
+      return [];
+    }
+
+    // Build reply address.
+    $reply_address = "reply+{$token}@{$reply_domain}";
+
+    // Return headers.
+    return [
+      'Reply-To' => $reply_address,
+      'Message-ID' => "<{$token}@{$reply_domain}>",
+    ];
   }
 
 }

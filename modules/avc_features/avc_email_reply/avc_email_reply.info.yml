@@ -1,0 +1,9 @@
+name: 'AVC Email Reply'
+type: module
+description: 'Allows group members to reply to notification emails to create comments'
+core_version_requirement: ^10 || ^11
+package: AVC Features
+dependencies:
+  - drupal:comment
+  - avc_notification:avc_notification
+  - group:group

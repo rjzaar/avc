@@ -1,0 +1,18 @@
+avc_email_reply.inbound_webhook:
+  path: '/api/email/inbound'
+  defaults:
+    _controller: '\Drupal\avc_email_reply\Controller\InboundEmailController::receive'
+    _title: 'Inbound Email Webhook'
+  methods: [POST]
+  requirements:
+    _access: 'TRUE'
+  options:
+    no_cache: 'TRUE'
+
+avc_email_reply.settings:
+  path: '/admin/config/avc/email-reply'
+  defaults:
+    _form: '\Drupal\avc_email_reply\Form\EmailReplySettingsForm'
+    _title: 'Email Reply Settings'
+  requirements:
+    _permission: 'administer email reply settings'

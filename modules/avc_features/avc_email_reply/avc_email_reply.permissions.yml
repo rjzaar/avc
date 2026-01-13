@@ -1,0 +1,8 @@
+administer email reply settings:
+  title: 'Administer email reply settings'
+  description: 'Configure email reply settings and manage inbound email processing'
+  restrict access: true
+
+reply via email:
+  title: 'Reply to notifications via email'
+  description: 'Allows users to create comments by replying to notification emails'

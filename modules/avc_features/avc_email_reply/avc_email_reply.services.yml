@@ -1,0 +1,24 @@
+services:
+  avc_email_reply.reply_token:
+    class: Drupal\avc_email_reply\Service\ReplyTokenService
+    arguments:
+      - '@config.factory'
+
+  avc_email_reply.content_extractor:
+    class: Drupal\avc_email_reply\Service\ReplyContentExtractor
+
+  avc_email_reply.rate_limiter:
+    class: Drupal\avc_email_reply\Service\EmailRateLimiter
+    arguments:
+      - '@state'
+      - '@config.factory'
+
+  avc_email_reply.email_processor:
+    class: Drupal\avc_email_reply\Service\EmailReplyProcessor
+    arguments:
+      - '@avc_email_reply.reply_token'
+      - '@avc_email_reply.rate_limiter'
+      - '@avc_email_reply.content_extractor'
+      - '@entity_type.manager'
+      - '@logger.factory'
+      - '@?avc_notification.notification_service'

@@ -3,6 +3,7 @@
 namespace Drupal\avc_notification\Service;
 
 use Drupal\avc_notification\Entity\NotificationQueue;
+use Drupal\comment\CommentInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\group\Entity\GroupInterface;
@@ -324,6 +325,62 @@ class NotificationService {
       ]),
       $data,
       $guild
+    );
+  }
+
+  /**
+   * Queue a group comment notification.
+   *
+   * @param \Drupal\Core\Session\AccountInterface $target_user
+   *   The user to notify.
+   * @param \Drupal\node\NodeInterface $content
+   *   The content that was commented on.
+   * @param \Drupal\Core\Session\AccountInterface $commenter
+   *   The user who posted the comment.
+   * @param \Drupal\comment\CommentInterface $comment
+   *   The comment entity.
+   * @param \Drupal\group\Entity\GroupInterface $group
+   *   The group context.
+   *
+   * @return \Drupal\avc_notification\Entity\NotificationQueue|null
+   *   The created notification entity or NULL if skipped.
+   */
+  public function queueGroupComment(
+    AccountInterface $target_user,
+    NodeInterface $content,
+    AccountInterface $commenter,
+    CommentInterface $comment,
+    GroupInterface $group
+  ) {
+    // Check if user wants notifications.
+    $preference = $this->preferences->getUserPreference($target_user, $group);
+    if ($preference === 'x') {
+      return NULL;
+    }
+
+    // Get comment excerpt (first 150 characters).
+    $comment_body = $comment->get('comment_body')->value ?? '';
+    $comment_excerpt = mb_strlen($comment_body) > 150
+      ? mb_substr($comment_body, 0, 150) . '...'
+      : $comment_body;
+
+    $data = [
+      'commenter_id' => $commenter->id(),
+      'commenter_name' => $commenter->getDisplayName(),
+      'comment_id' => $comment->id(),
+      'comment_excerpt' => $comment_excerpt,
+    ];
+
+    return $this->createNotification(
+      NotificationQueue::EVENT_GROUP_COMMENT,
+      $target_user,
+      $content,
+      t('@commenter commented on "@content".', [
+        '@commenter' => $commenter->getDisplayName(),
+        '@content' => $content->label(),
+      ]),
+      $data,
+      $group
     );
   }
 

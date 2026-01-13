@@ -55,6 +55,7 @@ class NotificationQueue extends ContentEntityBase {
   const EVENT_RATIFICATION_COMPLETE = 'ratification_complete';
   const EVENT_ENDORSEMENT = 'endorsement';
   const EVENT_GUILD_PROMOTION = 'guild_promotion';
+  const EVENT_GROUP_COMMENT = 'group_comment';
 
   /**
    * Notification statuses.
@@ -82,6 +83,7 @@ class NotificationQueue extends ContentEntityBase {
           self::EVENT_RATIFICATION_COMPLETE => 'Ratification Complete',
           self::EVENT_ENDORSEMENT => 'Endorsement',
           self::EVENT_GUILD_PROMOTION => 'Guild Promotion',
+          self::EVENT_GROUP_COMMENT => 'Group Comment',
         ],
       ])
       ->setRequired(TRUE)

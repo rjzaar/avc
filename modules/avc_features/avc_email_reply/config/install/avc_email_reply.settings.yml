@@ -1,0 +1,12 @@
+enabled: false
+reply_domain: ''
+email_provider: sendgrid
+webhook_secret: ''
+token_expiry_days: 30
+rate_limits:
+  per_user_per_hour: 10
+  per_user_per_day: 50
+  per_group_per_hour: 100
+spam_score_threshold: 5.0
+allowed_content_types: []
+debug_mode: false
