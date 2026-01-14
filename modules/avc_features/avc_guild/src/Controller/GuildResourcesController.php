@@ -12,7 +12,7 @@ use Drupal\Core\Url;
 class GuildResourcesController extends ControllerBase {
 
   /**
-   * Helper to create a link item with visible URL.
+   * Helper to create a link item with both title and URL clickable.
    *
    * @param string $text
    *   Link text.
@@ -20,12 +20,15 @@ class GuildResourcesController extends ControllerBase {
    *   URL object.
    *
    * @return array
-   *   Render array with link and URL.
+   *   Render array with clickable title and URL.
    */
   protected function createLinkWithUrl($text, Url $url) {
-    $link = Link::fromTextAndUrl($text, $url);
+    $title_link = Link::fromTextAndUrl($text, $url);
+    $url_string = $url->toString();
+    $url_link = Link::fromTextAndUrl($url_string, $url);
+
     return [
-      '#markup' => $link->toString() . ' <code>' . $url->toString() . '</code>',
+      '#markup' => $title_link->toString() . ' <code>' . $url_link->toString() . '</code>',
     ];
   }
 

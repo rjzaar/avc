@@ -177,6 +177,10 @@ $help_pages = [
 
 <div class="help-section">
   <h2>Quick Links</h2>
+  <div class="info-box info-box--important" style="margin-bottom: 1.5em;">
+    <div class="info-box__title">For Guild Members</div>
+    <p><strong><a href="/guild-resources">Guild Resources Hub</a></strong> - Central navigation for all guild features, leaderboards, skills tracking, and member profiles. (Login required)</p>
+  </div>
   <ul>
     <li><a href="/help/getting-started">Getting Started</a> - New to AV Commons? Start here.</li>
     <li><a href="/help/user-guide">User Guide</a> - Comprehensive platform documentation.</li>
@@ -579,6 +583,22 @@ $help_pages = [
   <p class="help-page__subtitle">Guilds are specialized skill-based groups with mentorship, scoring, and endorsements.</p>
 </div>
 
+<div class="card card__header--primary" style="margin-bottom: 2em;">
+  <div class="card__header card__header--primary">
+    <h3 class="card__title">🔗 Quick Access: Guild Resources Hub</h3>
+  </div>
+  <div class="card__body">
+    <p>Visit the <strong><a href="/guild-resources">Guild Resources Hub</a></strong> for direct links to:</p>
+    <ul>
+      <li>All Guild Dashboards & Leaderboards</li>
+      <li>Your Skills Progress & Member Profiles</li>
+      <li>Pending Verifications & Ratification Queues</li>
+      <li>Admin Tools (if you have permissions)</li>
+    </ul>
+    <p><em>Note: You must be logged in to access guild resources.</em></p>
+  </div>
+</div>
+
 <div class="help-section">
   <div class="help-section__header">
     <h2 class="help-section__title">What Makes Guilds Special</h2>
@@ -880,33 +900,31 @@ $help_pages = [
     'alias' => '/about',
     'parent' => 'AV Commons Help',
     'weight' => 3,
-    'body' => '<div class="help-page">
-<div class="help-section">
-  <p class="lead">AV Commons is a community collaboration site designed to help members work together on projects, documents, and resources.</p>
+    'body' => '<div class="about-page">
+<h2>About AV Commons</h2>
+<p><strong>AV Commons</strong> is a collaborative platform designed to help communities work together on projects, documents, and resources.</p>
 
-  <h2>Our Mission</h2>
-  <p>Our mission is to provide a structured yet flexible environment where members at all levels can contribute through collaborative work.</p>
+<p>Built on the Open Social distribution for Drupal, AV Commons extends the platform with specialized features for:</p>
+<ul>
+  <li><strong>Workflow Management</strong> - Structured content approval processes</li>
+  <li><strong>Guild System</strong> - Skill-based groups with mentorship and progression</li>
+  <li><strong>Asset Management</strong> - Organize documents, resources, and projects</li>
+  <li><strong>Smart Notifications</strong> - Stay informed with customizable alerts</li>
+</ul>
 
-  <h2>Key Features</h2>
-  <ul>
-    <li><strong>Projects, Documents, and Resources</strong> - Organize and collaborate on shared content</li>
-    <li><strong>Workflow System</strong> - Ensure quality through structured approval processes</li>
-    <li><strong>Groups</strong> - Collaborate with teams on specific initiatives</li>
-    <li><strong>Guilds</strong> - Develop skills through mentorship and structured progression</li>
-    <li><strong>Notifications</strong> - Stay informed with customizable alerts</li>
-  </ul>
+<h3>Our Mission</h3>
+<p>AV Commons provides a space for communities to collaborate effectively, maintain quality standards through workflow processes, and develop member skills through structured guild programs.</p>
 
-  <h2>AV Levels</h2>
-  <p>Members participate at different levels:</p>
-  <ul>
-    <li><strong>Disciple</strong> - Active members committed to the community</li>
-    <li><strong>Aspirant</strong> - Those discerning a deeper commitment</li>
-    <li><strong>Sojourner</strong> - Friends and supporters of the community</li>
-  </ul>
+<h3>Key Features</h3>
+<ul>
+  <li>Collaborative document creation and review</li>
+  <li>Project and resource management</li>
+  <li>Guild-based skill development and endorsements</li>
+  <li>Flexible workflow templates</li>
+  <li>Community discussions and events</li>
+</ul>
 
-  <h2>Public Domain Contributions</h2>
-  <p>All contributions to AV Commons are licensed as public domain. By contributing, you acknowledge that your work can be used freely by the community.</p>
-</div>
+<p>For questions or assistance, visit our <a href="/help">Help Center</a> or <a href="/contact">Contact Us</a>.</p>
 </div>',
   ],
 
@@ -925,7 +943,7 @@ $help_pages = [
   </div>
   <div class="card__body">
     <p>For general questions about AV Commons:</p>
-    <p><strong>Email:</strong> <a href="mailto:contact@apostoliviae.org">contact@apostoliviae.org</a></p>
+    <p><strong>Email:</strong> <a href="mailto:contact@avcommons.org">contact@avcommons.org</a></p>
   </div>
 </div>
 
@@ -987,7 +1005,7 @@ foreach ($help_pages as $page) {
       'value' => $page['body'],
       'format' => 'full_html',
     ],
-    'field_content_visibility' => 'public',
+    'field_content_visibility' => 'community',  // Require login for help pages
     'status' => 1,
     'uid' => 1,
     'path' => [
