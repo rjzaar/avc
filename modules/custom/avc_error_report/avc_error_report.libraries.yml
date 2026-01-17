@@ -1,0 +1,5 @@
+error-report:
+  version: 1.x
+  css:
+    theme:
+      css/error-report.css: {}

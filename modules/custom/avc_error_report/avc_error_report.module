@@ -1,0 +1,64 @@
+<?php
+
+/**
+ * @file
+ * AVC Error Report module.
+ *
+ * Provides a simple error reporting form that creates GitLab issues.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_help().
+ */
+function avc_error_report_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.avc_error_report':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The AVC Error Report module allows users to report errors directly to GitLab. When an error occurs, users can copy the error page content, click back, and use the "Report an Error" link in the footer to submit a report.') . '</p>';
+      $output .= '<h3>' . t('Usage') . '</h3>';
+      $output .= '<ol>';
+      $output .= '<li>' . t('When you encounter an error page, select all (Ctrl+A) and copy (Ctrl+C).') . '</li>';
+      $output .= '<li>' . t('Click your browser\'s Back button to return to the previous page.') . '</li>';
+      $output .= '<li>' . t('Click "Report an Error" in the page footer.') . '</li>';
+      $output .= '<li>' . t('Paste the error content and describe what you did.') . '</li>';
+      $output .= '<li>' . t('Submit the form to create a GitLab issue.') . '</li>';
+      $output .= '</ol>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_page_bottom().
+ *
+ * Adds a "Report an Error" link to the bottom of every page for
+ * authenticated users with the appropriate permission.
+ */
+function avc_error_report_page_bottom(array &$page) {
+  $user = \Drupal::currentUser();
+
+  // Only show for authenticated users with permission.
+  if ($user->isAuthenticated() && $user->hasPermission('submit error reports')) {
+    $page['avc_error_report_link'] = [
+      '#type' => 'container',
+      '#attributes' => [
+        'class' => ['error-report-footer'],
+      ],
+      '#weight' => 1000,
+      'link' => [
+        '#type' => 'link',
+        '#title' => t('Report an Error'),
+        '#url' => Url::fromRoute('avc_error_report.form'),
+        '#attributes' => [
+          'class' => ['error-report-link'],
+          'title' => t('Report a bug or error to the development team'),
+        ],
+      ],
+      '#attached' => [
+        'library' => ['avc_error_report/error-report'],
+      ],
+    ];
+  }
+}

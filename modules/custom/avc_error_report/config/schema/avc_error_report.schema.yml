@@ -1,0 +1,25 @@
+avc_error_report.settings:
+  type: config_object
+  label: 'AVC Error Report settings'
+  mapping:
+    gitlab_url:
+      type: string
+      label: 'GitLab URL'
+    gitlab_project:
+      type: string
+      label: 'GitLab project path'
+    gitlab_token:
+      type: string
+      label: 'GitLab API token'
+    rate_limit_max:
+      type: integer
+      label: 'Maximum reports per window'
+    rate_limit_window:
+      type: integer
+      label: 'Rate limit window in seconds'
+    labels:
+      type: sequence
+      label: 'Issue labels'
+      sequence:
+        type: string
+        label: 'Label'

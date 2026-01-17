@@ -1,0 +1,11 @@
+name: 'AVC Error Report'
+type: module
+description: 'Allows users to report errors directly to GitLab with auto-captured context.'
+package: AVC
+core_version_requirement: ^10 || ^11
+php: 8.1
+
+dependencies:
+  - drupal:user
+
+configure: avc_error_report.settings

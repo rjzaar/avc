@@ -1,0 +1,11 @@
+avc_email_reply.settings:
+  title: 'Settings'
+  route_name: avc_email_reply.settings
+  base_route: avc_email_reply.settings
+  weight: 0
+
+avc_email_reply.test:
+  title: 'Test'
+  route_name: avc_email_reply.test_page
+  base_route: avc_email_reply.settings
+  weight: 10

@@ -1,0 +1,11 @@
+services:
+  avc_email_reply.commands:
+    class: \Drupal\avc_email_reply\Commands\EmailReplyCommands
+    arguments:
+      - '@avc_email_reply.reply_token'
+      - '@avc_email_reply.email_processor'
+      - '@entity_type.manager'
+      - '@queue'
+      - '@config.factory'
+    tags:
+      - { name: drush.command }

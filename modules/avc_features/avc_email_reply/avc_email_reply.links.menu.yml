@@ -1,0 +1,13 @@
+avc_email_reply.settings:
+  title: 'Email Reply Settings'
+  description: 'Configure email reply settings for group notifications.'
+  parent: system.admin_config_system
+  route_name: avc_email_reply.settings
+  weight: 50
+
+avc_email_reply.test:
+  title: 'Email Reply Test'
+  description: 'Test the email reply system.'
+  parent: avc_email_reply.settings
+  route_name: avc_email_reply.test_page
+  weight: 0

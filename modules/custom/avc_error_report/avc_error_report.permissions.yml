@@ -1,0 +1,8 @@
+submit error reports:
+  title: 'Submit error reports'
+  description: 'Allows users to submit error reports to GitLab.'
+
+administer error reporting:
+  title: 'Administer error reporting'
+  description: 'Configure error reporting settings.'
+  restrict access: true

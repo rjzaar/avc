@@ -1,0 +1,15 @@
+avc_error_report.form:
+  path: '/report-error'
+  defaults:
+    _form: '\Drupal\avc_error_report\Form\ErrorReportForm'
+    _title: 'Report an Error'
+  requirements:
+    _permission: 'submit error reports'
+
+avc_error_report.settings:
+  path: '/admin/config/avc/error-report'
+  defaults:
+    _form: '\Drupal\avc_error_report\Form\ErrorReportSettingsForm'
+    _title: 'Error Report Settings'
+  requirements:
+    _permission: 'administer error reporting'

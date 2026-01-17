@@ -1,0 +1,6 @@
+avc_error_report.settings:
+  title: 'Error Report Settings'
+  description: 'Configure error reporting to GitLab.'
+  route_name: avc_error_report.settings
+  parent: system.admin_config_system
+  weight: 50

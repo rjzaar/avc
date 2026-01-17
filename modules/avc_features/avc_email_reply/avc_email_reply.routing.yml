@@ -16,3 +16,41 @@ avc_email_reply.settings:
     _title: 'Email Reply Settings'
   requirements:
     _permission: 'administer email reply settings'
+
+avc_email_reply.test_page:
+  path: '/admin/config/avc/email-reply/test'
+  defaults:
+    _controller: '\Drupal\avc_email_reply\Controller\EmailReplyTestController::testPage'
+    _title: 'Email Reply Test'
+  requirements:
+    _permission: 'administer email reply settings'
+
+avc_email_reply.test_generate_token:
+  path: '/admin/config/avc/email-reply/test/generate-token'
+  defaults:
+    _controller: '\Drupal\avc_email_reply\Controller\EmailReplyTestController::generateToken'
+  methods: [GET]
+  requirements:
+    _permission: 'administer email reply settings'
+  options:
+    no_cache: 'TRUE'
+
+avc_email_reply.test_simulate_reply:
+  path: '/admin/config/avc/email-reply/test/simulate-reply'
+  defaults:
+    _controller: '\Drupal\avc_email_reply\Controller\EmailReplyTestController::simulateReply'
+  methods: [POST]
+  requirements:
+    _permission: 'administer email reply settings'
+  options:
+    no_cache: 'TRUE'
+
+avc_email_reply.test_process_queue:
+  path: '/admin/config/avc/email-reply/test/process-queue'
+  defaults:
+    _controller: '\Drupal\avc_email_reply\Controller\EmailReplyTestController::processQueue'
+  methods: [POST]
+  requirements:
+    _permission: 'administer email reply settings'
+  options:
+    no_cache: 'TRUE'

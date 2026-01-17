@@ -85,36 +85,32 @@ class EmailReplyWorker extends QueueWorkerBase implements ContainerFactoryPlugin
     }
 
     try {
+      // Map queue data fields to processor expected fields.
+      $processor_data = [
+        'token' => $data['token'],
+        'from' => $data['from'],
+        'text_content' => $data['text'] ?? '',
+        'spam_score' => isset($data['spam_score']) ? (float) $data['spam_score'] : 0.0,
+        'spf_result' => $data['spf'] ?? NULL,
+        'dkim_result' => $data['dkim'] ?? NULL,
+      ];
+
       // Process the email reply.
-      $result = $this->emailProcessor->process($data);
+      $result = $this->emailProcessor->process($processor_data);
 
       // Log the result based on success/failure.
-      if (!empty($result['success'])) {
+      if ($result->isSuccess()) {
         $this->logger->info('Successfully processed email reply from @from for token @token', [
           '@from' => $data['from'],
           '@token' => substr($data['token'], 0, 10) . '...',
         ]);
       }
       else {
-        // Check if this is a temporary or permanent failure.
-        $error_type = $result['error_type'] ?? 'permanent';
-        $error_message = $result['error'] ?? 'Unknown error';
-
-        if ($error_type === 'temporary') {
-          // Temporary failure - requeue for retry.
-          $this->logger->warning('Temporary failure processing email from @from: @error', [
-            '@from' => $data['from'],
-            '@error' => $error_message,
-          ]);
-          throw new RequeueException('Temporary failure: ' . $error_message);
-        }
-        else {
-          // Permanent failure - log and don't requeue.
-          $this->logger->error('Permanent failure processing email from @from: @error', [
-            '@from' => $data['from'],
-            '@error' => $error_message,
-          ]);
-        }
+        // Permanent failure - log and don't requeue.
+        $this->logger->error('Failed to process email from @from: @error', [
+          '@from' => $data['from'],
+          '@error' => $result->getMessage(),
+        ]);
       }
     }
     catch (RequeueException $e) {

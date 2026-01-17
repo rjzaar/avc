@@ -2,6 +2,29 @@
 
 All notable changes to AV Commons will be documented in this file.
 
+## [v0.5.1] - 2026-01-16
+
+### Added
+- **Error Reporting Module** (`avc_error_report` - Phase 5.7)
+  - Footer link "Report an Error" visible to authenticated users
+  - Form captures current page URL automatically
+  - User describes action taken and pastes error page content
+  - Creates formatted GitLab issues with full context
+  - Auto-captures environment info (Drupal version, PHP, browser, roles)
+  - Rate limiting (5 reports/hour/user, configurable)
+  - Admin settings form for GitLab configuration
+  - "Test Connection" button to verify GitLab API
+  - Unit tests for RateLimitService
+
+### Changed
+- Updated IMPLEMENTATION_PLAN.md with Phase 5.7
+- Updated Error Reporting proposal with simplified workflow
+
+### Statistics
+- 13 modules total (1 new: avc_error_report)
+- 2 new routes (/report-error, /admin/config/avc/error-report)
+- 2 new services (gitlab, rate_limit)
+
 ## [v0.5.0] - 2026-01-13
 
 ### Added

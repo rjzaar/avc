@@ -21,4 +21,4 @@ services:
       - '@avc_email_reply.content_extractor'
       - '@entity_type.manager'
       - '@logger.factory'
-      - '@?avc_notification.notification_service'
+      - '@?avc_notification.service'

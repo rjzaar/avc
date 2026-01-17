@@ -1,0 +1,77 @@
+/**
+ * @file
+ * Styles for the AVC Error Report module.
+ */
+
+/* Footer link container */
+.error-report-footer {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+/* The report error link */
+.error-report-link {
+  display: inline-block;
+  padding: 10px 16px;
+  background-color: #d32f2f;
+  color: #ffffff !important;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.error-report-link:hover,
+.error-report-link:focus {
+  background-color: #b71c1c;
+  color: #ffffff !important;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.error-report-link:focus {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+/* Form styling */
+.error-report-form .form-item-error-content textarea {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  min-height: 200px;
+}
+
+.error-report-form .form-item-error-content .description {
+  color: #666;
+  font-style: italic;
+}
+
+.error-report-form .auto-captured-info {
+  background-color: #f5f5f5;
+  padding: 10px 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: #555;
+}
+
+.error-report-form .auto-captured-info strong {
+  color: #333;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .error-report-footer {
+    bottom: 10px;
+    right: 10px;
+  }
+
+  .error-report-link {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}

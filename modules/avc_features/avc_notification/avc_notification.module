@@ -87,12 +87,22 @@ function avc_notification_theme($existing, $type, $theme, $path) {
  * Implements hook_mail().
  */
 function avc_notification_mail($key, &$message, $params) {
+  // Copy any custom headers (e.g., Reply-To for email replies).
+  if (!empty($params['headers'])) {
+    $message['headers'] = array_merge($message['headers'] ?? [], $params['headers']);
+  }
+
   switch ($key) {
     case 'workflow_advance':
       $message['subject'] = t('AV Commons Resource Check: @resource', [
         '@resource' => $params['resource_name'],
       ]);
       $message['body'][] = \Drupal::service('renderer')->renderPlain($params['body']);
+
+      // Add reply instructions if Reply-To header is set.
+      if (!empty($message['headers']['Reply-To'])) {
+        $message['body'][] = "\n\n---\n" . t('Reply to this email to add a comment. Your reply will be shared with the group.');
+      }
       break;
 
     case 'daily_digest':
@@ -114,6 +124,16 @@ function avc_notification_mail($key, &$message, $params) {
         '@type' => $params['alert_type'],
       ]);
       $message['body'][] = $params['message'];
+      break;
+
+    case 'generic':
+      $message['subject'] = $params['subject'] ?? t('AV Commons Notification');
+      $message['body'][] = $params['body'];
+
+      // Add reply instructions if Reply-To header is set.
+      if (!empty($message['headers']['Reply-To'])) {
+        $message['body'][] = "\n\n---\n" . t('Reply to this email to add a comment.');
+      }
       break;
   }
 }

@@ -1,0 +1,19 @@
+services:
+  avc_error_report.gitlab:
+    class: Drupal\avc_error_report\Service\GitLabService
+    arguments:
+      - '@http_client'
+      - '@config.factory'
+      - '@logger.factory'
+      - '@current_user'
+
+  avc_error_report.rate_limit:
+    class: Drupal\avc_error_report\Service\RateLimitService
+    arguments:
+      - '@keyvalue'
+      - '@config.factory'
+      - '@datetime.time'
+
+  logger.channel.avc_error_report:
+    parent: logger.channel_base
+    arguments: ['avc_error_report']
