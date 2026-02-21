@@ -224,6 +224,8 @@ class NotificationAggregator {
       NotificationQueue::EVENT_RATIFICATION_COMPLETE => t('Ratification Results'),
       NotificationQueue::EVENT_ENDORSEMENT => t('Endorsements'),
       NotificationQueue::EVENT_GUILD_PROMOTION => t('Promotions'),
+      NotificationQueue::EVENT_CREATE_TOPIC => t('New Topics'),
+      NotificationQueue::EVENT_TOPIC_COMMENT => t('Topic Comments'),
     ];
 
     return $labels[$event_type] ?? $event_type;

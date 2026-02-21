@@ -5,7 +5,10 @@
  * Advanced notification system for AV Commons.
  */
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\comment\CommentInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * Implements hook_help().
@@ -135,5 +138,103 @@ function avc_notification_mail($key, &$message, $params) {
         $message['body'][] = "\n\n---\n" . t('Reply to this email to add a comment.');
       }
       break;
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_insert() for node entities.
+ *
+ * Queue notification when a topic is created in a group.
+ */
+function avc_notification_node_insert(NodeInterface $node) {
+  if ($node->bundle() !== 'topic') {
+    return;
+  }
+
+  // Check if the topic belongs to a group.
+  if (!\Drupal::moduleHandler()->moduleExists('group')) {
+    return;
+  }
+
+  try {
+    $group_contents = \Drupal::entityTypeManager()
+      ->getStorage('group_content')
+      ->loadByEntity($node);
+
+    if (empty($group_contents)) {
+      return;
+    }
+
+    $group_content = reset($group_contents);
+    $group = $group_content->getGroup();
+
+    /** @var \Drupal\avc_notification\Service\NotificationService $notification_service */
+    $notification_service = \Drupal::service('avc_notification.service');
+    $notification_service->queueGroupNotification(
+      $group,
+      $node->getOwner(),
+      'create_topic',
+      $node->id(),
+      'node',
+      t('@user created a new topic: @title', [
+        '@user' => $node->getOwner()->getDisplayName(),
+        '@title' => $node->getTitle(),
+      ])->__toString()
+    );
+  }
+  catch (\Exception $e) {
+    \Drupal::logger('avc_notification')->error(
+      'Failed to queue topic creation notification: @message',
+      ['@message' => $e->getMessage()]
+    );
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_insert() for comment entities.
+ *
+ * Queue notification when a comment is posted on a topic.
+ */
+function avc_notification_comment_insert(CommentInterface $comment) {
+  $commented_entity = $comment->getCommentedEntity();
+  if (!$commented_entity instanceof NodeInterface || $commented_entity->bundle() !== 'topic') {
+    return;
+  }
+
+  if (!\Drupal::moduleHandler()->moduleExists('group')) {
+    return;
+  }
+
+  try {
+    $group_contents = \Drupal::entityTypeManager()
+      ->getStorage('group_content')
+      ->loadByEntity($commented_entity);
+
+    if (empty($group_contents)) {
+      return;
+    }
+
+    $group_content = reset($group_contents);
+    $group = $group_content->getGroup();
+
+    /** @var \Drupal\avc_notification\Service\NotificationService $notification_service */
+    $notification_service = \Drupal::service('avc_notification.service');
+    $notification_service->queueGroupNotification(
+      $group,
+      $comment->getOwner(),
+      'topic_comment',
+      $commented_entity->id(),
+      'node',
+      t('@user commented on topic: @title', [
+        '@user' => $comment->getOwner()->getDisplayName(),
+        '@title' => $commented_entity->getTitle(),
+      ])->__toString()
+    );
+  }
+  catch (\Exception $e) {
+    \Drupal::logger('avc_notification')->error(
+      'Failed to queue topic comment notification: @message',
+      ['@message' => $e->getMessage()]
+    );
   }
 }

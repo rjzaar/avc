@@ -22,7 +22,7 @@ This document provides a numbered, phased implementation plan for the AV Commons
 | 5.5 | Work Management | ✅ COMPLETE | My Work dashboard with unified task view |
 | 5.6 | Email Reply | ✅ COMPLETE | Inbound email webhook for comment creation |
 | 5.7 | Error Reporting | ✅ COMPLETE | GitLab issue creation from user error reports |
-| 6 | Forums | 🔲 NOT STARTED | Leverage Open Social Topics |
+| 6 | Forums | ✅ COMPLETE | Leverage Open Social Topics with AVC notification integration |
 | 7-10 | Future Phases | 🔲 NOT STARTED | Versioning, Flagging, Courses, Suggestions |
 
 **Key Achievements**:
@@ -1066,7 +1066,7 @@ Minimal - mostly configuration:
 | 5.5: Work Management | High | Medium | Custom dashboard | ✅ COMPLETE |
 | 5.6: Email Reply | Medium | Low-Medium | Custom webhook | ✅ COMPLETE |
 | 5.7: Error Reporting | Medium | Low | Custom module | ✅ COMPLETE |
-| 6: Forums | Low | Minimal | Use social_topic as-is | 🔲 Pending |
+| 6: Forums | Low | Minimal | Uses social_topic with AVC notification integration | ✅ Complete |
 | 7: Versioning | Medium | Low | Drupal revisions | 🔲 Pending |
 | 8: Flagging | Low | Low | Custom | 🔲 Pending |
 | 9: Courses | Low | High | H5P/Moodle integration | 🔲 Pending |

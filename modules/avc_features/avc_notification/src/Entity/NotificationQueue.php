@@ -56,6 +56,8 @@ class NotificationQueue extends ContentEntityBase {
   const EVENT_ENDORSEMENT = 'endorsement';
   const EVENT_GUILD_PROMOTION = 'guild_promotion';
   const EVENT_GROUP_COMMENT = 'group_comment';
+  const EVENT_CREATE_TOPIC = 'create_topic';
+  const EVENT_TOPIC_COMMENT = 'topic_comment';
 
   /**
    * Notification statuses.
@@ -84,6 +86,8 @@ class NotificationQueue extends ContentEntityBase {
           self::EVENT_ENDORSEMENT => 'Endorsement',
           self::EVENT_GUILD_PROMOTION => 'Guild Promotion',
           self::EVENT_GROUP_COMMENT => 'Group Comment',
+          self::EVENT_CREATE_TOPIC => 'Topic Created',
+          self::EVENT_TOPIC_COMMENT => 'Topic Comment',
         ],
       ])
       ->setRequired(TRUE)
