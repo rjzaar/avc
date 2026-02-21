@@ -15,6 +15,8 @@ use Drupal\field\Entity\FieldStorageConfig;
 function avc_notification_install() {
   // Create notification preference field on user entity.
   _avc_notification_create_user_fields();
+  // Create notification override field on group content.
+  _avc_notification_create_group_override_field();
 }
 
 /**
@@ -85,6 +87,37 @@ function _avc_notification_create_user_fields() {
       'required' => FALSE,
     ])->save();
   }
+}
+
+/**
+ * Create notification override field on group content entities.
+ */
+function _avc_notification_create_group_override_field() {
+  // Create field storage for notification override on group_content.
+  if (!FieldStorageConfig::loadByName('group_content', 'field_notification_override')) {
+    FieldStorageConfig::create([
+      'field_name' => 'field_notification_override',
+      'entity_type' => 'group_content',
+      'type' => 'list_string',
+      'settings' => [
+        'allowed_values' => [
+          'p' => 'Use personal default',
+          'n' => 'Immediate (as they occur)',
+          'd' => 'Daily digest',
+          'w' => 'Weekly digest',
+          'x' => 'No notifications',
+        ],
+      ],
+      'cardinality' => 1,
+    ])->save();
+  }
+}
+
+/**
+ * Add field_notification_override to group content entities.
+ */
+function avc_notification_update_10001() {
+  _avc_notification_create_group_override_field();
 }
 
 /**

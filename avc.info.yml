@@ -60,6 +60,9 @@ install:
   - avc:avc_guild
   - avc:avc_content
   - avc:workflow_assignment
+  - avc:avc_work_management
+  - avc:avc_email_reply
+  - avc:avc_error_report
   # Contrib
   - ultimate_cron:ultimate_cron
 
