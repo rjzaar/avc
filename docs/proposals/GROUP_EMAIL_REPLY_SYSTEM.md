@@ -1,6 +1,6 @@
 # Proposal: Group/Guild Email Reply-to-Comment System
 
-**Status**: DRAFT
+**Status**: IMPLEMENTED
 **Author**: Claude Code Research
 **Date**: 2026-01-13
 

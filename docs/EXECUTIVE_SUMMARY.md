@@ -227,7 +227,7 @@ Organizations needing:
 |----------|-------------|
 | [WORK_MANAGEMENT_MODULE.md](workflow/WORK_MANAGEMENT_MODULE.md) | **"My Work" dashboard spec** - Complete specification for the unified work dashboard showing tasks by status (Action Needed, Available, Upcoming, Completed). |
 | [WORK_MANAGEMENT_IMPLEMENTATION.md](workflow/WORK_MANAGEMENT_IMPLEMENTATION.md) | **Implementation plan** - Technical implementation details for work dashboard and workflow access control. |
-| [WORKFLOW_ACCESS_CONTROL.md](workflow/WORKFLOW_ACCESS_CONTROL.md) | **Access control spec** - How node access is restricted to workflow participants during active workflows. |
+| [WORKFLOW_ACCESS_CONTROL.md](proposals/WORKFLOW_ACCESS_CONTROL.md) | **Access control spec** - How node access is restricted to workflow participants during active workflows. Status: IMPLEMENTED. |
 | [guild-skill-level-design.md](workflow/guild-skill-level-design.md) | **Skill level system** - Complete design for multi-level skill proficiency (Apprentice → Master), credit accumulation, and verification workflows. Status: ✅ IMPLEMENTED. |
 | [guild-skill-systems-research.md](workflow/guild-skill-systems-research.md) | **Research document** - Historical guild models and modern certification systems that informed the skill level design. |
 
@@ -244,7 +244,7 @@ Organizations needing:
 
 | Document | Description |
 |----------|-------------|
-| [GROUP_EMAIL_REPLY_SYSTEM.md](proposals/GROUP_EMAIL_REPLY_SYSTEM.md) | **Email reply proposal** - System for replying to notification emails with automatic comment posting to groups. Status: ✅ IMPLEMENTED as `avc_email_reply` module. |
+| [GROUP_EMAIL_REPLY_SYSTEM.md](proposals/GROUP_EMAIL_REPLY_SYSTEM.md) | **Email reply proposal** - System for replying to notification emails with automatic comment posting to groups. Status: IMPLEMENTED as `avc_email_reply` module. |
 | [AVC_ERROR_REPORTING_MODULE.md](proposals/AVC_ERROR_REPORTING_MODULE.md) | **Error reporting proposal** - User-facing error reporting with GitLab issue creation. Status: ✅ IMPLEMENTED as `avc_error_report` module. |
 | [GUILD_MULTIPLE_VERIFICATION_TYPES.md](proposals/GUILD_MULTIPLE_VERIFICATION_TYPES.md) | **Multiple verification types** - OR logic for guild skill level verification methods. Status: PROPOSED. |
 

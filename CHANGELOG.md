@@ -2,6 +2,54 @@
 
 All notable changes to AV Commons will be documented in this file.
 
+## [Unreleased]
+
+## [v0.6.0] - 2026-02-22
+
+### Added
+- **Workflow Access Control** (`workflow_assignment` - Phase F.1)
+  - Participant-based node access during active workflows
+  - WorkflowParticipantResolver and WorkflowAccessManager services
+  - Configurable per content type (off by default)
+  - Past participant view and delete restriction options
+  - Cache invalidation on workflow task changes
+- **Group Forums** (Phase 6)
+  - Topic notification integration with AVC notification preferences
+  - create_topic and topic_comment event handling
+- **Test Coverage** for guild, notification, asset, and workflow modules
+  - ScoringServiceTest, EndorsementServiceTest
+  - NotificationProcessorTest
+  - WorkflowCheckerTest, WorkflowHistoryLoggerTest
+- **Per-guild credit source configuration** in SkillConfigurationService
+- **Verifier eligibility filtering** with guild membership and level checks
+- **field_notification_override** on group content entities
+
+### Fixed
+- Added missing modules to profile install list (avc_work_management, avc_email_reply, avc_error_report)
+- Removed no-op hook_node_access() stub from workflow_assignment
+- Fixed documentation accuracy (versions, module listings, phase numbers)
+- Moved avc_error_report from modules/custom/ to modules/avc_features/
+
+### Changed
+- Reorganised documentation: moved proposals, marked implemented status
+- Updated EXECUTIVE_SUMMARY.md to v0.6.0
+- Added historical snapshot header to CODE_ANALYSIS_REPORT
+- Guild Multiple Verification Types proposal - OR logic for verification methods
+- Guild progression documentation - Prototype docs
+- Workflow System Implementation Plan - Three-phase proposal
+- Endpoints and Destinations research
+
+### Previously Unreleased Fixes (from v0.5.1)
+- Fixed TypeError in VerificationQueueController by loading UserInterface
+- Fixed FieldItemList errors in skill progress pages
+- Fixed FieldItemList errors in leaderboard and member profile pages
+- Added missing getter methods to SkillCredit entity
+- Fixed field_group_affiliation configuration to allow all group bundles
+- Fixed Guild dashboard rendering and added missing role configurations
+- Secured help pages and updated branding for AV Commons
+- Added automated sample content generation script for avc-dev
+- Use complex random passwords for social demo users
+
 ## [v0.5.1] - 2026-01-16
 
 ### Added
