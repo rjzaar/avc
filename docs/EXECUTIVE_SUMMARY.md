@@ -6,7 +6,7 @@
 
 | | |
 |---|---|
-| **Version** | 0.5.0 (Jan 2026) |
+| **Version** | 0.6.0 (Feb 2026) |
 | **Platform** | Drupal 10.x-11.x |
 | **Requirements** | PHP 8.1+, MySQL/MariaDB |
 | **Foundation** | Open Social distribution |
@@ -112,9 +112,10 @@ Organizations needing:
 | `avc_guild` | Guild scoring, endorsements, skill levels | 7 | 15 |
 | `avc_work_management` | "My Work" task dashboard | 0 | 3 |
 | `avc_email_reply` | Inbound email webhook for comments | 0 | 2 |
+| `avc_error_report` | Error reporting to GitLab | 0 | 2 |
 | `avc_content` | Initial site content, help pages | 0 | 0 |
 | `avc_devel` | Test data generation | 0 | 2 |
-| **Total** | **11 modules** | **14** | **60+** |
+| **Total** | **12 modules** | **14** | **66+** |
 
 ---
 
@@ -130,7 +131,8 @@ Organizations needing:
 | 5.1 | Guild Skill Levels | ✅ Complete |
 | 5.5 | Work Management Dashboard | ✅ Complete |
 | 5.6 | Email Reply System | ✅ Complete |
-| 6 | Forums | Planned |
+| 5.7 | Error Reporting | ✅ Complete |
+| 6 | Forums | ✅ Complete |
 | 7 | Version Control & Diff | Planned |
 | 8 | Issue Flagging | Planned |
 | 9 | Training/Courses | Planned |
@@ -151,20 +153,36 @@ Organizations needing:
 
 ---
 
-## Recent Additions (v0.5.0)
+## Recent Additions (v0.6.0)
 
-- **Work Management Dashboard** - "My Work" interface with:
+- **Workflow Access Control** (v0.6.0) - Participant-based access control:
+  - Restricts node access to workflow participants during active workflows
+  - Configurable per content type (off by default)
+  - Past participant view and delete restriction options
+
+- **Group Forums** (v0.6.0) - Topic-based group discussions:
+  - Leverages Open Social's social_topic module
+  - Integrated with AVC notification preferences (n/d/w/x)
+  - Topic creation and comment notification events
+
+- **Error Reporting Module** (v0.5.1) - User error reporting:
+  - "Report an Error" footer link for authenticated users
+  - Auto-captures page URL and environment info
+  - Creates formatted GitLab issues with full context
+  - Rate limiting (5 reports/hour/user)
+
+- **Work Management Dashboard** (v0.5.0) - "My Work" interface with:
   - Summary cards by content type
   - Task sections: Action Needed, Available, Upcoming, Completed
   - Task claiming for group assignments
 
-- **Guild Skill Level System** - Multi-level proficiency:
+- **Guild Skill Level System** (v0.5.0) - Multi-level proficiency:
   - 4 progression levels per skill (Apprentice → Master)
   - Credit accumulation from approved work
   - Verification workflow (auto/mentor/peer/committee)
   - Member skill dashboards and analytics
 
-- **Email Reply System** - Inbound email integration:
+- **Email Reply System** (v0.5.0) - Inbound email integration:
   - Webhook endpoint for email services
   - Reply to notifications → automatic comment posting
   - Security: token validation, sender verification
@@ -227,6 +245,15 @@ Organizations needing:
 | Document | Description |
 |----------|-------------|
 | [GROUP_EMAIL_REPLY_SYSTEM.md](proposals/GROUP_EMAIL_REPLY_SYSTEM.md) | **Email reply proposal** - System for replying to notification emails with automatic comment posting to groups. Status: ✅ IMPLEMENTED as `avc_email_reply` module. |
+| [AVC_ERROR_REPORTING_MODULE.md](proposals/AVC_ERROR_REPORTING_MODULE.md) | **Error reporting proposal** - User-facing error reporting with GitLab issue creation. Status: ✅ IMPLEMENTED as `avc_error_report` module. |
+| [GUILD_MULTIPLE_VERIFICATION_TYPES.md](proposals/GUILD_MULTIPLE_VERIFICATION_TYPES.md) | **Multiple verification types** - OR logic for guild skill level verification methods. Status: PROPOSED. |
+
+### Implementation Plans
+
+| Document | Description |
+|----------|-------------|
+| [WORKFLOW_SYSTEM_COMPLETE_IMPLEMENTATION_PLAN.md](WORKFLOW_SYSTEM_COMPLETE_IMPLEMENTATION_PLAN.md) | **Workflow enhancements** - Three-phase plan for time-limited task claiming, destination access control, and versioning with re-edit support. Status: PROPOSED. |
+| [Endpoints-and-Destinations-in-AVC.md](Endpoints-and-Destinations-in-AVC.md) | **Destinations research** - Analysis of taxonomy-based destination access control system for completed content. |
 
 ### Reference (`reference/`)
 
@@ -254,6 +281,9 @@ Organizations needing:
 | `avc.gs` | Google Apps Script prototype (79KB) - original working prototype |
 | `AV Commons App.xlsx` | Excel spreadsheet with data model and workflows |
 | `spreadsheet-data.txt` | Extracted spreadsheet data for reference |
+| [Guilds.md](prototype/Guilds.md) | Guild system prototype documentation |
+| [Guild-Progress-Guide.md](prototype/Guild-Progress-Guide.md) | 12 ways to contribute in guilds |
+| [AVC-Progression-Configuration.md](prototype/AVC-Progression-Configuration.md) | Skill levels, verification types, and scoring configuration details |
 
 ---
 
@@ -286,4 +316,4 @@ vendor/bin/phpcs --standard=Drupal,DrupalPractice modules/avc_features/
 
 ---
 
-*Last Updated: January 13, 2026*
+*Last Updated: February 22, 2026*

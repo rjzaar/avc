@@ -58,7 +58,9 @@ AVC follows a phased implementation with feature modules organized under `module
 | **avc_asset** | 3 | Project, Document, and Resource management with workflows |
 | **avc_notification** | 4 | Advanced notification queue with digest preferences |
 | **avc_guild** | 5 | Guild group type for skill-based communities |
-| **avc_work_management** | 6 | "My Work" dashboard for task management |
+| **avc_work_management** | 5.5 | "My Work" dashboard for task management |
+| **avc_email_reply** | 5.6 | Inbound email webhook for comment creation |
+| **avc_error_report** | 5.7 | Error reporting to GitLab |
 | **avc_content** | - | Initial site content and demo pages |
 | **avc_devel** | - | Development tools and test data generation |
 
@@ -95,7 +97,8 @@ avc/
 │   ├── specs/            # AVC specifications
 │   └── workflow/         # Workflow documentation
 ├── modules/
-│   └── avc_features/     # All AVC feature modules
+│   ├── avc_features/     # All AVC feature modules
+│   └── custom/           # Contributed/third-party module overrides
 ├── src/
 │   ├── Exception/        # Custom exception classes
 │   ├── Installer/        # Installation form classes
@@ -128,10 +131,10 @@ $settings['file_private_path'] = '/path/to/private/files';
 
 Members can configure notification digests:
 
-- **n** (None) - No notifications
+- **n** (Now) - Immediate notifications
 - **d** (Daily) - Daily digest
 - **w** (Weekly) - Weekly digest
-- **x** (Exclusive) - Immediate notifications only
+- **x** (None) - No notifications
 
 ### Guild Configuration
 
@@ -205,7 +208,15 @@ vendor/bin/phpcs --standard=Drupal,DrupalPractice modules/avc_features/
 ### Workflow Services
 
 - `workflow_assignment.workflow_manager` - Core workflow management
+- `workflow_assignment.notification` - Workflow notification delivery
+- `workflow_assignment.history_logger` - Workflow audit trail
 - `avc_work_management.work_service` - Work dashboard functionality
+
+### Email & Error Services
+
+- `avc_email_reply.parser` - Inbound email parsing for comment creation
+- `avc_error_report.gitlab` - GitLab issue creation for error reports
+- `avc_error_report.rate_limit` - Error report rate limiting
 
 ## Contributing
 

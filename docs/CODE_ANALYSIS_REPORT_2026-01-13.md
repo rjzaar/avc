@@ -1,5 +1,7 @@
 # AVC Code Analysis Report
 
+> **Historical Snapshot** - This report reflects the codebase state as of January 13, 2026. For current module status, see [EXECUTIVE_SUMMARY.md](EXECUTIVE_SUMMARY.md) and [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md).
+
 **Date:** January 13, 2026
 **Analyst:** Claude (Anthropic)
 **Scope:** Complete code inventory and documentation audit

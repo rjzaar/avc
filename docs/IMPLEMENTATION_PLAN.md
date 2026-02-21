@@ -103,6 +103,7 @@ avc_profile/
 │   ├── avc_guild/                # ✅ Phase 5: Guild system + Skill Levels
 │   ├── avc_work_management/      # ✅ Phase 5.5: My Work dashboard
 │   ├── avc_email_reply/          # ✅ Phase 5.6: Inbound email handling
+│   ├── avc_error_report/         # ✅ Phase 5.7: Error reporting to GitLab
 │   ├── avc_content/              # Help content and documentation
 │   ├── avc_devel/                # Development & test content
 │   └── workflow_assignment/      # Core workflow engine
@@ -616,6 +617,7 @@ modules/custom/avc_notification/
 - `GuildSkillsReportController` - Analytics and reporting
 - Forms: `GuildSkillLevelConfigForm`, `LevelVerificationVoteForm`
 - Routes: skill admin, my skills, verification queue, analytics
+- Custom table: `level_verification_vote` for peer/committee voting records
 
 #### 5.1 Create Guild Group Type
 ```
@@ -1063,6 +1065,7 @@ Minimal - mostly configuration:
 | 5.1: Guild Skill Levels | High | Medium-High | Custom entities | ✅ COMPLETE |
 | 5.5: Work Management | High | Medium | Custom dashboard | ✅ COMPLETE |
 | 5.6: Email Reply | Medium | Low-Medium | Custom webhook | ✅ COMPLETE |
+| 5.7: Error Reporting | Medium | Low | Custom module | ✅ COMPLETE |
 | 6: Forums | Low | Minimal | Use social_topic as-is | 🔲 Pending |
 | 7: Versioning | Medium | Low | Drupal revisions | 🔲 Pending |
 | 8: Flagging | Low | Low | Custom | 🔲 Pending |
@@ -1211,13 +1214,15 @@ Open Social Distribution (base platform)
 8. ~~**Phase 5.1: Guild Skill Levels** - Multi-level skill progression system with 4 entities~~
 9. ~~**Phase 5.5: Work Management** - Unified "My Work" dashboard with task claiming~~
 10. ~~**Phase 5.6: Email Reply System** - Inbound email webhook for comment creation~~
+11. ~~**Phase 5.7: Error Reporting** - GitLab issue creation from user error reports~~
 
 ### In Progress / Next
-11. **Phase 6: Forums** - Leverage Open Social Topics for group discussions
-12. **Phase 7: Version Control** - Asset versioning with comparison tools
+12. **Workflow System Enhancements** - Time-limited task claiming, destination access control, versioning & re-edit (see [WORKFLOW_SYSTEM_COMPLETE_IMPLEMENTATION_PLAN.md](WORKFLOW_SYSTEM_COMPLETE_IMPLEMENTATION_PLAN.md))
+13. **Guild Multiple Verification Types** - OR logic for verification methods (see [proposal](proposals/GUILD_MULTIPLE_VERIFICATION_TYPES.md))
+14. **Phase 7: Version Control** - Asset versioning with comparison tools
 
 ### Future
-13. Continue with remaining phases (Flagging, Courses, Suggestions, etc.)
+16. Continue with remaining phases (Flagging, Courses, Suggestions, etc.)
 
 ### Test Coverage
 - **Behat Tests**: 27 scenarios, 143 steps passing
@@ -1240,8 +1245,8 @@ Open Social Distribution (base platform)
 ---
 
 *Document created: 2026-01-02*
-*Last updated: 2026-01-13*
+*Last updated: 2026-02-22*
 *Platform: Open Social Distribution*
 *Based on: avc specs.docx, avc.gs prototype, workflow_assignment module analysis*
-*Implementation: Phases 1-5.6 complete (Member, Group, Asset, Notification, Guild, Skill Levels, Work Management, Email Reply)*
+*Implementation: Phases 1-5.7 complete (Member, Group, Asset, Notification, Guild, Skill Levels, Work Management, Email Reply, Error Reporting)*
 *Test coverage: 27 scenarios, 143 steps with Behat + Selenium 4 JavaScript testing*
