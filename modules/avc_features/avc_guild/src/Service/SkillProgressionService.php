@@ -559,7 +559,8 @@ class SkillProgressionService {
       $query->condition('guild_id', $guild->id());
     }
 
-    // TODO: Filter by verifier eligibility (level, role).
+    // Exclude verifications where the verifier is the candidate.
+    $query->condition('user_id', $verifier->id(), '<>');
 
     $ids = $query->execute();
 
@@ -571,7 +572,7 @@ class SkillProgressionService {
       ->getStorage('level_verification')
       ->loadMultiple($ids);
 
-    // Filter to only those the verifier can vote on.
+    // Filter by verifier eligibility: level requirement and not already voted.
     $filtered = [];
     foreach ($verifications as $verification) {
       if ($this->canVerify($verifier, $verification) && !$this->hasVoted($verification, $verifier)) {
@@ -603,13 +604,19 @@ class SkillProgressionService {
     $skill = $verification->getSkill();
     $target_level = $verification->getTargetLevel();
 
+    // Check guild membership.
+    $member = $guild->getMember($verifier);
+    if (!$member) {
+      return FALSE;
+    }
+
     // Get level config.
     $level_config = $this->configService->getLevelConfig($guild, $skill, $target_level);
     if (!$level_config) {
       return FALSE;
     }
 
-    // Check verifier's level in this skill.
+    // Check verifier's level in this skill meets minimum requirement.
     $progress = MemberSkillProgress::loadOrCreate($verifier, $guild, $skill);
     $verifier_level = $progress->getCurrentLevel();
 

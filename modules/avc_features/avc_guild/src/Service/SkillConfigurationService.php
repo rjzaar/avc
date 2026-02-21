@@ -256,7 +256,23 @@ class SkillConfigurationService {
   }
 
   /**
+   * Default credit source values.
+   */
+  const DEFAULT_CREDIT_SOURCES = [
+    'task_completed' => 5,
+    'task_reviewed_approved' => 10,
+    'task_reviewed_exceptional' => 15,
+    'review_given' => 3,
+    'endorsement_received' => 15,
+    'endorsement_given' => 2,
+  ];
+
+  /**
    * Gets credit source configuration for a guild.
+   *
+   * Reads from the guild's field_credit_sources field if available,
+   * otherwise returns defaults. The field stores a JSON-encoded map
+   * of source_type => credits.
    *
    * @param \Drupal\group\Entity\GroupInterface $guild
    *   The guild.
@@ -265,16 +281,17 @@ class SkillConfigurationService {
    *   Array of source_type => credits.
    */
   public function getCreditSources(GroupInterface $guild): array {
-    // TODO: Make this configurable per guild via a config entity or field.
-    // For now, return defaults.
-    return [
-      'task_completed' => 5,
-      'task_reviewed_approved' => 10,
-      'task_reviewed_exceptional' => 15,
-      'review_given' => 3,
-      'endorsement_received' => 15,
-      'endorsement_given' => 2,
-    ];
+    if ($guild->hasField('field_credit_sources')) {
+      $value = $guild->get('field_credit_sources')->value;
+      if ($value) {
+        $decoded = json_decode($value, TRUE);
+        if (is_array($decoded) && !empty($decoded)) {
+          return $decoded + self::DEFAULT_CREDIT_SOURCES;
+        }
+      }
+    }
+
+    return self::DEFAULT_CREDIT_SOURCES;
   }
 
 }
