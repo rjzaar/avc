@@ -101,6 +101,20 @@ function avc_email_reply_mail_alter(&$message) {
 }
 
 /**
+ * Implements hook_cron().
+ */
+function avc_email_reply_cron() {
+  /** @var \Drupal\avc_email_reply\Service\EmailRateLimiter $rate_limiter */
+  $rate_limiter = \Drupal::service('avc_email_reply.rate_limiter');
+  $removed = $rate_limiter->cleanupStaleKeys();
+  if ($removed > 0) {
+    \Drupal::logger('avc_email_reply')->info('Cleaned up @count stale rate limit keys.', [
+      '@count' => $removed,
+    ]);
+  }
+}
+
+/**
  * Implements hook_theme().
  */
 function avc_email_reply_theme($existing, $type, $theme, $path) {

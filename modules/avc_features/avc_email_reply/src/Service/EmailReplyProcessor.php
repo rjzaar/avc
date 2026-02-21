@@ -3,6 +3,8 @@
 namespace Drupal\avc_email_reply\Service;
 
 use Drupal\comment\CommentInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
@@ -42,6 +44,20 @@ class EmailReplyProcessor {
   protected $entityTypeManager;
 
   /**
+   * The entity field manager.
+   *
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
+   */
+  protected $entityFieldManager;
+
+  /**
+   * The config factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
+
+  /**
    * The logger factory.
    *
    * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
@@ -66,6 +82,10 @@ class EmailReplyProcessor {
    *   The content extractor service.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
+   *   The entity field manager.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The config factory.
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
    *   The logger factory.
    * @param \Drupal\avc_notification\Service\NotificationService|null $notification_service
@@ -76,6 +96,8 @@ class EmailReplyProcessor {
     EmailRateLimiter $rate_limiter,
     ReplyContentExtractor $content_extractor,
     EntityTypeManagerInterface $entity_type_manager,
+    EntityFieldManagerInterface $entity_field_manager,
+    ConfigFactoryInterface $config_factory,
     LoggerChannelFactoryInterface $logger_factory,
     $notification_service = NULL
   ) {
@@ -83,6 +105,8 @@ class EmailReplyProcessor {
     $this->rateLimiter = $rate_limiter;
     $this->contentExtractor = $content_extractor;
     $this->entityTypeManager = $entity_type_manager;
+    $this->entityFieldManager = $entity_field_manager;
+    $this->configFactory = $config_factory;
     $this->loggerFactory = $logger_factory;
     $this->notificationService = $notification_service;
   }
@@ -216,8 +240,10 @@ class EmailReplyProcessor {
   public function performSecurityChecks(array $email_data, array $token_data): SecurityCheckResult {
     $logger = $this->loggerFactory->get('avc_email_reply');
 
-    // Check spam score (reject if > 5.0).
-    if (isset($email_data['spam_score']) && $email_data['spam_score'] > 5.0) {
+    // Check spam score against configured threshold.
+    $config = $this->configFactory->get('avc_email_reply.settings');
+    $spam_threshold = $config->get('spam_score_threshold') ?? 5.0;
+    if (isset($email_data['spam_score']) && $email_data['spam_score'] > $spam_threshold) {
       return new SecurityCheckResult(FALSE, 'Spam score too high: ' . $email_data['spam_score']);
     }
 
@@ -346,11 +372,7 @@ class EmailReplyProcessor {
     $bundle = $entity->bundle();
 
     // Get field definitions for the entity bundle.
-    $field_definitions = $this->entityTypeManager
-      ->getDefinition($entity_type_id)
-      ->get('field_ui_base_route')
-      ? \Drupal::service('entity_field.manager')->getFieldDefinitions($entity_type_id, $bundle)
-      : [];
+    $field_definitions = $this->entityFieldManager->getFieldDefinitions($entity_type_id, $bundle);
 
     // Look for a comment field.
     foreach ($field_definitions as $field_name => $field_definition) {
@@ -419,134 +441,6 @@ class EmailReplyProcessor {
     catch (\Exception $e) {
       return FALSE;
     }
-  }
-
-}
-
-/**
- * Value object representing the result of processing an email reply.
- */
-class ProcessResult {
-
-  /**
-   * Whether processing was successful.
-   *
-   * @var bool
-   */
-  protected $success;
-
-  /**
-   * The result message.
-   *
-   * @var string
-   */
-  protected $message;
-
-  /**
-   * The created comment, if any.
-   *
-   * @var \Drupal\comment\CommentInterface|null
-   */
-  protected $comment;
-
-  /**
-   * Constructs a ProcessResult object.
-   *
-   * @param bool $success
-   *   Whether processing was successful.
-   * @param string $message
-   *   The result message.
-   * @param \Drupal\comment\CommentInterface|null $comment
-   *   The created comment, if any.
-   */
-  public function __construct(bool $success, string $message, ?CommentInterface $comment = NULL) {
-    $this->success = $success;
-    $this->message = $message;
-    $this->comment = $comment;
-  }
-
-  /**
-   * Check if processing was successful.
-   *
-   * @return bool
-   *   TRUE if successful, FALSE otherwise.
-   */
-  public function isSuccess(): bool {
-    return $this->success;
-  }
-
-  /**
-   * Get the result message.
-   *
-   * @return string
-   *   The message.
-   */
-  public function getMessage(): string {
-    return $this->message;
-  }
-
-  /**
-   * Get the created comment.
-   *
-   * @return \Drupal\comment\CommentInterface|null
-   *   The comment, or NULL if none was created.
-   */
-  public function getComment(): ?CommentInterface {
-    return $this->comment;
-  }
-
-}
-
-/**
- * Value object representing the result of security checks.
- */
-class SecurityCheckResult {
-
-  /**
-   * Whether security checks passed.
-   *
-   * @var bool
-   */
-  protected $success;
-
-  /**
-   * The reason for failure, if any.
-   *
-   * @var string
-   */
-  protected $reason;
-
-  /**
-   * Constructs a SecurityCheckResult object.
-   *
-   * @param bool $success
-   *   Whether security checks passed.
-   * @param string $reason
-   *   The reason for the result.
-   */
-  public function __construct(bool $success, string $reason) {
-    $this->success = $success;
-    $this->reason = $reason;
-  }
-
-  /**
-   * Check if security checks passed.
-   *
-   * @return bool
-   *   TRUE if passed, FALSE otherwise.
-   */
-  public function isSuccess(): bool {
-    return $this->success;
-  }
-
-  /**
-   * Get the reason for the result.
-   *
-   * @return string
-   *   The reason.
-   */
-  public function getReason(): string {
-    return $this->reason;
   }
 
 }

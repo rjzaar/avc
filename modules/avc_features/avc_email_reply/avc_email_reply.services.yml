@@ -20,5 +20,7 @@ services:
       - '@avc_email_reply.rate_limiter'
       - '@avc_email_reply.content_extractor'
       - '@entity_type.manager'
+      - '@entity_field.manager'
+      - '@config.factory'
       - '@logger.factory'
       - '@?avc_notification.service'

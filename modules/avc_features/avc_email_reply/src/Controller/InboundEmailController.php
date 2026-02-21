@@ -90,8 +90,8 @@ class InboundEmailController extends ControllerBase {
    *   HTTP response.
    */
   public function receive(Request $request): Response {
-    // Validate webhook signature for SendGrid.
-    if (!$this->validateSendGridSignature($request)) {
+    // Validate webhook signature based on configured provider.
+    if (!$this->validateWebhookSignature($request)) {
       $this->logger->error('Invalid webhook signature from @ip', [
         '@ip' => $request->getClientIp(),
       ]);
@@ -149,7 +149,9 @@ class InboundEmailController extends ControllerBase {
   }
 
   /**
-   * Validates SendGrid webhook signature.
+   * Validates webhook signature based on configured email provider.
+   *
+   * Fails closed: rejects requests unless signature validation passes.
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The HTTP request object.
@@ -157,35 +159,138 @@ class InboundEmailController extends ControllerBase {
    * @return bool
    *   TRUE if signature is valid, FALSE otherwise.
    */
-  protected function validateSendGridSignature(Request $request): bool {
-    // Get signature and timestamp headers.
+  protected function validateWebhookSignature(Request $request): bool {
+    $config = $this->configFactory->get('avc_email_reply.settings');
+    $provider = $config->get('email_provider') ?? 'sendgrid';
+
+    switch ($provider) {
+      case 'sendgrid':
+        return $this->validateSendGridSignature($request, $config);
+
+      case 'mailgun':
+        return $this->validateMailgunSignature($request, $config);
+
+      case 'local':
+        return $this->validateLocalRequest($request, $config);
+
+      default:
+        $this->logger->error('Unknown email provider: @provider', [
+          '@provider' => $provider,
+        ]);
+        return FALSE;
+    }
+  }
+
+  /**
+   * Validates SendGrid webhook signature.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The HTTP request object.
+   * @param \Drupal\Core\Config\ImmutableConfig $config
+   *   The module configuration.
+   *
+   * @return bool
+   *   TRUE if signature is valid, FALSE otherwise.
+   */
+  protected function validateSendGridSignature(Request $request, $config): bool {
     $signature = $request->headers->get('X-Twilio-Email-Event-Webhook-Signature');
     $timestamp = $request->headers->get('X-Twilio-Email-Event-Webhook-Timestamp');
 
-    // If no signature header, skip validation (could be Mailgun or testing).
     if (!$signature || !$timestamp) {
-      $this->logger->notice('No SendGrid signature headers found, allowing request');
-      return TRUE;
-    }
-
-    // Get verification key from config.
-    $config = $this->configFactory->get('avc_email_reply.settings');
-    $webhook_secret = $config->get('webhook_secret');
-
-    if (!$webhook_secret) {
-      $this->logger->error('Webhook secret not configured');
+      $this->logger->warning('Missing SendGrid signature headers from @ip', [
+        '@ip' => $request->getClientIp(),
+      ]);
       return FALSE;
     }
 
-    // Get request body.
-    $body = $request->getContent();
+    $webhook_secret = $config->get('webhook_secret');
+    if (!$webhook_secret) {
+      $this->logger->error('Webhook secret not configured for SendGrid');
+      return FALSE;
+    }
 
-    // Compute expected signature: HMAC-SHA256 of timestamp + body.
+    $body = $request->getContent();
     $payload = $timestamp . $body;
     $expected_signature = base64_encode(hash_hmac('sha256', $payload, $webhook_secret, TRUE));
 
-    // Use constant-time comparison to prevent timing attacks.
     return hash_equals($expected_signature, $signature);
+  }
+
+  /**
+   * Validates Mailgun webhook signature.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The HTTP request object.
+   * @param \Drupal\Core\Config\ImmutableConfig $config
+   *   The module configuration.
+   *
+   * @return bool
+   *   TRUE if signature is valid, FALSE otherwise.
+   */
+  protected function validateMailgunSignature(Request $request, $config): bool {
+    $timestamp = $request->request->get('timestamp');
+    $token = $request->request->get('token');
+    $signature = $request->request->get('signature');
+
+    if (!$timestamp || !$token || !$signature) {
+      $this->logger->warning('Missing Mailgun signature fields from @ip', [
+        '@ip' => $request->getClientIp(),
+      ]);
+      return FALSE;
+    }
+
+    $webhook_secret = $config->get('webhook_secret');
+    if (!$webhook_secret) {
+      $this->logger->error('Webhook secret not configured for Mailgun');
+      return FALSE;
+    }
+
+    $expected_signature = hash_hmac('sha256', $timestamp . $token, $webhook_secret);
+
+    return hash_equals($expected_signature, $signature);
+  }
+
+  /**
+   * Validates a local request from Postfix pipe delivery.
+   *
+   * Accepts requests from localhost with a valid webhook secret passed
+   * as the X-Webhook-Secret header or 'webhook_secret' POST parameter.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The HTTP request object.
+   * @param \Drupal\Core\Config\ImmutableConfig $config
+   *   The module configuration.
+   *
+   * @return bool
+   *   TRUE if request is valid, FALSE otherwise.
+   */
+  protected function validateLocalRequest(Request $request, $config): bool {
+    // Only accept from loopback addresses.
+    $client_ip = $request->getClientIp();
+    $allowed_ips = ['127.0.0.1', '::1'];
+    if (!in_array($client_ip, $allowed_ips)) {
+      $this->logger->warning('Local provider request from non-loopback IP: @ip', [
+        '@ip' => $client_ip,
+      ]);
+      return FALSE;
+    }
+
+    $webhook_secret = $config->get('webhook_secret');
+    if (!$webhook_secret) {
+      $this->logger->error('Webhook secret not configured for local provider');
+      return FALSE;
+    }
+
+    // Accept secret from header or POST parameter.
+    $provided_secret = $request->headers->get('X-Webhook-Secret')
+      ?: $request->request->get('webhook_secret');
+
+    if (!$provided_secret) {
+      $this->logger->warning('Missing webhook secret in local request');
+      return FALSE;
+    }
+
+    return hash_equals($webhook_secret, $provided_secret);
   }
 
   /**
