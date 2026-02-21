@@ -20,3 +20,15 @@ services:
       - '@config.factory'
     tags:
       - { name: access_check, applies_to: _node_has_workflow_field }
+
+  workflow_assignment.participant_resolver:
+    class: Drupal\workflow_assignment\Service\WorkflowParticipantResolver
+    arguments:
+      - '@entity_type.manager'
+      - '@?group.membership_loader'
+
+  workflow_assignment.access_manager:
+    class: Drupal\workflow_assignment\Access\WorkflowAccessManager
+    arguments:
+      - '@workflow_assignment.participant_resolver'
+      - '@config.factory'

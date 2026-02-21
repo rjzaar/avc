@@ -57,6 +57,51 @@ function workflow_assignment_theme() {
 }
 
 /**
+ * Implements hook_node_access().
+ *
+ * Restricts access to nodes with active workflows to only:
+ * - Node author
+ * - Workflow administrators
+ * - Users assigned to the current workflow task
+ * - Members of groups assigned to the current task
+ * - Past workflow participants (view only)
+ */
+function workflow_assignment_node_access(NodeInterface $node, $operation, AccountInterface $account) {
+  if (!in_array($operation, ['view', 'update', 'delete'])) {
+    return AccessResult::neutral();
+  }
+
+  /** @var \Drupal\workflow_assignment\Access\WorkflowAccessManager $access_manager */
+  $access_manager = \Drupal::service('workflow_assignment.access_manager');
+
+  return $access_manager->checkAccess($node, $operation, $account);
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_presave() for workflow_task.
+ *
+ * Invalidate access cache when workflow tasks change.
+ */
+function workflow_assignment_workflow_task_presave(EntityInterface $entity) {
+  if ($entity->hasField('node_id') && $entity->get('node_id')->target_id) {
+    $node_id = $entity->get('node_id')->target_id;
+    \Drupal\Core\Cache\Cache::invalidateTags(['workflow_task_list:' . $node_id]);
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_delete() for workflow_task.
+ *
+ * Invalidate access cache when workflow tasks are deleted.
+ */
+function workflow_assignment_workflow_task_delete(EntityInterface $entity) {
+  if ($entity->hasField('node_id') && $entity->get('node_id')->target_id) {
+    $node_id = $entity->get('node_id')->target_id;
+    \Drupal\Core\Cache\Cache::invalidateTags(['workflow_task_list:' . $node_id]);
+  }
+}
+
+/**
  * Custom access callback for workflow tab.
  */
 function workflow_assignment_node_has_workflow_field(NodeInterface $node) {

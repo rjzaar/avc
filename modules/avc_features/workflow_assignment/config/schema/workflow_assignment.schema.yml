@@ -14,6 +14,18 @@ workflow_assignment.settings:
     show_workflow_tab:
       type: boolean
       label: 'Show workflow tab'
+    workflow_access_control_types:
+      type: sequence
+      label: 'Content types with workflow-based access control'
+      sequence:
+        type: string
+        label: 'Content type machine name'
+    allow_past_participants_view:
+      type: boolean
+      label: 'Allow past workflow participants to view content'
+    restrict_delete_during_workflow:
+      type: boolean
+      label: 'Prevent deletion during active workflow'
 
 workflow_assignment.workflow_list.*:
   type: config_entity

@@ -1,6 +1,6 @@
 # Workflow-Based Access Control Extension for AVC
 
-**Status:** DRAFT
+**Status:** IMPLEMENTED
 **Created:** January 11, 2026
 **Module:** workflow_assignment
 **Purpose:** Restrict node access to only workflow participants during active workflow

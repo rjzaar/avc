@@ -101,6 +101,34 @@ class WorkflowAssignmentSettingsForm extends ConfigFormBase {
       '#description' => $this->t('Display a separate "Workflow" tab on content pages.'),
     ];
 
+    $form['access_control'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Workflow Access Control'),
+      '#open' => FALSE,
+    ];
+
+    $form['access_control']['workflow_access_control_types'] = [
+      '#type' => 'checkboxes',
+      '#title' => $this->t('Enable workflow-based access control'),
+      '#description' => $this->t('Content types where access is restricted to workflow participants during active workflow. Leave empty to disable.'),
+      '#options' => $content_type_options,
+      '#default_value' => $config->get('workflow_access_control_types') ?? [],
+    ];
+
+    $form['access_control']['allow_past_participants_view'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Allow past participants to view content'),
+      '#description' => $this->t('Users who have completed a workflow task can still view (but not edit) the content.'),
+      '#default_value' => $config->get('allow_past_participants_view') ?? TRUE,
+    ];
+
+    $form['access_control']['restrict_delete_during_workflow'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Prevent deletion during active workflow'),
+      '#description' => $this->t('Content cannot be deleted while it has active workflow tasks.'),
+      '#default_value' => $config->get('restrict_delete_during_workflow') ?? TRUE,
+    ];
+
     $form['notifications'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Email Notifications'),
@@ -122,11 +150,16 @@ class WorkflowAssignmentSettingsForm extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $enabled_types = array_filter($form_state->getValue('enabled_content_types'));
     
+    $access_control_types = array_filter($form_state->getValue('workflow_access_control_types'));
+
     $this->config('workflow_assignment.settings')
       ->set('enabled_content_types', array_values($enabled_types))
       ->set('destination_vocabulary', $form_state->getValue('destination_vocabulary'))
       ->set('show_workflow_tab', $form_state->getValue('show_workflow_tab'))
       ->set('enable_notifications', $form_state->getValue('enable_notifications'))
+      ->set('workflow_access_control_types', array_values($access_control_types))
+      ->set('allow_past_participants_view', (bool) $form_state->getValue('allow_past_participants_view'))
+      ->set('restrict_delete_during_workflow', (bool) $form_state->getValue('restrict_delete_during_workflow'))
       ->save();
 
     // Add/remove workflow field to content types.
