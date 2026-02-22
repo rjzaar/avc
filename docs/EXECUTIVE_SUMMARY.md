@@ -6,7 +6,7 @@
 
 | | |
 |---|---|
-| **Version** | 0.6.0 (Feb 2026) |
+| **Version** | 0.7.0 (Feb 2026) |
 | **Platform** | Drupal 10.x-11.x |
 | **Requirements** | PHP 8.1+, MySQL/MariaDB |
 | **Foundation** | Open Social distribution |
@@ -153,14 +153,14 @@ Organizations needing:
 
 ---
 
-## Recent Additions (v0.6.0)
+## Recent Additions (v0.7.0)
 
-- **Workflow Access Control** (v0.6.0) - Participant-based access control:
+- **Workflow Access Control** (v0.7.0) - Participant-based access control:
   - Restricts node access to workflow participants during active workflows
   - Configurable per content type (off by default)
   - Past participant view and delete restriction options
 
-- **Group Forums** (v0.6.0) - Topic-based group discussions:
+- **Group Forums** (v0.7.0) - Topic-based group discussions:
   - Leverages Open Social's social_topic module
   - Integrated with AVC notification preferences (n/d/w/x)
   - Topic creation and comment notification events

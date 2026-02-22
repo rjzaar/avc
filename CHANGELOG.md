@@ -4,7 +4,7 @@ All notable changes to AV Commons will be documented in this file.
 
 ## [Unreleased]
 
-## [v0.6.0] - 2026-02-22
+## [v0.7.0] - 2026-02-22
 
 ### Added
 - **Workflow Access Control** (`workflow_assignment` - Phase F.1)
