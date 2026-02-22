@@ -346,11 +346,15 @@ class EmailReplyProcessor {
       'uid' => $author->id(),
       'comment_type' => 'comment',
       'subject' => '',
-      'comment_body' => [
-        'value' => $content,
-        'format' => 'basic_html',
-      ],
       'status' => 1,
+    ]);
+
+    // Determine the correct body field for this comment type.
+    // Open Social uses 'field_comment_body', core uses 'comment_body'.
+    $body_field = $comment->hasField('field_comment_body') ? 'field_comment_body' : 'comment_body';
+    $comment->set($body_field, [
+      'value' => $content,
+      'format' => 'basic_html',
     ]);
 
     $comment->save();

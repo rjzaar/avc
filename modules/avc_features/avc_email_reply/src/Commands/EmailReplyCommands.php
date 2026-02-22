@@ -177,7 +177,7 @@ class EmailReplyCommands extends DrushCommands {
    * @usage email-reply:configure --domain=reply.example.com --provider=sendgrid
    *   Configure email reply settings.
    */
-  public function configure($options = [
+  public function configureSettings($options = [
     'domain' => NULL,
     'provider' => NULL,
     'secret' => NULL,
