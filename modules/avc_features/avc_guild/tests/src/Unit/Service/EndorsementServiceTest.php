@@ -8,6 +8,8 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\group\Entity\GroupInterface;
+use Drupal\taxonomy\TermInterface;
 use Drupal\Tests\UnitTestCase;
 
 /**
@@ -80,9 +82,7 @@ class EndorsementServiceTest extends UnitTestCase {
    *   The mock guild.
    */
   protected function createMockGuild(int $id = 1) {
-    $guild = $this->getMockBuilder(\stdClass::class)
-      ->addMethods(['id', 'getMembers', 'getMember', 'hasField', 'get'])
-      ->getMock();
+    $guild = $this->createMock(GroupInterface::class);
     $guild->method('id')->willReturn($id);
     return $guild;
   }
@@ -97,9 +97,7 @@ class EndorsementServiceTest extends UnitTestCase {
    *   The mock term.
    */
   protected function createMockSkill(int $id = 1) {
-    $skill = $this->getMockBuilder(\stdClass::class)
-      ->addMethods(['id', 'label'])
-      ->getMock();
+    $skill = $this->createMock(TermInterface::class);
     $skill->method('id')->willReturn($id);
     $skill->method('label')->willReturn('Skill ' . $id);
     return $skill;

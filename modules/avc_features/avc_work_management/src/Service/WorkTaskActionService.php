@@ -18,7 +18,7 @@ class WorkTaskActionService {
   protected AccountInterface $currentUser;
   protected TimeInterface $time;
   protected $logger;
-  protected ConfigFactoryInterface $configFactory;
+  protected ?ConfigFactoryInterface $configFactory;
 
   /**
    * Constructs a WorkTaskActionService.
@@ -34,7 +34,7 @@ class WorkTaskActionService {
     $this->currentUser = $current_user;
     $this->time = $time;
     $this->logger = $logger_factory->get('avc_work_management');
-    $this->configFactory = $config_factory ?? \Drupal::configFactory();
+    $this->configFactory = $config_factory;
   }
 
   /**
@@ -363,7 +363,8 @@ class WorkTaskActionService {
    * Get claim configuration settings.
    */
   public function getClaimSettings(): array {
-    $config = $this->configFactory->get('avc_work_management.settings');
+    $config_factory = $this->configFactory ?? \Drupal::configFactory();
+    $config = $config_factory->get('avc_work_management.settings');
     return [
       'default_claim_duration' => $config->get('claim_settings.default_claim_duration') ?? 24,
       'max_extensions' => $config->get('claim_settings.max_extensions') ?? 2,

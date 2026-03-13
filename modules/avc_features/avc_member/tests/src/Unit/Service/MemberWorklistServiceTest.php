@@ -6,7 +6,6 @@ use Drupal\avc_member\Service\MemberWorklistService;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\Query\QueryInterface;
-use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Tests\UnitTestCase;
 use Drupal\user\UserInterface;
 
@@ -18,28 +17,29 @@ use Drupal\user\UserInterface;
  */
 class MemberWorklistServiceTest extends UnitTestCase {
 
-  /**
-   * The entity type manager mock.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface|\PHPUnit\Framework\MockObject\MockObject
-   */
   protected $entityTypeManager;
-
-  /**
-   * The service under test.
-   *
-   * @var \Drupal\avc_member\Service\MemberWorklistService
-   */
   protected $service;
 
-  /**
-   * {@inheritdoc}
-   */
   protected function setUp(): void {
     parent::setUp();
 
     $this->entityTypeManager = $this->createMock(EntityTypeManagerInterface::class);
     $this->service = new MemberWorklistService($this->entityTypeManager);
+  }
+
+  /**
+   * Helper to create a mock workflow task entity.
+   */
+  protected function createMockTaskEntity(int $id, string $status, string $label = 'Test Task') {
+    $task = $this->getMockBuilder(\stdClass::class)
+      ->addMethods(['id', 'label', 'getDescription', 'getStatus', 'getNode'])
+      ->getMock();
+    $task->method('id')->willReturn($id);
+    $task->method('label')->willReturn($label);
+    $task->method('getDescription')->willReturn('Description for ' . $label);
+    $task->method('getStatus')->willReturn($status);
+    $task->method('getNode')->willReturn(NULL);
+    return $task;
   }
 
   /**
@@ -60,8 +60,12 @@ class MemberWorklistServiceTest extends UnitTestCase {
     $storage->method('getQuery')->willReturn($query);
 
     $this->entityTypeManager
+      ->method('hasDefinition')
+      ->with('workflow_task')
+      ->willReturn(TRUE);
+    $this->entityTypeManager
       ->method('getStorage')
-      ->with('workflow_assignment')
+      ->with('workflow_task')
       ->willReturn($storage);
 
     $result = $this->service->getUserWorklist($user);
@@ -71,7 +75,7 @@ class MemberWorklistServiceTest extends UnitTestCase {
   }
 
   /**
-   * Tests getUserWorklist returns assignments with status.
+   * Tests getUserWorklist returns tasks with mapped status.
    *
    * @covers ::getUserWorklist
    */
@@ -79,15 +83,7 @@ class MemberWorklistServiceTest extends UnitTestCase {
     $user = $this->createMock(UserInterface::class);
     $user->method('id')->willReturn(1);
 
-    // Mock completion field.
-    $completionField = $this->createMock(FieldItemListInterface::class);
-    $completionField->value = 'accepted';
-
-    // Mock assignment entity.
-    $assignment = $this->createMock('\Drupal\Core\Entity\EntityInterface');
-    $assignment->method('get')
-      ->with('completion')
-      ->willReturn($completionField);
+    $task = $this->createMockTaskEntity(1, 'in_progress');
 
     $query = $this->createMock(QueryInterface::class);
     $query->method('condition')->willReturnSelf();
@@ -98,20 +94,24 @@ class MemberWorklistServiceTest extends UnitTestCase {
     $storage->method('getQuery')->willReturn($query);
     $storage->method('loadMultiple')
       ->with([1])
-      ->willReturn([1 => $assignment]);
+      ->willReturn([1 => $task]);
 
     $this->entityTypeManager
+      ->method('hasDefinition')
+      ->with('workflow_task')
+      ->willReturn(TRUE);
+    $this->entityTypeManager
       ->method('getStorage')
-      ->with('workflow_assignment')
+      ->with('workflow_task')
       ->willReturn($storage);
 
     $result = $this->service->getUserWorklist($user);
 
     $this->assertIsArray($result);
     $this->assertCount(1, $result);
-    $this->assertArrayHasKey('assignment', $result[0]);
     $this->assertArrayHasKey('status', $result[0]);
     $this->assertEquals('current', $result[0]['status']);
+    $this->assertEquals('in_progress', $result[0]['task_status']);
   }
 
   /**
@@ -138,23 +138,25 @@ class MemberWorklistServiceTest extends UnitTestCase {
    * @covers ::getUserNotificationSettings
    */
   public function testGetUserNotificationSettingsFromFields() {
-    $defaultField = $this->createMock(FieldItemListInterface::class);
+    $defaultField = new \stdClass();
     $defaultField->value = 'd';
 
-    $lastRunField = $this->createMock(FieldItemListInterface::class);
+    $lastRunField = new \stdClass();
     $lastRunField->value = '2024-01-01 12:00:00';
 
     $user = $this->createMock(UserInterface::class);
     $user->method('hasField')
-      ->willReturnMap([
-        ['field_notification_default', TRUE],
-        ['field_notification_last_run', TRUE],
-      ]);
+      ->willReturnCallback(function ($field_name) {
+        return in_array($field_name, ['field_notification_default', 'field_notification_last_run']);
+      });
     $user->method('get')
-      ->willReturnMap([
-        ['field_notification_default', $defaultField],
-        ['field_notification_last_run', $lastRunField],
-      ]);
+      ->willReturnCallback(function ($field_name) use ($defaultField, $lastRunField) {
+        return match ($field_name) {
+          'field_notification_default' => $defaultField,
+          'field_notification_last_run' => $lastRunField,
+          default => new \stdClass(),
+        };
+      });
 
     $result = $this->service->getUserNotificationSettings($user);
 
@@ -168,7 +170,9 @@ class MemberWorklistServiceTest extends UnitTestCase {
    * @covers ::getGroupWorklist
    */
   public function testGetGroupWorklistEmpty() {
-    $group = $this->createMock('\Drupal\group\Entity\GroupInterface');
+    $group = $this->getMockBuilder(\stdClass::class)
+      ->addMethods(['id'])
+      ->getMock();
     $group->method('id')->willReturn(1);
 
     $query = $this->createMock(QueryInterface::class);
@@ -180,8 +184,12 @@ class MemberWorklistServiceTest extends UnitTestCase {
     $storage->method('getQuery')->willReturn($query);
 
     $this->entityTypeManager
+      ->method('hasDefinition')
+      ->with('workflow_task')
+      ->willReturn(TRUE);
+    $this->entityTypeManager
       ->method('getStorage')
-      ->with('workflow_assignment')
+      ->with('workflow_task')
       ->willReturn($storage);
 
     $result = $this->service->getGroupWorklist($group);
@@ -191,34 +199,27 @@ class MemberWorklistServiceTest extends UnitTestCase {
   }
 
   /**
-   * Data provider for worklist status tests.
+   * Data provider for worklist status mapping tests.
    */
   public function worklistStatusProvider() {
     return [
       'completed returns completed' => ['completed', 'completed'],
-      'accepted returns current' => ['accepted', 'current'],
-      'proposed returns upcoming' => ['proposed', 'upcoming'],
-      'null returns upcoming' => [NULL, 'upcoming'],
+      'in_progress returns current' => ['in_progress', 'current'],
+      'pending returns upcoming' => ['pending', 'upcoming'],
     ];
   }
 
   /**
-   * Tests determineWorklistStatus via getUserWorklist.
+   * Tests status mapping via getUserWorklist.
    *
    * @dataProvider worklistStatusProvider
    * @covers ::getUserWorklist
    */
-  public function testDetermineWorklistStatus($completion, $expectedStatus) {
+  public function testDetermineWorklistStatus($taskStatus, $expectedStatus) {
     $user = $this->createMock(UserInterface::class);
     $user->method('id')->willReturn(1);
 
-    $completionField = $this->createMock(FieldItemListInterface::class);
-    $completionField->value = $completion;
-
-    $assignment = $this->createMock('\Drupal\Core\Entity\EntityInterface');
-    $assignment->method('get')
-      ->with('completion')
-      ->willReturn($completionField);
+    $task = $this->createMockTaskEntity(1, $taskStatus);
 
     $query = $this->createMock(QueryInterface::class);
     $query->method('condition')->willReturnSelf();
@@ -227,8 +228,11 @@ class MemberWorklistServiceTest extends UnitTestCase {
 
     $storage = $this->createMock(EntityStorageInterface::class);
     $storage->method('getQuery')->willReturn($query);
-    $storage->method('loadMultiple')->willReturn([1 => $assignment]);
+    $storage->method('loadMultiple')->willReturn([1 => $task]);
 
+    $this->entityTypeManager
+      ->method('hasDefinition')
+      ->willReturn(TRUE);
     $this->entityTypeManager
       ->method('getStorage')
       ->willReturn($storage);

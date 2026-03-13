@@ -3,13 +3,16 @@
 namespace Drupal\Tests\avc_group\Unit\Service;
 
 use Drupal\avc_group\Service\GroupWorkflowService;
+use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\group\Entity\GroupInterface;
 use Drupal\group\GroupMembership;
 use Drupal\group\Entity\GroupRoleInterface;
 use Drupal\Tests\UnitTestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * Unit tests for GroupWorkflowService.
@@ -49,6 +52,16 @@ class GroupWorkflowServiceTest extends UnitTestCase {
     $this->entityTypeManager = $this->createMock(EntityTypeManagerInterface::class);
     $this->currentUser = $this->createMock(AccountInterface::class);
 
+    // Initialize the Drupal container with a logger service so that
+    // \Drupal::logger() calls in catch blocks do not throw
+    // ContainerNotInitializedException.
+    $container = new ContainerBuilder();
+    $logger = $this->createMock(LoggerInterface::class);
+    $loggerFactory = $this->createMock(LoggerChannelFactoryInterface::class);
+    $loggerFactory->method('get')->willReturn($logger);
+    $container->set('logger.factory', $loggerFactory);
+    \Drupal::setContainer($container);
+
     $this->service = new GroupWorkflowService(
       $this->entityTypeManager,
       $this->currentUser
@@ -66,7 +79,7 @@ class GroupWorkflowServiceTest extends UnitTestCase {
 
     $this->entityTypeManager
       ->method('hasDefinition')
-      ->with('workflow_assignment')
+      ->with('workflow_task')
       ->willReturn(FALSE);
 
     $result = $this->service->getGroupAssignments($group);

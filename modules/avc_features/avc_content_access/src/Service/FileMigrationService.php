@@ -63,7 +63,7 @@ class FileMigrationService {
         }
 
         $current_uri = $file->getFileUri();
-        $current_scheme = $this->fileSystem->uriScheme($current_uri);
+        $current_scheme = strstr($current_uri, '://', TRUE) ?: '';
 
         // Skip if already in target scheme.
         $target_scheme_name = rtrim($target_scheme, ':/');

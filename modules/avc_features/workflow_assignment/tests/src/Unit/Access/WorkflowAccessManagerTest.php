@@ -6,6 +6,7 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\node\NodeInterface;
 use Drupal\Tests\UnitTestCase;
 use Drupal\workflow_assignment\Access\WorkflowAccessManager;
 use Drupal\workflow_assignment\Service\WorkflowParticipantResolver;
@@ -58,9 +59,7 @@ class WorkflowAccessManagerTest extends UnitTestCase {
    * Creates a mock node.
    */
   protected function createMockNode(string $bundle = 'avc_document', int $owner_id = 1) {
-    $node = $this->getMockBuilder(\stdClass::class)
-      ->addMethods(['id', 'getOwnerId', 'bundle', 'getCacheTags', 'getCacheContexts', 'getCacheMaxAge'])
-      ->getMock();
+    $node = $this->createMock(NodeInterface::class);
     $node->method('id')->willReturn(1);
     $node->method('getOwnerId')->willReturn($owner_id);
     $node->method('bundle')->willReturn($bundle);

@@ -100,6 +100,9 @@ class ReplyContentExtractor {
       $content = mb_substr($content, 0, 10000);
     }
 
+    // Strip script/style tags and their contents before filtering.
+    $content = preg_replace('/<(script|style)\b[^>]*>.*?<\/\1>/is', '', $content);
+
     // Filter potentially dangerous HTML.
     $content = Xss::filter($content);
 
@@ -134,8 +137,8 @@ class ReplyContentExtractor {
   protected function isSignatureLine(string $line): bool {
     $trimmed = trim($line);
 
-    // Standard signature delimiter.
-    if ($line === '-- ') {
+    // Standard signature delimiter (RFC 3676: "-- " or common "--").
+    if ($trimmed === '--' || $line === '-- ') {
       return TRUE;
     }
 

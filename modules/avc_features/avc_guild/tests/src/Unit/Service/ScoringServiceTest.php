@@ -3,10 +3,12 @@
 namespace Drupal\Tests\avc_guild\Unit\Service;
 
 use Drupal\avc_guild\Service\ScoringService;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\group\Entity\GroupInterface;
 use Drupal\Tests\UnitTestCase;
 
 /**
@@ -70,10 +72,10 @@ class ScoringServiceTest extends UnitTestCase {
    *   The mock guild.
    */
   protected function createMockGuild(int $id = 1) {
-    $guild = $this->getMockBuilder(\stdClass::class)
-      ->addMethods(['id', 'getMembers', 'hasField', 'get'])
-      ->getMock();
+    $guild = $this->createMock(GroupInterface::class);
     $guild->method('id')->willReturn($id);
+    $guild->method('getMembers')->willReturn([]);
+    $guild->method('hasField')->willReturn(FALSE);
     return $guild;
   }
 
@@ -89,13 +91,8 @@ class ScoringServiceTest extends UnitTestCase {
    *   The mock score entity.
    */
   protected function createMockScore(int $points = 10, string $action_type = 'task_completed') {
-    $score = $this->getMockBuilder(\stdClass::class)
-      ->addMethods(['getPoints', 'getActionType', 'id', 'save'])
-      ->getMock();
-    $score->method('getPoints')->willReturn($points);
-    $score->method('getActionType')->willReturn($action_type);
+    $score = $this->createMock(ContentEntityInterface::class);
     $score->method('id')->willReturn(1);
-    $score->method('save')->willReturn(1);
     return $score;
   }
 
@@ -166,9 +163,8 @@ class ScoringServiceTest extends UnitTestCase {
 
     // checkPromotion calls avc_guild_get_member_role which is a module
     // function. We avoid that by not having the guild report a 'junior' role.
-    // The guild hasField returns FALSE so checkPromotion returns early.
-    $guild->method('hasField')->willReturn(FALSE);
-
+    // The guild hasField returns FALSE (set in createMockGuild) so
+    // checkPromotion returns early.
     $result = $this->service->awardPoints($user, $guild, 'task_completed', 10);
 
     $this->assertSame($score, $result);
@@ -225,10 +221,8 @@ class ScoringServiceTest extends UnitTestCase {
    * @covers ::getLeaderboard
    */
   public function testGetLeaderboardReturnsArray(): void {
+    // createMockGuild sets getMembers to return [], so leaderboard is empty.
     $guild = $this->createMockGuild(1);
-
-    // Guild has no members, so leaderboard should be empty.
-    $guild->method('getMembers')->willReturn([]);
 
     $result = $this->service->getLeaderboard($guild);
 

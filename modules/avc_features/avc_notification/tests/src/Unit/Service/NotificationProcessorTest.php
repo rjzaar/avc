@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\avc_notification\Unit\Service;
 
+use Drupal\avc_notification\Entity\NotificationQueue;
 use Drupal\avc_notification\Service\NotificationAggregator;
 use Drupal\avc_notification\Service\NotificationProcessor;
 use Drupal\avc_notification\Service\NotificationPreferences;
@@ -113,9 +114,7 @@ class NotificationProcessorTest extends UnitTestCase {
    *   The mock notification.
    */
   protected function createMockNotification(int $id) {
-    $notification = $this->getMockBuilder(\stdClass::class)
-      ->addMethods(['id', 'getTargetUser', 'getTargetGroup', 'getEventType', 'getMessage', 'getAsset', 'getData', 'get', 'markSent', 'markFailed', 'markSkipped', 'save'])
-      ->getMock();
+    $notification = $this->createMock(NotificationQueue::class);
 
     $notification->method('id')->willReturn($id);
 

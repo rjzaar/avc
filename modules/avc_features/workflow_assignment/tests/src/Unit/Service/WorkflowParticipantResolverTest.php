@@ -6,6 +6,7 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\node\NodeInterface;
 use Drupal\Tests\UnitTestCase;
 use Drupal\workflow_assignment\Service\WorkflowParticipantResolver;
 
@@ -45,12 +46,13 @@ class WorkflowParticipantResolverTest extends UnitTestCase {
    * Creates a mock node.
    */
   protected function createMockNode(int $id = 1, int $owner_id = 1) {
-    $node = $this->getMockBuilder(\stdClass::class)
-      ->addMethods(['id', 'getOwnerId', 'bundle', 'access'])
-      ->getMock();
+    $node = $this->createMock(NodeInterface::class);
     $node->method('id')->willReturn($id);
     $node->method('getOwnerId')->willReturn($owner_id);
     $node->method('bundle')->willReturn('avc_document');
+    $node->method('getCacheTags')->willReturn(['node:' . $id]);
+    $node->method('getCacheContexts')->willReturn([]);
+    $node->method('getCacheMaxAge')->willReturn(-1);
     return $node;
   }
 
