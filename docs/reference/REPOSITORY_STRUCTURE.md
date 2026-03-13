@@ -1,5 +1,9 @@
 # AVC Repository Structure for NWP
 
+> **Reference Document** - Created January 2, 2026. The recommended profile-based approach
+> (Option A) has been adopted. The AVC codebase lives at `profiles/custom/avc/` within the
+> Drupal webroot.
+
 ## Current State
 
 | Repository | Location | Purpose |

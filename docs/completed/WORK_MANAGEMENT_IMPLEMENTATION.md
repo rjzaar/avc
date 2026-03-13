@@ -1,9 +1,16 @@
 # AVC Work Management Implementation Plan
 
-**Status:** PLANNED
+**Status:** COMPLETED
 **Created:** January 11, 2026
-**Last Updated:** January 11, 2026
+**Last Updated:** March 13, 2026
+**Completed:** February 2026
 **Related Modules:** workflow_assignment, avc_asset, avc_work_management
+
+> **Note:** Phases 1 and 2 of this plan have been implemented. The `avc_work_management` module
+> (Phase 1) is fully built with 57 tests. Workflow Access Control (Phase 2) was implemented in
+> `workflow_assignment` with WorkflowParticipantResolver and WorkflowAccessManager services.
+> Phases 3 (Post-Workflow Destinations) and 4 (File Access) remain as future work - see
+> `docs/proposals/WORKFLOW_SYSTEM_COMPLETE_IMPLEMENTATION_PLAN.md`.
 
 ---
 
@@ -508,8 +515,9 @@ drush cr
 
 ## Related Documents
 
-- [WORK_MANAGEMENT_MODULE.md](WORK_MANAGEMENT_MODULE.md) - Dashboard module code
-- [WORKFLOW_ACCESS_CONTROL.md](WORKFLOW_ACCESS_CONTROL.md) - Access control code
+- [WORK_MANAGEMENT_MODULE.md](WORK_MANAGEMENT_MODULE.md) - Dashboard module code (completed)
+- [WORKFLOW_ACCESS_CONTROL.md](WORKFLOW_ACCESS_CONTROL.md) - Access control code (completed)
+- [../proposals/WORKFLOW_SYSTEM_COMPLETE_IMPLEMENTATION_PLAN.md](../proposals/WORKFLOW_SYSTEM_COMPLETE_IMPLEMENTATION_PLAN.md) - Future phases (time-limited claims, destinations, versioning)
 - [../../modules/avc_features/workflow_assignment/README.md](../../modules/avc_features/workflow_assignment/README.md) - Existing workflow module
 
 ---

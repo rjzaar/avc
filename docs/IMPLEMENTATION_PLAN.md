@@ -25,6 +25,16 @@ This document provides a numbered, phased implementation plan for the AV Commons
 | 6 | Forums | ✅ COMPLETE | Leverage Open Social Topics with AVC notification integration |
 | 7-10 | Future Phases | 🔲 NOT STARTED | Versioning, Flagging, Courses, Suggestions |
 
+**Related Proposals (Future Work)**:
+- [Workflow System Complete Implementation Plan](proposals/WORKFLOW_SYSTEM_COMPLETE_IMPLEMENTATION_PLAN.md) - Time-limited claims, destination access, versioning
+- [Guild Multiple Verification Types](proposals/GUILD_MULTIPLE_VERIFICATION_TYPES.md) - OR-logic for verification methods
+
+**Completed Proposals**:
+- [Workflow Access Control](completed/WORKFLOW_ACCESS_CONTROL.md) - Node access restricted to workflow participants
+- [Work Management Dashboard](completed/WORK_MANAGEMENT_IMPLEMENTATION.md) - My Work unified task view
+- [Email Reply System](completed/GROUP_EMAIL_REPLY_SYSTEM.md) - Reply to notifications via email
+- [Error Reporting Module](completed/AVC_ERROR_REPORTING_MODULE.md) - GitLab issue creation from user reports
+
 **Key Achievements**:
 - Added `WorkflowTask` content entity for per-asset workflow step tracking
 - Implemented notification queue with n/d/w/x digest preferences
@@ -146,7 +156,7 @@ Based on specs vs. current implementation:
 | 1 | Member registration/profiles | ✅ Complete | - |
 | 1 | Member dashboards | ✅ Complete | - |
 | 2 | Group spaces/dashboards | ✅ Complete | - |
-| 2 | Group forums | Not started | Medium |
+| 2 | Group forums | ✅ Complete (Phase 6) | - |
 | 2 | Guild system (junior/endorsed/mentor) | ✅ Complete | - |
 | 3 | Asset types (Project/Doc/Resource) | ✅ Complete | - |
 | 3 | Version control/diff | Not started | Medium |

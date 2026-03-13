@@ -1,6 +1,10 @@
-# AVC Workflow System: Complete Implementation Plan
+# AVC Workflow System: Endpoints and Destinations
 
-**Status:** PLAN - Awaiting Approval
+> **Reference Document** - Design research for the post-workflow destination access control
+> concept. See [proposals/WORKFLOW_SYSTEM_COMPLETE_IMPLEMENTATION_PLAN.md](../proposals/WORKFLOW_SYSTEM_COMPLETE_IMPLEMENTATION_PLAN.md)
+> for the full implementation proposal.
+
+**Status:** REFERENCE - Design concept (not yet implemented)
 **Created:** January 18, 2026
 **Scope:** Resource creation, workflow, versioning, claiming, and destinations
 

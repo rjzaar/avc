@@ -201,11 +201,11 @@
 
 | # | Document | Current Location | Recommended Location | Reason |
 |---|----------|-----------------|---------------------|--------|
-| 2.6.1 | `WORKFLOW_ACCESS_CONTROL.md` | `docs/workflow/` | `docs/proposals/` | Not implemented — misleadingly sits alongside implemented features |
-| 2.6.2 | `AVC_ERROR_REPORTING_MODULE.md` | `docs/proposals/` | OK, but mark as IMPLEMENTED | Code is complete — proposal status is stale |
-| 2.6.3 | `GROUP_EMAIL_REPLY_SYSTEM.md` | `docs/proposals/` | OK, but mark as IMPLEMENTED | Code is complete — proposal status is stale |
-| 2.6.4 | `WORK_MANAGEMENT_MODULE.md` | `docs/workflow/` | OK | Correctly placed |
-| 2.6.5 | `guild-skill-level-design.md` | `docs/workflow/` | OK (marked IMPLEMENTED) | Correctly placed and labelled |
+| 2.6.1 | `WORKFLOW_ACCESS_CONTROL.md` | ~~`docs/workflow/`~~ | `docs/completed/` | **RESOLVED** — Moved to completed/ with COMPLETED status |
+| 2.6.2 | `AVC_ERROR_REPORTING_MODULE.md` | ~~`docs/proposals/`~~ | `docs/completed/` | **RESOLVED** — Moved to completed/ with COMPLETED status |
+| 2.6.3 | `GROUP_EMAIL_REPLY_SYSTEM.md` | ~~`docs/proposals/`~~ | `docs/completed/` | **RESOLVED** — Moved to completed/ with COMPLETED status |
+| 2.6.4 | `WORK_MANAGEMENT_MODULE.md` | ~~`docs/workflow/`~~ | `docs/completed/` | **RESOLVED** — Moved to completed/ with COMPLETED status |
+| 2.6.5 | `guild-skill-level-design.md` | ~~`docs/workflow/`~~ | `docs/reference/` | **RESOLVED** — Moved to reference/ |
 
 ### 2.7 Missing Documentation
 
@@ -338,9 +338,9 @@ Restructure docs for clarity; add missing docs.
 
 | # | Task | Details | Priority |
 |---|------|---------|----------|
-| E.1 | Move `WORKFLOW_ACCESS_CONTROL.md` from `docs/workflow/` to `docs/proposals/` | Currently misleadingly positioned alongside implemented features | **High** |
-| E.2 | Add "STATUS: IMPLEMENTED" header to `docs/proposals/AVC_ERROR_REPORTING_MODULE.md` | Proposal is complete — reader may not realise code exists | **Medium** |
-| E.3 | Add "STATUS: IMPLEMENTED" header to `docs/proposals/GROUP_EMAIL_REPLY_SYSTEM.md` | Proposal is complete — reader may not realise code exists | **Medium** |
+| E.1 | ~~Move `WORKFLOW_ACCESS_CONTROL.md` from `docs/workflow/` to `docs/proposals/`~~ | **DONE** — Moved to `docs/completed/` (2026-03-13) | ~~High~~ |
+| E.2 | ~~Add "STATUS: IMPLEMENTED" header to error reporting proposal~~ | **DONE** — Moved to `docs/completed/` with COMPLETED status (2026-03-13) | ~~Medium~~ |
+| E.3 | ~~Add "STATUS: IMPLEMENTED" header to email reply proposal~~ | **DONE** — Moved to `docs/completed/` with COMPLETED status (2026-03-13) | ~~Medium~~ |
 | E.4 | Cut new CHANGELOG version for accumulated unreleased changes | Separate proposals/docs from code changes | **Medium** |
 | E.5 | Write `avc_devel` usage documentation | Document Drush commands: `avc:generate-content`, `avc:cleanup-content` | **Medium** |
 | E.6 | Write theme architecture documentation | Document `socialbase → socialblue → avc_theme` inheritance | **Low** |
@@ -453,32 +453,56 @@ Server-side email infrastructure was configured on `git.nwpcode.org` (same host 
 
 ## 7. Remaining Work
 
-### 7.1 Email Reply Module Deployment (Blocked — fail2ban)
+### 7.1 Email Reply Module Deployment — **✅ Complete**
 
-SSH access to `git.nwpcode.org` is currently blocked by fail2ban. Once restored, complete these steps:
+Deployed 2026-02-22. All steps completed successfully.
 
-| # | Task | Command / Details | Priority |
-|---|------|-------------------|----------|
-| 7.1.1 | Sync updated module code to live server | `tar czf - avc_email_reply/ \| ssh gitlab@git.nwpcode.org "sudo tar xzf - -C /var/www/avc/html/profiles/custom/avc/modules/avc_features/ && sudo chown -R www-data:www-data ..."` | **Critical** |
-| 7.1.2 | Enable module on live site | `sudo -u www-data vendor/bin/drush en avc_email_reply -y` | **Critical** |
-| 7.1.3 | Set `enabled: true` | `drush cset avc_email_reply.settings enabled 1 -y` | **Critical** |
-| 7.1.4 | Set `email_provider: local` | `drush cset avc_email_reply.settings email_provider local -y` | **Critical** |
-| 7.1.5 | Set `reply_domain: nwpcode.org` | `drush cset avc_email_reply.settings reply_domain nwpcode.org -y` | **Critical** |
-| 7.1.6 | Set webhook secret | `drush cset avc_email_reply.settings webhook_secret cb092a30a5dd542ac44fdf0dadc19c08016268d4e25e27a75dc251846aee9445 -y` | **Critical** |
-| 7.1.7 | Clear caches | `drush cr` | **Critical** |
+| # | Task | Status | Details |
+|---|------|--------|---------|
+| 7.1.1 | Sync updated module code to live server | **✅ Complete** | Deployed via tar/scp/extract |
+| 7.1.2 | Enable module on live site | **✅ Complete** | `drush en avc_email_reply -y` |
+| 7.1.3 | Set `enabled: true` | **✅ Complete** | |
+| 7.1.4 | Set `email_provider: local` | **✅ Complete** | |
+| 7.1.5 | Set `reply_domain: nwpcode.org` | **✅ Complete** | |
+| 7.1.6 | Set webhook secret | **✅ Complete** | |
+| 7.1.7 | Clear caches | **✅ Complete** | |
 
-### 7.2 End-to-End Testing
+**Additional fixes found during deployment:**
 
-| # | Task | Details | Priority |
-|---|------|---------|----------|
-| 7.2.1 | Create demo email accounts on nwpcode.org | Add `testuser1@nwpcode.org` and `testuser2@nwpcode.org` to `/etc/postfix/virtual` | **High** |
-| 7.2.2 | Verify webhook endpoint responds | `curl -s -o /dev/null -w "%{http_code}" https://avc.nwpcode.org/api/email/inbound` — expect 401 (no secret) | **High** |
-| 7.2.3 | Verify webhook accepts valid local request | POST from localhost with correct `X-Webhook-Secret` header — expect 200 | **High** |
-| 7.2.4 | Test token generation | Create a notification email and verify Reply-To header contains `reply+{token}@nwpcode.org` | **High** |
-| 7.2.5 | Test full reply flow | Reply to notification email, verify comment is created on the correct entity | **High** |
-| 7.2.6 | Test rate limiting | Send multiple rapid replies and verify rate limiter blocks excess | **Medium** |
-| 7.2.7 | Test spam score rejection | Send email with high spam score and verify rejection | **Low** |
-| 7.2.8 | Test invalid token handling | Send email with fabricated token and verify rejection | **Medium** |
+| # | Issue | Fix | Commit |
+|---|-------|-----|--------|
+| 7.1.8 | `DrushCommands::configure()` is static — cannot override as instance method | Renamed to `configureSettings()` | `657ff6fff` |
+| 7.1.9 | `createComment()` used `comment_body` field (Drupal core) but Open Social uses `field_comment_body` | Auto-detect via `hasField()` | `657ff6fff` |
+| 7.1.10 | Pipe script: `getClientIp()` returned server public IP (97.107.137.88) instead of 127.0.0.1 when curling via HTTPS | Updated pipe script to use `--resolve avc.nwpcode.org:443:127.0.0.1` | Server-side fix |
+
+### 7.2 End-to-End Testing — **✅ Complete**
+
+Tested 2026-02-22 on live site avc.nwpcode.org.
+
+| # | Task | Status | Result |
+|---|------|--------|--------|
+| 7.2.1 | Create demo email accounts on nwpcode.org | **✅ Complete** | Created `alice@nwpcode.org` (uid 22) and `bob@nwpcode.org` (uid 23) |
+| 7.2.2 | Verify webhook rejects unauthenticated requests | **✅ Pass** | POST without secret → 401 |
+| 7.2.3 | Verify webhook rejects wrong secret | **✅ Pass** | POST with wrong secret → 401 |
+| 7.2.4 | Verify webhook rejects non-loopback IP | **✅ Pass** | POST from public IP → 401 |
+| 7.2.5 | Verify webhook accepts valid local request | **✅ Pass** | POST with correct secret via `--resolve` loopback → 200 |
+| 7.2.6 | Test token generation | **✅ Pass** | `drush email-reply:generate-token 47 22 --group-id=1` → valid token |
+| 7.2.7 | Test full reply flow (alice) | **✅ Pass** | Webhook → Queue → Comment 47 on topic 47 with correct body |
+| 7.2.8 | Test full reply flow (bob) | **✅ Pass** | Webhook → Queue → Comment 48 on topic 47 with correct body |
+| 7.2.9 | Test invalid token handling | **✅ Pass** | Queued OK, processing logs "Invalid or expired token", no comment created |
+| 7.2.10 | Test "Name <email>" format | **✅ Pass** | `Alice Smith <alice@nwpcode.org>` correctly matched to uid 22 |
+| 7.2.11 | Test rate limiting | Not tested | Deferred — requires many rapid requests |
+| 7.2.12 | Test spam score rejection | Not tested | Deferred — requires mock spam score |
+
+**Demo data created:**
+
+| Item | Details |
+|------|---------|
+| Users | alice (uid 22, alice@nwpcode.org), bob (uid 23, bob@nwpcode.org) |
+| Group | Both users added to Group 1 (Official Group Educational Assistance Association) and Group 6 (Translation Team) |
+| Topic | "Email Reply Test - Translation Discussion" (nid 47) in Group 1 |
+| Comments | 3 comments created via email reply: bob (cid 46), alice (cid 47), bob (cid 48) |
+| Email aliases | alice@nwpcode.org, bob@nwpcode.org → rjzaar@gmail.com (Postfix virtual) |
 
 ### 7.3 Profile Installation Fixes (From Section 3.1)
 
@@ -540,5 +564,23 @@ SSH access to `git.nwpcode.org` is currently blocked by fail2ban. Once restored,
 
 ---
 
+---
+
+## 8. Documentation Reorganisation (Completed 2026-03-13)
+
+All document organisation issues identified in Section 2.6 and Phase E have been resolved:
+
+| Action | Details |
+|--------|---------|
+| Created `docs/completed/` | Implemented proposals moved here with COMPLETED status |
+| Created `docs/archive/` | Superseded docs moved here (CODE_ANALYSIS_REPORT, DOCUMENTATION_UPDATE_SUMMARY, specs, prototype data) |
+| Moved to `docs/proposals/` | WORKFLOW_SYSTEM_COMPLETE_IMPLEMENTATION_PLAN (active future work) |
+| Moved to `docs/reference/` | guild-skill-level-design, guild-skill-systems-research, Endpoints-and-Destinations, REPOSITORY_STRUCTURE |
+| Updated cross-references | IMPLEMENTATION_PLAN now links to all proposals and completed docs |
+| Updated status headers | All completed proposals marked with COMPLETED status and completion dates |
+
+---
+
 *Report generated 2026-02-21 by automated codebase analysis.*
-*Updated 2026-02-22 with completed remediation phases A–F.1, F.6.*
+*Updated 2026-02-22 with completed remediation phases A-F.1, F.6.*
+*Updated 2026-03-13 with documentation reorganisation (Section 8).*
