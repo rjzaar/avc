@@ -53,6 +53,13 @@ function workflow_assignment_theme() {
         'can_administer' => FALSE,
       ],
     ],
+    'workflow_version_history' => [
+      'variables' => [
+        'node' => NULL,
+        'versions' => [],
+        'cycles' => [],
+      ],
+    ],
   ];
 }
 
@@ -294,9 +301,33 @@ function workflow_assignment_mail($key, &$message, $params) {
 /**
  * Implements hook_node_presave().
  *
- * Track workflow assignment changes for notifications and history.
+ * Track workflow assignment changes and handle versioning.
  */
 function workflow_assignment_node_presave(NodeInterface $node) {
+  // Phase 2: Auto-increment minor version during active workflow.
+  if ($node->hasField('field_version_minor') && !$node->isNew() && isset($node->original)) {
+    $config = \Drupal::config('workflow_assignment.settings');
+    $enabled_types = $config->get('enabled_content_types') ?: [];
+
+    if (in_array($node->bundle(), $enabled_types)) {
+      $workflow_status = $node->hasField('field_workflow_status')
+        ? $node->get('field_workflow_status')->value
+        : NULL;
+
+      // Increment minor version only during active workflow (not re-edit initiation).
+      if ($workflow_status === 'in_workflow') {
+        $minor = (int) $node->get('field_version_minor')->value;
+        $node->set('field_version_minor', $minor + 1);
+      }
+
+      // Set initial version on first save if not set.
+      if (!$node->get('field_version_major')->value) {
+        $node->set('field_version_major', 1);
+        $node->set('field_version_minor', 0);
+      }
+    }
+  }
+
   if (!$node->hasField('field_workflow_list')) {
     return;
   }

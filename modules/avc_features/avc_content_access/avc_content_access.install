@@ -1,0 +1,176 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the avc_content_access module.
+ */
+
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\taxonomy\Entity\Term;
+
+/**
+ * Implements hook_install().
+ *
+ * Adds access control fields to the destination_locations vocabulary and
+ * updates existing destination terms with default values.
+ */
+function avc_content_access_install() {
+  _avc_content_access_create_taxonomy_fields();
+  _avc_content_access_update_default_terms();
+}
+
+/**
+ * Create taxonomy fields for destination access control.
+ */
+function _avc_content_access_create_taxonomy_fields() {
+  $fields = [
+    'field_access_level' => [
+      'type' => 'list_string',
+      'label' => 'Access Level',
+      'description' => 'Who can access content at this destination.',
+      'settings' => [
+        'allowed_values' => [
+          'public' => 'Public (anyone)',
+          'authenticated' => 'Authenticated (logged in users)',
+          'group' => 'Group (specific group members)',
+          'private' => 'Private (author and admins only)',
+        ],
+      ],
+      'default_value' => [['value' => 'authenticated']],
+    ],
+    'field_access_groups' => [
+      'type' => 'entity_reference',
+      'label' => 'Access Groups',
+      'description' => 'Groups whose members can access content at this destination.',
+      'cardinality' => -1,
+      'settings' => [
+        'target_type' => 'group',
+      ],
+    ],
+    'field_file_scheme' => [
+      'type' => 'list_string',
+      'label' => 'File Storage Scheme',
+      'description' => 'Where files should be stored for content at this destination.',
+      'settings' => [
+        'allowed_values' => [
+          'public://' => 'Public (public://)',
+          'private://' => 'Private (private://)',
+        ],
+      ],
+      'default_value' => [['value' => 'public://']],
+    ],
+    'field_url_pattern' => [
+      'type' => 'string',
+      'label' => 'URL Pattern',
+      'description' => 'URL pattern for content at this destination (e.g., /public/documents).',
+      'settings' => [
+        'max_length' => 255,
+      ],
+    ],
+    'field_auto_publish' => [
+      'type' => 'boolean',
+      'label' => 'Auto-publish',
+      'description' => 'Automatically publish content when it reaches this destination.',
+      'default_value' => [['value' => 0]],
+    ],
+  ];
+
+  foreach ($fields as $field_name => $field_info) {
+    // Create field storage if it doesn't exist.
+    if (!FieldStorageConfig::loadByName('taxonomy_term', $field_name)) {
+      $storage_config = [
+        'field_name' => $field_name,
+        'entity_type' => 'taxonomy_term',
+        'type' => $field_info['type'],
+      ];
+      if (isset($field_info['cardinality'])) {
+        $storage_config['cardinality'] = $field_info['cardinality'];
+      }
+      if (isset($field_info['settings'])) {
+        $storage_config['settings'] = $field_info['settings'];
+      }
+      FieldStorageConfig::create($storage_config)->save();
+    }
+
+    // Create field instance if it doesn't exist.
+    if (!FieldConfig::loadByName('taxonomy_term', 'destination_locations', $field_name)) {
+      $instance_config = [
+        'field_name' => $field_name,
+        'entity_type' => 'taxonomy_term',
+        'bundle' => 'destination_locations',
+        'label' => $field_info['label'],
+        'description' => $field_info['description'],
+      ];
+      if (isset($field_info['default_value'])) {
+        $instance_config['default_value'] = $field_info['default_value'];
+      }
+      FieldConfig::create($instance_config)->save();
+    }
+  }
+}
+
+/**
+ * Update existing Public and Private terms with access control values.
+ */
+function _avc_content_access_update_default_terms() {
+  $term_storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+
+  // Update "Public" term.
+  $public_terms = $term_storage->loadByProperties([
+    'vid' => 'destination_locations',
+    'name' => 'Public',
+  ]);
+  if ($public_term = reset($public_terms)) {
+    $public_term->set('field_access_level', 'public');
+    $public_term->set('field_file_scheme', 'public://');
+    $public_term->set('field_url_pattern', '/public/documents/{title}');
+    $public_term->set('field_auto_publish', 1);
+    $public_term->save();
+  }
+
+  // Update "Private" term.
+  $private_terms = $term_storage->loadByProperties([
+    'vid' => 'destination_locations',
+    'name' => 'Private',
+  ]);
+  if ($private_term = reset($private_terms)) {
+    $private_term->set('field_access_level', 'private');
+    $private_term->set('field_file_scheme', 'private://');
+    $private_term->set('field_url_pattern', '/node/{nid}');
+    $private_term->set('field_auto_publish', 0);
+    $private_term->save();
+  }
+
+  // Create additional default terms.
+  $new_terms = [
+    [
+      'name' => 'Member Portal',
+      'field_access_level' => 'authenticated',
+      'field_file_scheme' => 'private://',
+      'field_url_pattern' => '/members/documents/{title}',
+      'field_auto_publish' => 1,
+    ],
+  ];
+
+  foreach ($new_terms as $term_data) {
+    $existing = $term_storage->loadByProperties([
+      'vid' => 'destination_locations',
+      'name' => $term_data['name'],
+    ]);
+    if (empty($existing)) {
+      $term = Term::create([
+        'vid' => 'destination_locations',
+        'name' => $term_data['name'],
+      ]);
+      foreach ($term_data as $field => $value) {
+        if ($field !== 'name' && $term->hasField($field)) {
+          $term->set($field, $value);
+        }
+      }
+      $term->save();
+    }
+  }
+
+  \Drupal::messenger()->addStatus(t('Destination access control fields and default terms created.'));
+}

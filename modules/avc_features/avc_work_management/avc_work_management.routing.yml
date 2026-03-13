@@ -26,3 +26,28 @@ avc_work_management.claim_task:
     parameters:
       workflow_task:
         type: entity:workflow_task
+
+# Phase 3: Time-limited claiming routes
+avc_work_management.extend_claim:
+  path: '/my-work/extend/{workflow_task}'
+  defaults:
+    _form: '\Drupal\avc_work_management\Form\ExtendClaimForm'
+    _title: 'Extend Claim'
+  requirements:
+    _permission: 'claim workflow tasks'
+
+avc_work_management.release_task:
+  path: '/my-work/release/{workflow_task}'
+  defaults:
+    _form: '\Drupal\avc_work_management\Form\ReleaseTaskForm'
+    _title: 'Release Task'
+  requirements:
+    _permission: 'claim workflow tasks'
+
+avc_work_management.admin_force_release:
+  path: '/admin/workflow-task/{workflow_task}/force-release'
+  defaults:
+    _form: '\Drupal\avc_work_management\Form\AdminForceReleaseForm'
+    _title: 'Force Release Task'
+  requirements:
+    _permission: 'administer workflow tasks'

@@ -1,0 +1,9 @@
+name: 'AVC Content Access'
+type: module
+description: 'Provides destination-based access control for completed workflow content.'
+package: AVC Features
+core_version_requirement: ^10
+dependencies:
+  - drupal:node
+  - drupal:taxonomy
+  - avc:workflow_assignment

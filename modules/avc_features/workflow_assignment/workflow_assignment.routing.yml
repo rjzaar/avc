@@ -225,3 +225,30 @@ entity.workflow_task.delete_form:
     parameters:
       workflow_task:
         type: entity:workflow_task
+
+# Phase 2: Versioning routes
+workflow_assignment.version_history:
+  path: '/node/{node}/versions'
+  defaults:
+    _controller: '\Drupal\workflow_assignment\Controller\VersionHistoryController::history'
+    _title_callback: '\Drupal\workflow_assignment\Controller\VersionHistoryController::title'
+  requirements:
+    _permission: 'view workflow list assignments'
+    node: \d+
+  options:
+    parameters:
+      node:
+        type: entity:node
+
+workflow_assignment.re_edit:
+  path: '/node/{node}/reedit'
+  defaults:
+    _form: '\Drupal\workflow_assignment\Form\ReEditWorkflowForm'
+    _title: 'Re-Edit Content'
+  requirements:
+    _permission: 'create workflow tasks'
+    node: \d+
+  options:
+    parameters:
+      node:
+        type: entity:node

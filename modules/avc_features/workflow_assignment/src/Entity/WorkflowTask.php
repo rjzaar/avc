@@ -372,6 +372,70 @@ class WorkflowTask extends ContentEntityBase {
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
+    // --- Phase 2: Versioning fields ---
+
+    // Node revision ID when this task was created.
+    $fields['node_vid'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Node Revision'))
+      ->setDescription(t('The node revision ID when this task was created.'))
+      ->setRevisionable(TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    // Workflow cycle number.
+    $fields['workflow_cycle'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Workflow Cycle'))
+      ->setDescription(t('Which version cycle this task belongs to.'))
+      ->setRevisionable(TRUE)
+      ->setDefaultValue(1)
+      ->setDisplayConfigurable('view', TRUE);
+
+    // Approved node revision ID.
+    $fields['approved_vid'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Approved Revision'))
+      ->setDescription(t('The node revision that was approved by this task.'))
+      ->setRevisionable(TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    // --- Phase 3: Time-limited claiming fields ---
+
+    // Timestamp when the task was claimed.
+    $fields['claimed_at'] = BaseFieldDefinition::create('timestamp')
+      ->setLabel(t('Claimed At'))
+      ->setDescription(t('The time when this task was claimed by a user.'))
+      ->setRevisionable(TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    // Timestamp when the claim expires.
+    $fields['claim_expires'] = BaseFieldDefinition::create('timestamp')
+      ->setLabel(t('Claim Expires'))
+      ->setDescription(t('The time when the claim on this task expires.'))
+      ->setRevisionable(TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    // Original group (stored when claimed, used for release).
+    $fields['original_group'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Original Group'))
+      ->setDescription(t('The group this task was originally assigned to before being claimed.'))
+      ->setRevisionable(TRUE)
+      ->setSetting('target_type', 'group')
+      ->setDisplayConfigurable('view', TRUE);
+
+    // Number of times the claim has been extended.
+    $fields['extension_count'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Extension Count'))
+      ->setDescription(t('Number of times this claim has been extended.'))
+      ->setRevisionable(TRUE)
+      ->setDefaultValue(0)
+      ->setDisplayConfigurable('view', TRUE);
+
+    // Whether the expiry warning has been sent.
+    $fields['expiry_warning_sent'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(t('Expiry Warning Sent'))
+      ->setDescription(t('Whether an expiry warning has been sent for this claim.'))
+      ->setRevisionable(TRUE)
+      ->setDefaultValue(FALSE)
+      ->setDisplayConfigurable('view', TRUE);
+
     // Created timestamp.
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Created'))

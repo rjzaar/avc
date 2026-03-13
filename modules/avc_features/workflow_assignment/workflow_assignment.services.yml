@@ -32,3 +32,10 @@ services:
     arguments:
       - '@workflow_assignment.participant_resolver'
       - '@config.factory'
+
+  workflow_assignment.re_edit_workflow:
+    class: Drupal\workflow_assignment\Service\ReEditWorkflowService
+    arguments:
+      - '@entity_type.manager'
+      - '@current_user'
+      - '@logger.factory'

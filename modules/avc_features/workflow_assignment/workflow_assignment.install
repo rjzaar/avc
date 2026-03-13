@@ -322,6 +322,43 @@ function workflow_assignment_update_9006() {
 }
 
 /**
+ * Add versioning and time-limited claiming fields to workflow_task entity.
+ */
+function workflow_assignment_update_9008() {
+  $update_manager = \Drupal::entityDefinitionUpdateManager();
+  $entity_type = \Drupal::entityTypeManager()->getDefinition('workflow_task');
+
+  // Get the full field definitions from the entity class.
+  $fields = \Drupal\workflow_assignment\Entity\WorkflowTask::baseFieldDefinitions($entity_type);
+
+  $new_fields = [
+    'node_vid', 'workflow_cycle', 'approved_vid',
+    'claimed_at', 'claim_expires', 'original_group',
+    'extension_count', 'expiry_warning_sent',
+  ];
+
+  $installed = 0;
+  foreach ($new_fields as $field_name) {
+    if (isset($fields[$field_name])) {
+      try {
+        $update_manager->installFieldStorageDefinition(
+          $field_name,
+          'workflow_task',
+          'workflow_assignment',
+          $fields[$field_name]
+        );
+        $installed++;
+      }
+      catch (\Exception $e) {
+        // Field already exists.
+      }
+    }
+  }
+
+  return t('Installed @count new fields on workflow_task entity.', ['@count' => $installed]);
+}
+
+/**
  * Install the workflow_task content entity type.
  */
 function workflow_assignment_update_9007() {

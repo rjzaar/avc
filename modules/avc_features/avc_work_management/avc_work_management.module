@@ -8,6 +8,18 @@
 use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
+ * Implements hook_cron().
+ *
+ * Process expired claims and send expiry warnings.
+ */
+function avc_work_management_cron() {
+  /** @var \Drupal\avc_work_management\Service\ClaimExpirationService $service */
+  $service = \Drupal::service('avc_work_management.claim_expiration');
+  $service->processExpiredClaims();
+  $service->sendExpiryWarnings();
+}
+
+/**
  * Implements hook_help().
  */
 function avc_work_management_help($route_name, RouteMatchInterface $route_match) {

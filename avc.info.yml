@@ -62,6 +62,7 @@ install:
   - avc:workflow_assignment
   - avc:avc_work_management
   - avc:avc_email_reply
+  - avc:avc_content_access
   - avc:avc_error_report
   # Contrib
   - ultimate_cron:ultimate_cron

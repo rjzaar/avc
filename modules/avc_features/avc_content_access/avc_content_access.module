@@ -1,0 +1,81 @@
+<?php
+
+/**
+ * @file
+ * AVC Content Access module.
+ *
+ * Provides destination-based access control for completed workflow content.
+ */
+
+use Drupal\avc_content_access\EventSubscriber\WorkflowCompletionSubscriber;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\node\NodeInterface;
+
+/**
+ * Implements hook_node_access().
+ *
+ * Applies destination-based access control for content that has completed
+ * its workflow and been assigned to a destination.
+ */
+function avc_content_access_node_access(NodeInterface $node, $operation, AccountInterface $account) {
+  if ($operation !== 'view') {
+    return AccessResult::neutral();
+  }
+
+  // Bypass permission.
+  if ($account->hasPermission('bypass destination access')) {
+    return AccessResult::neutral()
+      ->addCacheContexts(['user.permissions']);
+  }
+
+  /** @var \Drupal\avc_content_access\Access\DestinationAccessManager $manager */
+  $manager = \Drupal::service('avc_content_access.destination_access_manager');
+
+  return $manager->checkAccess($node, $operation, $account);
+}
+
+/**
+ * Implements hook_file_download().
+ *
+ * Controls access to private files based on the destination access level
+ * of the parent node.
+ */
+function avc_content_access_file_download($uri) {
+  /** @var \Drupal\avc_content_access\Service\FileAccessService $service */
+  $service = \Drupal::service('avc_content_access.file_access');
+  return $service->checkFileAccess($uri, \Drupal::currentUser());
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update() for workflow_task.
+ *
+ * When a destination-type task is marked as completed, queue file migration
+ * to the destination's file scheme.
+ */
+function avc_content_access_workflow_task_update(EntityInterface $entity) {
+  // Check if task just changed to 'completed'.
+  if (!isset($entity->original)) {
+    return;
+  }
+
+  $old_status = $entity->original->get('status')->value;
+  $new_status = $entity->get('status')->value;
+
+  if ($old_status === $new_status || $new_status !== 'completed') {
+    return;
+  }
+
+  // Only process destination-type tasks.
+  if ($entity->get('assigned_type')->value !== 'destination') {
+    return;
+  }
+
+  $node_id = $entity->get('node_id')->target_id;
+  $term_id = $entity->get('assigned_destination')->target_id;
+
+  if ($node_id && $term_id) {
+    WorkflowCompletionSubscriber::queueMigration($node_id, $term_id);
+  }
+}

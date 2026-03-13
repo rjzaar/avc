@@ -21,3 +21,22 @@ avc_work_management.settings:
     display:
       type: mapping
       label: 'Display options'
+    claim_settings:
+      type: mapping
+      label: 'Claim settings'
+      mapping:
+        default_claim_duration:
+          type: integer
+          label: 'Default claim duration (hours)'
+        max_extensions:
+          type: integer
+          label: 'Maximum number of extensions'
+        extension_duration:
+          type: integer
+          label: 'Extension duration (hours)'
+        warning_threshold:
+          type: integer
+          label: 'Warning threshold (hours before expiry)'
+        allow_self_extension:
+          type: boolean
+          label: 'Allow users to extend their own claims'

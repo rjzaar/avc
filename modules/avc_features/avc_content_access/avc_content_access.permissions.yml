@@ -1,0 +1,9 @@
+administer content access:
+  title: 'Administer content access settings'
+  description: 'Manage destination-based access control configuration.'
+  restrict access: true
+
+bypass destination access:
+  title: 'Bypass destination access control'
+  description: 'Access all content regardless of destination restrictions.'
+  restrict access: true

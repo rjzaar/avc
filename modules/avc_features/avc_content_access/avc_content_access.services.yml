@@ -1,0 +1,28 @@
+services:
+  avc_content_access.destination_access_manager:
+    class: Drupal\avc_content_access\Access\DestinationAccessManager
+    arguments:
+      - '@entity_type.manager'
+      - '@config.factory'
+
+  avc_content_access.file_access:
+    class: Drupal\avc_content_access\Service\FileAccessService
+    arguments:
+      - '@entity_type.manager'
+      - '@current_user'
+
+  avc_content_access.file_migration:
+    class: Drupal\avc_content_access\Service\FileMigrationService
+    arguments:
+      - '@entity_type.manager'
+      - '@file_system'
+      - '@logger.factory'
+
+  avc_content_access.workflow_completion_subscriber:
+    class: Drupal\avc_content_access\EventSubscriber\WorkflowCompletionSubscriber
+    arguments:
+      - '@avc_content_access.file_migration'
+      - '@entity_type.manager'
+      - '@logger.factory'
+    tags:
+      - { name: event_subscriber }

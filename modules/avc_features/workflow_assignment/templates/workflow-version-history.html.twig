@@ -1,0 +1,69 @@
+{#
+/**
+ * @file
+ * Template for version history display.
+ *
+ * Variables:
+ * - node: The node entity.
+ * - versions: Array of version data (version, revision_id, date, author, log, current).
+ * - cycles: Array of workflow cycles, each containing task arrays.
+ */
+#}
+<div class="workflow-version-history">
+  <h3>{{ 'Workflow Cycles'|t }}</h3>
+  {% if cycles %}
+    {% for cycle_num, tasks in cycles %}
+      <div class="workflow-cycle">
+        <h4>{{ 'Cycle @num'|t({'@num': cycle_num}) }}</h4>
+        <table class="workflow-cycle-tasks">
+          <thead>
+            <tr>
+              <th>{{ 'Task'|t }}</th>
+              <th>{{ 'Type'|t }}</th>
+              <th>{{ 'Assigned To'|t }}</th>
+              <th>{{ 'Status'|t }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for task in tasks %}
+              <tr class="task-status--{{ task.status }}">
+                <td>{{ task.title }}</td>
+                <td>{{ task.assigned_type }}</td>
+                <td>{{ task.assigned_label }}</td>
+                <td>{{ task.status }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>{{ 'No workflow cycles found.'|t }}</p>
+  {% endif %}
+
+  <h3>{{ 'Revision History'|t }}</h3>
+  {% if versions %}
+    <table class="version-history-table">
+      <thead>
+        <tr>
+          <th>{{ 'Version'|t }}</th>
+          <th>{{ 'Date'|t }}</th>
+          <th>{{ 'Author'|t }}</th>
+          <th>{{ 'Log Message'|t }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for version in versions %}
+          <tr class="{{ version.current ? 'version--current' : '' }}">
+            <td>{{ version.version }}{{ version.current ? ' (current)' : '' }}</td>
+            <td>{{ version.date }}</td>
+            <td>{{ version.author }}</td>
+            <td>{{ version.log }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>{{ 'No version history available.'|t }}</p>
+  {% endif %}
+</div>

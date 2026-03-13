@@ -14,3 +14,13 @@ services:
       - '@current_user'
       - '@datetime.time'
       - '@logger.factory'
+      - '@config.factory'
+
+  avc_work_management.claim_expiration:
+    class: Drupal\avc_work_management\Service\ClaimExpirationService
+    arguments:
+      - '@entity_type.manager'
+      - '@avc_work_management.task_action'
+      - '@datetime.time'
+      - '@logger.factory'
+      - '@config.factory'

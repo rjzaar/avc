@@ -46,3 +46,11 @@ display:
   show_due_dates: true
   show_content_type_icon: true
   date_format: 'M j'
+
+# Claim settings (Phase 3)
+claim_settings:
+  default_claim_duration: 24
+  max_extensions: 2
+  extension_duration: 24
+  warning_threshold: 4
+  allow_self_extension: true
